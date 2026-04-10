@@ -21,14 +21,14 @@ The proof combines three main ingredients:
 
 The final theorem follows by combining these three components.
 -/
-import RequestProject.FourColor.Hypermap
-import RequestProject.FourColor.Geometry
-import RequestProject.FourColor.Coloring
-import RequestProject.FourColor.Cube
-import RequestProject.FourColor.Combinatorial4ct
-import RequestProject.FourColor.Discretize
-import RequestProject.FourColor.Finitize
-import RequestProject.FourColor.RealPlane
+import FourColor.Hypermap
+import FourColor.Geometry
+import FourColor.Coloring
+import FourColor.Cube
+import FourColor.Combinatorial4ct
+import FourColor.Discretize
+import FourColor.Finitize
+import FourColor.RealPlane
 
 set_option maxHeartbeats 400000
 

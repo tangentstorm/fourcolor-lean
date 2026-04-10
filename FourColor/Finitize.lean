@@ -13,7 +13,7 @@ define a canonical "prefix coloring" for each finite approximation
 that is lexicographically minimal among extensible colorings. The
 limit of this chain is the desired global coloring.
 -/
-import RequestProject.FourColor.RealPlane
+import FourColor.RealPlane
 
 set_option maxHeartbeats 400000
 

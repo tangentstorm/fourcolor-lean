@@ -44,4 +44,4 @@ The key definitions and theorem statements faithfully mirror the original
 Coq formalization.
 -/
 
-import RequestProject.FourColor.FourColor
+import FourColor.FourColor

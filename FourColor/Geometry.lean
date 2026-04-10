@@ -5,7 +5,7 @@ Lean 4 port of the Four Color Theorem formalization.
 The geometrical interpretation of hypermap: bridgeless, plain, cubic,
 and related properties used throughout the Four Color Theorem proof.
 -/
-import RequestProject.FourColor.Hypermap
+import FourColor.Hypermap
 
 set_option maxHeartbeats 400000
 

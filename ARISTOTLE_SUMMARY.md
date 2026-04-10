@@ -43,12 +43,12 @@ All remaining sorries are deep mathematical results corresponding to thousands o
 7. **Discretization** (1): Converting plane maps to hypermaps
 8. **Compactness** (1): Extension from finite to arbitrary maps
 
-See `RequestProject/FourColor/README.md` for a detailed breakdown.
+See `FourColor/README.md` for a detailed breakdown.
 
 # Summary of changes for run faeb2760-e3cd-41d5-bda3-5e503bac2667
 ## Four Color Theorem — Coq to Lean 4 Port
 
-I've created a structured Lean 4 port of the Gonthier et al. formal proof of the Four Color Theorem (originally ~45,000 lines of Coq across 119 files). The port is in `RequestProject/FourColor/` with 14 Lean files mirroring the original Coq structure. The entire project builds successfully.
+I've created a structured Lean 4 port of the Gonthier et al. formal proof of the Four Color Theorem (originally ~45,000 lines of Coq across 119 files). The port is in `FourColor/` with 14 Lean files mirroring the original Coq structure. The entire project builds successfully.
 
 ### Files Created
 
@@ -86,4 +86,4 @@ The remaining `sorry`s correspond to the deep mathematical content of the proof:
 4. **Discretization** and compactness arguments
 5. **Genus/Euler formula** properties
 
-See `RequestProject/FourColor/README.md` for a detailed breakdown with architecture correspondence to the original Coq files.
+See `FourColor/README.md` for a detailed breakdown with architecture correspondence to the original Coq files.

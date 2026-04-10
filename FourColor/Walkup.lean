@@ -16,7 +16,7 @@ In the Coq formalization:
   WalkupN = WalkupE (mirror G) z
   WalkupF = WalkupE (dual G) z
 -/
-import RequestProject.FourColor.Hypermap
+import FourColor.Hypermap
 
 set_option maxHeartbeats 1600000
 

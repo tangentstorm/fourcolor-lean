@@ -12,10 +12,10 @@ The discrete approximation is constructed in five steps:
 4. Construct matte approximations of regions meeting all border rectangles.
 5. Construct a hypermap from the mattes using the gridmap construction.
 -/
-import RequestProject.FourColor.Hypermap
-import RequestProject.FourColor.Geometry
-import RequestProject.FourColor.Coloring
-import RequestProject.FourColor.RealPlane
+import FourColor.Hypermap
+import FourColor.Geometry
+import FourColor.Coloring
+import FourColor.RealPlane
 
 set_option maxHeartbeats 400000
 

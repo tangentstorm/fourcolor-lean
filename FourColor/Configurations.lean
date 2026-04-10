@@ -9,9 +9,9 @@ In the Coq version, each configuration is encoded as a compact data structure
 This file defines the configuration infrastructure and states the key
 reducibility results.
 -/
-import RequestProject.FourColor.Hypermap
-import RequestProject.FourColor.Geometry
-import RequestProject.FourColor.Coloring
+import FourColor.Hypermap
+import FourColor.Geometry
+import FourColor.Coloring
 
 set_option maxHeartbeats 400000
 

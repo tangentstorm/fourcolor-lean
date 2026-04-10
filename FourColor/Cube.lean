@@ -9,9 +9,9 @@ only if the original is, and preserves planarity and bridgelessness.
 Each dart in G splits into six darts in cube G; there is a face in
 cube G for each face, node, and edge in G.
 -/
-import RequestProject.FourColor.Hypermap
-import RequestProject.FourColor.Geometry
-import RequestProject.FourColor.Coloring
+import FourColor.Hypermap
+import FourColor.Geometry
+import FourColor.Coloring
 
 set_option maxHeartbeats 400000
 

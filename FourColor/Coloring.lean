@@ -6,9 +6,9 @@ Hypermap and graph colorings, colorable maps, ring traces, valid contracts,
 and the definition of the special maps used in the proof: minimal counter
 example, C-reducible, and embeddable.
 -/
-import RequestProject.FourColor.Hypermap
-import RequestProject.FourColor.Color
-import RequestProject.FourColor.Geometry
+import FourColor.Hypermap
+import FourColor.Color
+import FourColor.Geometry
 
 set_option maxHeartbeats 400000
 

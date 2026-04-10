@@ -8,8 +8,8 @@ characterization of planarity (no Moebius paths).
 
 The proof uses induction on the number of darts via Walkup transforms.
 -/
-import RequestProject.FourColor.Hypermap
-import RequestProject.FourColor.Walkup
+import FourColor.Hypermap
+import FourColor.Walkup
 
 set_option maxHeartbeats 400000
 

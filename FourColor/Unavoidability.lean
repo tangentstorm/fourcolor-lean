@@ -12,10 +12,10 @@ we use the discharge procedure to show that every vertex must be adjacent to
 one of the configurations, contradicting the assumption that none of them
 can appear (since they are all reducible).
 -/
-import RequestProject.FourColor.Hypermap
-import RequestProject.FourColor.Geometry
-import RequestProject.FourColor.Coloring
-import RequestProject.FourColor.Configurations
+import FourColor.Hypermap
+import FourColor.Geometry
+import FourColor.Coloring
+import FourColor.Configurations
 
 set_option maxHeartbeats 400000
 

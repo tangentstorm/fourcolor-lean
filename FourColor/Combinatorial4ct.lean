@@ -9,12 +9,12 @@ hypermaps. This combines:
   3. Unavoidability (no minimal counter-example exists)
   4. Reducibility (all 633 configurations are C-reducible)
 -/
-import RequestProject.FourColor.Hypermap
-import RequestProject.FourColor.Geometry
-import RequestProject.FourColor.Coloring
-import RequestProject.FourColor.Cube
-import RequestProject.FourColor.Configurations
-import RequestProject.FourColor.Unavoidability
+import FourColor.Hypermap
+import FourColor.Geometry
+import FourColor.Coloring
+import FourColor.Cube
+import FourColor.Configurations
+import FourColor.Unavoidability
 
 set_option maxHeartbeats 800000
 
