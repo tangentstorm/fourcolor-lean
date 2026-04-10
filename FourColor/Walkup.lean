@@ -66,28 +66,16 @@ noncomputable def skipEdge1 (x : G.Dart) : G.Dart :=
 theorem skipEdge1_ne (x : G.Dart) (hx : x ≠ z) : skipEdge1 G z x ≠ z := by
   unfold skipEdge1
   split_ifs with h1 h2 h3
-  · -- Case ez = z: result is edge x. edge x = z would give x = z by injectivity.
-    intro h; exact hx (edge_injective (h.trans h1.symm))
-  · -- Case face(edge(x)) = z, edge(z) ≠ z: result is edge(z) ≠ z.
-    exact h1
-  · -- Case edge(x) = z, edge(z) ≠ z, face(edge(x)) ≠ z: result is edge(node(z)).
-    -- Suppose edge(node(z)) = z.
-    intro henz
-    -- nodeK(z): face(edge(node(z))) = z, so face(z) = z (since edge(node(z)) = z)
+  · intro h; exact hx (edge_injective (h.trans h1.symm))
+  · exact h1
+  · intro henz
     have hfz : G.face z = z := by
       have := nodeK (z : G.Dart); rw [henz] at this; exact this
-    -- face(edge(x)) = face(z) = z, contradicting h2
     exact h2 (by rw [h3, hfz])
-  · -- Case edge(x) ≠ z: result is edge(x) ≠ z.
-    exact h3
+  · exact h3
 
 /-! ## Walkup transforms -/
 
-/-
-WalkupE: the hypermap obtained by removing dart z from G.
-    Uses skipEdge1 for edge, and skip1 for node and face.
-    Requires card ≥ 2 for nonemptiness.
--/
 noncomputable def walkupE (h2 : Fintype.card G.Dart ≥ 2) : Hypermap where
   Dart := {x : G.Dart // x ≠ z}
   instFintype := Subtype.fintype _
@@ -107,13 +95,11 @@ noncomputable def walkupE (h2 : Fintype.card G.Dart ≥ 2) : Hypermap where
     all_goals have := G.edgeK a; have := G.faceK a; have := G.nodeK a; split_ifs at * <;> simp_all +decide [ Function.Injective.eq_iff G.edge_injective, Function.Injective.eq_iff G.node_injective, Function.Injective.eq_iff G.face_injective ] ;
     all_goals have := G.edgeK z; have := G.faceK z; have := G.nodeK z; simp_all +decide [ Function.Injective.eq_iff G.edge_injective, Function.Injective.eq_iff G.node_injective, Function.Injective.eq_iff G.face_injective ] ;
 
-/-- WalkupN: remove z, adjusting the node permutation specially.
-    Defined as WalkupE of the mirror hypermap. -/
+/-- WalkupN: remove z, adjusting the node permutation specially. -/
 noncomputable def walkupN (h2 : Fintype.card G.Dart ≥ 2) : Hypermap :=
   walkupE (mirror G) z (by simp [mirror]; exact h2)
 
-/-- WalkupF: remove z, adjusting the face permutation specially.
-    Defined as WalkupE of the dual hypermap. -/
+/-- WalkupF: remove z, adjusting the face permutation specially. -/
 noncomputable def walkupF (h2 : Fintype.card G.Dart ≥ 2) : Hypermap :=
   walkupE (dual G) z (by simp [dual]; exact h2)
 
@@ -125,13 +111,75 @@ theorem card_walkupE (h2 : Fintype.card G.Dart ≥ 2) :
   simp only [walkupE]
   rw [Fintype.card_subtype_compl, Fintype.card_ofSubsingleton]
 
-/-- The Euler planarity condition is preserved by WalkupE. -/
-theorem planar_walkupE (h2 : Fintype.card G.Dart ≥ 2) (hP : Planar G)
-    (hg : ¬ glink G z z) :
-    Planar (walkupE G z h2) := by
+/-! ## Euler formula changes under WalkupE -/
+
+/-- The Euler formula components change in a controlled way under WalkupE.
+    There exist natural numbers a ≥ b such that:
+    - 2a + eulerLhs(G') = eulerLhs(G) + 1
+    - 2b + eulerRhs(G') = eulerRhs(G) + 1
+
+    The values of a and b depend on whether z has a self-loop (glink z z),
+    whether z and node(z) are edge-connected (cross_edge), and whether
+    removing z disconnects the glink component.
+
+    Corresponds to Euler_lhs_WalkupE and Euler_rhs_WalkupE in Coq's walkup.v. -/
+theorem walkupE_euler_components (h2 : Fintype.card G.Dart ≥ 2) :
+    ∃ a b : ℕ, a ≥ b ∧
+      2 * a + eulerLhs (walkupE G z h2) = eulerLhs G + 1 ∧
+      2 * b + eulerRhs (walkupE G z h2) = eulerRhs G + 1 := by
   sorry
 
-/-- The Jordan property is preserved by all Walkup transforms. -/
+/-! ## Genus monotonicity and even genus -/
+
+/-
+The genus does not increase when removing a dart via WalkupE.
+    Follows from the Euler component changes: genus G' ≤ genus G.
+-/
+theorem le_genus_WalkupE (h2 : Fintype.card G.Dart ≥ 2) :
+    genus (walkupE G z h2) ≤ genus G := by
+  obtain ⟨a, b, hab, hlhs, hrhs⟩ := walkupE_euler_components G z h2
+  unfold genus
+  -- From hlhs: eulerLhs G' = eulerLhs G + 1 - 2a
+  -- From hrhs: eulerRhs G' = eulerRhs G + 1 - 2b
+  -- With a ≥ b:
+  -- (eulerLhs G' - eulerRhs G')/2
+  -- = (eulerLhs G + 1 - 2a - eulerRhs G - 1 + 2b)/2
+  -- = (eulerLhs G - eulerRhs G - 2(a-b))/2
+  -- ≤ (eulerLhs G - eulerRhs G)/2
+  omega
+
+/-
+The even genus property is preserved from WalkupE to G.
+    If G' has even genus, then G has even genus.
+-/
+theorem even_genus_WalkupE (h2 : Fintype.card G.Dart ≥ 2) :
+    eulerLhs (walkupE G z h2) = 2 * genus (walkupE G z h2) + eulerRhs (walkupE G z h2) →
+    eulerLhs G = 2 * genus G + eulerRhs G := by
+  obtain ⟨a, b, hab, hlhs, hrhs⟩ := walkupE_euler_components G z h2
+  -- From hlhs: 2a + Lhs' = Lhs + 1
+  -- From hrhs: 2b + Rhs' = Rhs + 1
+  -- Assume: Lhs' = 2*genus' + Rhs' (even genus for G')
+  -- Then: Lhs + 1 = 2a + 2*genus' + Rhs' = 2a + 2*genus' + Rhs + 1 - 2b
+  -- So: Lhs = 2(a - b + genus') + Rhs
+  -- And genus G = (Lhs - Rhs)/2 = a - b + genus'
+  -- So: Lhs = 2*(a - b + genus') + Rhs = 2*genus G + Rhs ✓
+  unfold Hypermap.genus;
+  omega
+
+/-! ## Planarity and Jordan preservation -/
+
+/-- The Euler planarity condition is preserved by WalkupE.
+    Follows from le_genus_WalkupE: if genus G = 0 and genus G' ≤ genus G,
+    then genus G' = 0. -/
+theorem planar_walkupE (h2 : Fintype.card G.Dart ≥ 2) (hP : Planar G) :
+    Planar (walkupE G z h2) := by
+  unfold Planar at *
+  have hle := le_genus_WalkupE G z h2
+  omega
+
+/-- The Jordan property is preserved by all Walkup transforms.
+    Corresponds to `Jordan_WalkupE` in Coq's walkup.v (~170 lines).
+    The proof lifts Moebius paths from WalkupE back to G. -/
 theorem jordan_walkupE (h2 : Fintype.card G.Dart ≥ 2) (hJ : Jordan G) :
     Jordan (walkupE G z h2) := by
   sorry

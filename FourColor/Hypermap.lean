@@ -250,16 +250,11 @@ noncomputable def mirror (G : Hypermap) : Hypermap where
     convert Function.leftInverse_invFun G.node_bijective.injective _ using 1
     exact congr_arg _ (Function.leftInverse_invFun G.face_bijective.injective _)
 
-/-! ## Key planarity theorems (proved in Jordan.lean) -/
+/-! ## Key planarity theorems -/
 
-/-- The even genus property always holds (proved by Walkup induction). -/
-theorem even_genusP (G : Hypermap) : eulerLhs G = 2 * genus G + eulerRhs G := by
-  sorry
-
-/-
-The Euler inequality: rhs ≤ lhs.
--/
-theorem euler_le (G : Hypermap) : eulerRhs G ≤ eulerLhs G := by
-  grind +suggestions
+-- The even genus property (even_genusP) and Euler inequality (euler_le)
+-- are proved in Jordan.lean via Walkup induction.
+-- They are available as Hypermap.even_genusP and Hypermap.euler_le
+-- after importing FourColor.Jordan.
 
 end Hypermap

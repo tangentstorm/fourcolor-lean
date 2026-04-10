@@ -103,9 +103,227 @@ theorem cubic_cube (G : Hypermap) : Cubic (cube G) := by
   cases tag <;> simp +decide [ *, Hypermap.cube ];
   all_goals unfold Hypermap.cubeNode; simp +decide [ Hypermap.nodeK, Hypermap.faceK ] ;
 
+/-- The genus of the cube equals the genus of the original.
+    This is the key structural result about the cube construction.
+    Proved by computing the Euler formula components for cube G:
+    - |cube G| = 6|G|
+    - fcardEdge(cube G) = 3|G|  (since cube is plain)
+    - fcardNode(cube G) = 2|G|  (since cube is cubic)
+    - fcardFace(cube G) = fcardEdge G + fcardNode G + fcardFace G = eulerRhs G
+    - nComp(cube G) = nComp G
+    Corresponds to `genus_cube` in Coq's cube.v. -/
+theorem card_CubeTag : Fintype.card CubeTag = 6 := by decide
+
+theorem card_cube_dart (G : Hypermap) :
+    Fintype.card (cube G).Dart = 6 * Fintype.card G.Dart := by
+  simp [cube, Fintype.card_prod, card_CubeTag]
+
+/-
+In a plain hypermap where every edge orbit has exactly 2 elements,
+    the number of edge orbits equals half the number of darts.
+-/
+theorem fcardEdge_of_plain (G : Hypermap) (hP : Plain G) :
+    fcardEdge G = Fintype.card G.Dart / 2 := by
+  -- Each cycle in `edgePerm` has length exactly 2.
+  have h_cycle_length : ∀ c ∈ (edgePerm G).cycleFactorsFinset, c.support.card = 2 := by
+    intro c hc;
+    -- Since $c$ is a cycle in the edge permutation, and $G$ is plain, $c$ must be a 2-cycle.
+    have h_cycle_2 : c ^ 2 = 1 := by
+      have h_cycle_2 : G.edgePerm ^ 2 = 1 := by
+        ext x; simp +decide [ sq, hP ] ;
+        exact hP x |>.1;
+      simp_all +decide [ Equiv.Perm.ext_iff, sq ];
+      rw [ Equiv.Perm.mem_cycleFactorsFinset_iff ] at hc;
+      grind +suggestions;
+    have h_cycle_2 : ∀ {σ : Equiv.Perm G.Dart}, σ.IsCycle → σ ^ 2 = 1 → σ.support.card = 2 := by
+      intros σ hσ hσ_sq
+      have h_cycle_2 : σ.support.card ∣ 2 := by
+        have := hσ.orderOf;
+        exact this ▸ orderOf_dvd_of_pow_eq_one hσ_sq;
+      have := Nat.le_of_dvd ( by decide ) h_cycle_2; interval_cases _ : σ.support.card <;> simp_all +decide ;
+      obtain ⟨ x, hx ⟩ := Finset.card_eq_one.mp ‹_›; simp_all +decide [ Equiv.Perm.ext_iff ] ;
+      have := hσ_sq x; simp_all +decide [ sq, Equiv.Perm.ext_iff ] ;
+      simp_all +decide [ Finset.eq_singleton_iff_unique_mem ];
+      grind;
+    exact h_cycle_2 ( by rw [ Equiv.Perm.mem_cycleFactorsFinset_iff ] at hc; aesop ) ‹_›;
+  -- Since each cycle has length 2, the total number of darts is twice the number of cycles.
+  have h_total_darts : (Fintype.card G.Dart) = 2 * (edgePerm G).cycleFactorsFinset.card := by
+    have h_total_darts : ∑ c ∈ (edgePerm G).cycleFactorsFinset, c.support.card = Fintype.card G.Dart := by
+      convert Equiv.Perm.sum_cycleType G.edgePerm using 1;
+      exact congr_arg Finset.card ( by ext x; specialize hP x; aesop );
+    rw [ ← h_total_darts, Finset.sum_congr rfl h_cycle_length, Finset.sum_const, smul_eq_mul, mul_comm ];
+  have h_support : (edgePerm G).support = Finset.univ := by
+    ext x; simp [hP];
+    exact hP x |>.2;
+  unfold Hypermap.fcardEdge;
+  unfold numOrbits; aesop;
+
+/-
+In a cubic hypermap where every node orbit has exactly 3 elements,
+    the number of node orbits equals a third of the number of darts.
+-/
+theorem fcardNode_of_cubic (G : Hypermap) (hC : Cubic G) :
+    fcardNode G = Fintype.card G.Dart / 3 := by
+  unfold Hypermap.fcardNode Hypermap.numOrbits;
+  -- Since the node permutation is a product of disjoint 3-cycles covering all darts, each cycle has length exactly 3.
+  have h_node_cycle_length : ∀ c ∈ G.nodePerm.cycleType, c = 3 := by
+    intro c hc
+    have h_cycle_length : c ∣ 3 := by
+      have h_cycle_length : G.nodePerm ^ 3 = 1 := by
+        ext x; exact (by
+        exact hC x |>.1);
+      exact orderOf_dvd_iff_pow_eq_one.mpr h_cycle_length |> fun h => dvd_trans ( by simpa using Equiv.Perm.dvd_of_mem_cycleType hc ) h;
+    have := Nat.le_of_dvd ( by decide ) h_cycle_length; interval_cases c <;> simp_all +decide ;
+    simp_all +decide [ Equiv.Perm.mem_cycleType_iff ];
+    obtain ⟨ c, τ, h₁, h₂, h₃, h₄ ⟩ := hc; have := h₃.orderOf; simp_all +decide [ Equiv.Perm.Disjoint ] ;
+  have h_node_cycle_count : (G.nodePerm.cycleType.sum : ℕ) = 3 * G.nodePerm.cycleFactorsFinset.card := by
+    rw [ Multiset.eq_replicate_of_mem h_node_cycle_length ] ; norm_num ; ring;
+    rw [ Equiv.Perm.cycleType_def ];
+    simp +decide [ Function.comp ];
+  have h_node_support_card : G.nodePerm.support.card = Fintype.card G.Dart := by
+    refine' Finset.card_bij ( fun x hx => x ) _ _ _ <;> simp +decide [ hC ];
+    exact fun x => by simpa [ Hypermap.nodePerm ] using hC x |>.2.1;
+  have := Equiv.Perm.sum_cycleType G.nodePerm; aesop;
+
+/-- The number of face orbits in the cube equals the Euler rhs of G.
+    Face orbits decompose into three types:
+    - {CTn, CTen, CTf, CTnf} orbits correspond to face orbits of G
+    - {CTe} orbits correspond to edge orbits of G
+    - {CTfe} orbits correspond to node orbits of G -/
+theorem fcardFace_cube (G : Hypermap) :
+    fcardFace (cube G) = eulerRhs G := by
+  sorry
+
+/-
+Every dart (t, x) in cube G is glink-connected to (CTnf, x).
+    This is proved by exhibiting explicit glink paths for each tag.
+-/
+theorem cube_glink_to_CTnf (G : Hypermap) (t : CubeTag) (x : G.Dart) :
+    Relation.EqvGen (glink (cube G)) (t, x) (CubeTag.CTnf, x) := by
+  cases t;
+  all_goals unfold Hypermap.cube; simp +decide [ Hypermap.glink ];
+  exact Relation.EqvGen.trans _ _ _ ( Relation.EqvGen.rel _ _ ( Or.inr ( Or.inr rfl ) ) ) ( Relation.EqvGen.trans _ _ _ ( Relation.EqvGen.rel _ _ ( Or.inr ( Or.inr rfl ) ) ) ( Relation.EqvGen.rel _ _ ( Or.inr ( Or.inr rfl ) ) ) );
+  · exact Relation.EqvGen.trans _ _ _ ( Relation.EqvGen.rel _ _ ( Or.inr ( Or.inr rfl ) ) ) ( Relation.EqvGen.rel _ _ ( Or.inr ( Or.inr rfl ) ) );
+  · apply Relation.EqvGen.rel; simp [Hypermap.glink];
+    exact Or.inr <| Or.inr <| by unfold Hypermap.cubeFace; rfl;
+  · exact Relation.EqvGen.refl _;
+  · -- By definition of `cubeNode`, we have `cubeNode (CubeTag.CTe, x) = (CubeTag.CTf, x)`.
+    have h_cubeNode_CTe : G.cubeNode (CubeTag.CTe, x) = (CubeTag.CTf, x) := by
+      exact?;
+    exact Relation.EqvGen.trans _ _ _ ( Relation.EqvGen.rel _ _ ( Or.inr ( Or.inl h_cubeNode_CTe ) ) ) ( Relation.EqvGen.rel _ _ ( Or.inr ( Or.inr rfl ) ) );
+  · -- By definition of glink, we can connect (CTfe, x) to (CTn, x) via the edge function.
+    have h_edge : Relation.EqvGen G.cube.glink (CubeTag.CTfe, x) (CubeTag.CTn, x) := by
+      exact Relation.EqvGen.rel _ _ ( Or.inl rfl );
+    -- By definition of glink, we can connect (CTn, x) to (CTen, x) via the face function.
+    have h_face1 : Relation.EqvGen G.cube.glink (CubeTag.CTn, x) (CubeTag.CTen, x) := by
+      apply Relation.EqvGen.rel;
+      exact Or.inr <| Or.inr <| by rfl;
+    -- By definition of glink, we can connect (CTen, x) to (CTf, x) via the face function.
+    have h_face2 : Relation.EqvGen G.cube.glink (CubeTag.CTen, x) (CubeTag.CTf, x) := by
+      apply Relation.EqvGen.rel;
+      exact Or.inr <| Or.inr <| by rfl;
+    exact Relation.EqvGen.trans _ _ _ h_edge ( Relation.EqvGen.trans _ _ _ h_face1 ( Relation.EqvGen.trans _ _ _ h_face2 ( Relation.EqvGen.rel _ _ ( Or.inr ( Or.inr rfl ) ) ) ) )
+
+/-
+If x and y are glink-related in G, then (CTnf, x) and (CTnf, y)
+    are glink-related in cube G (via edge/node/face of cube).
+-/
+theorem cube_glink_lift (G : Hypermap) (x y : G.Dart) :
+    Relation.EqvGen (glink G) x y →
+    Relation.EqvGen (glink (cube G)) (CubeTag.CTnf, x) (CubeTag.CTnf, y) := by
+  intro h
+  induction' h with x y hxy ih1 ih2 ih3;
+  · obtain h | h | h := hxy;
+    · have h_chain : Relation.EqvGen G.cube.glink (CubeTag.CTnf, x) (CubeTag.CTen, x) := by
+        apply Relation.EqvGen.symm;
+        exact?;
+      have h_chain : Relation.EqvGen G.cube.glink (CubeTag.CTen, x) (CubeTag.CTnf, y) := by
+        apply Relation.EqvGen.rel;
+        exact Or.inl ( by aesop );
+      exact Relation.EqvGen.trans _ _ _ ‹_› ‹_›;
+    · have h_chain2 : Relation.EqvGen G.cube.glink (CubeTag.CTn, x) (CubeTag.CTen, y) := by
+        apply Relation.EqvGen.rel;
+        exact Or.inr <| Or.inl <| by aesop;
+      grind +suggestions;
+    · have h_cubeFace : G.cube.face (CubeTag.CTnf, x) = (CubeTag.CTn, y) := by
+        aesop;
+      have h_cube_glink_to_CTnf : Relation.EqvGen G.cube.glink (CubeTag.CTn, y) (CubeTag.CTnf, y) := by
+        grind +suggestions;
+      exact Relation.EqvGen.trans _ _ _ ( Relation.EqvGen.rel _ _ <| by tauto ) h_cube_glink_to_CTnf;
+  · exact Relation.EqvGen.refl _;
+  · exact Relation.EqvGen.symm _ _ ‹_›;
+  · exact Relation.EqvGen.trans _ _ _ ‹_› ‹_›
+
+/-
+The number of connected components is preserved by the cube construction.
+-/
+theorem nComp_cube (G : Hypermap) :
+    nComp (cube G) = nComp G := by
+  -- By definition of quotient, we need to show that each equivalence class in the cube's quotient maps to a unique equivalence class in G's quotient, and vice versa.
+  have h_bij : ∀ (x y : (CubeTag × G.Dart)), (Relation.EqvGen (glink (cube G)) x y) ↔ (Relation.EqvGen (glink G) x.2 y.2) := by
+    intro x y;
+    constructor;
+    · intro hxy
+      have h_glink : ∀ x y : CubeTag × G.Dart, glink (cube G) x y → Relation.EqvGen (glink G) x.2 y.2 := by
+        rintro ⟨ t₁, x₁ ⟩ ⟨ t₂, x₂ ⟩ ( h | h | h ) <;> simp_all +decide [ Hypermap.glink ];
+        · cases t₁ <;> cases t₂ <;> simp_all +decide [ Hypermap.cube ];
+          all_goals unfold Hypermap.cubeEdge at h; simp_all +decide [ Hypermap.glink ] ;
+          any_goals exact Relation.EqvGen.refl _;
+          · exact Relation.EqvGen.rel _ _ ( by tauto );
+          · apply Relation.EqvGen.trans;
+            exact Relation.EqvGen.rel _ _ ( Or.inr <| Or.inr <| by tauto );
+            exact Relation.EqvGen.rel _ _ ( Or.inr <| Or.inl <| by tauto );
+          · apply Relation.EqvGen.trans;
+            exact Relation.EqvGen.rel _ _ ( Or.inr <| Or.inr <| by tauto );
+            exact Relation.EqvGen.rel _ _ ( Or.inr <| Or.inl <| by tauto );
+          · exact Relation.EqvGen.rel _ _ ( by tauto );
+        · rcases t₁ with ( _ | _ | _ | _ | _ | _ ) <;> rcases t₂ with ( _ | _ | _ | _ | _ | _ ) <;> simp_all +decide [ Hypermap.cube ];
+          all_goals unfold Hypermap.cubeNode at h; simp_all +decide [ Hypermap.glink ] ;
+          any_goals exact Relation.EqvGen.refl _;
+          · exact Relation.EqvGen.rel _ _ ( by tauto );
+          · exact Relation.EqvGen.rel _ _ ( by tauto );
+          · apply Relation.EqvGen.trans;
+            exact Relation.EqvGen.rel _ _ ( Or.inr <| Or.inr <| by tauto );
+            exact Relation.EqvGen.rel _ _ ( Or.inr <| Or.inl <| by tauto );
+          · rw [ ← h ];
+            apply Relation.EqvGen.trans;
+            exact Relation.EqvGen.rel _ _ ( Or.inl rfl );
+            exact Relation.EqvGen.rel _ _ ( Or.inr <| Or.inr rfl );
+        · cases t₁ <;> cases t₂ <;> simp_all +decide [ Hypermap.cube ];
+          all_goals unfold Hypermap.cubeFace at h; simp_all +decide [ Hypermap.glink ] ;
+          any_goals exact Relation.EqvGen.refl _;
+          · exact Relation.EqvGen.rel _ _ ( by tauto );
+          · exact Relation.EqvGen.rel _ _ ( by tauto );
+          · exact Relation.EqvGen.rel _ _ ( by tauto );
+      induction hxy;
+      · exact h_glink _ _ ‹_›;
+      · exact Relation.EqvGen.refl _;
+      · exact?;
+      · exact Relation.EqvGen.trans _ _ _ ‹_› ‹_›;
+    · -- By definition of $cube$, we know that if $x.2$ and $y.2$ are related by $glink$ in $G$, then $x$ and $y$ are related by $glink$ in $cube G$.
+      have h_rel : ∀ (x y : G.Dart), Relation.EqvGen G.glink x y → Relation.EqvGen (cube G).glink (CubeTag.CTnf, x) (CubeTag.CTnf, y) := by
+        grind +suggestions
+      generalize_proofs at *; (
+      grind +suggestions)
+  generalize_proofs at *; (
+  convert Fintype.card_congr ?_ using 1;
+  refine' Equiv.ofBijective ( fun x => Quotient.map' ( fun y => y.2 ) ( fun y₁ y₂ hy => ?_ ) x ) ⟨ fun x y hxy => ?_, fun x => ?_ ⟩;
+  exact h_bij _ _ |>.1 hy;
+  · obtain ⟨ a, rfl ⟩ := Quotient.exists_rep x; obtain ⟨ b, rfl ⟩ := Quotient.exists_rep y; simp_all +decide [ Quotient.eq ] ;
+    exact h_bij _ _ |>.2 hxy;
+  · obtain ⟨ y, rfl ⟩ := Quotient.exists_rep x; exact ⟨ ⟦ ( CubeTag.CTnf, y ) ⟧, rfl ⟩ ;)
+
+theorem genus_cube (G : Hypermap) : genus (cube G) = genus G := by
+  unfold Hypermap.genus;
+  unfold Hypermap.eulerLhs Hypermap.eulerRhs;
+  rw [ fcardEdge_of_plain _ ( plain_cube G ), fcardNode_of_cubic _ ( cubic_cube G ), fcardFace_cube ];
+  rw [ nComp_cube, card_cube_dart ];
+  unfold Hypermap.eulerRhs; omega;
+
 /-- Planarity is preserved by the cube construction. -/
 theorem planar_cube (G : Hypermap) : Planar G ↔ Planar (cube G) := by
-  sorry
+  unfold Planar
+  rw [genus_cube]
 
 /-
 cface is symmetric on finite hypermaps: if face^n(x) = y, then face^m(y) = x for some m.
