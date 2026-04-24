@@ -243,21 +243,24 @@ noncomputable def dual (G : Hypermap) : Hypermap where
   edge := Function.invFun G.edge
   node := Function.invFun G.face
   face := Function.invFun G.node
-  edgeK := by
-    unfold invFun
-    intro x; split_ifs
-    all_goals rename_i h₁ h₂ h₃
-    all_goals
-      have := G.edge_surjective
-      have := G.node_surjective
-      have := G.face_surjective
-      simp_all +decide [Function.Surjective]
-    any_goals tauto
-    grind +suggestions
-    exact False.elim <| h₂ _ <| Classical.choose_spec <|
-      ‹∀ b : G.Dart, ∃ a : G.Dart, G.node a = b› _
-    exact False.elim <| h₁ _ <| Classical.choose_spec <|
-      ‹∀ b : G.Dart, ∃ a : G.Dart, G.edge a = b› _
+  edgeK := fun x => by
+    -- The goal is `invFun G.face (invFun G.node (invFun G.edge x)) = x`.
+    -- Let w abbreviate the LHS. Applying face/node/edge successively and
+    -- using `Function.rightInverse_invFun` on surjective permutations
+    -- yields `edge (node (face w)) = x`. But `faceK` says
+    -- `edge (node (face w)) = w`, so `w = x`.
+    set w := Function.invFun G.face (Function.invFun G.node (Function.invFun G.edge x))
+    have hE := Function.rightInverse_invFun G.edge_surjective
+    have hN := Function.rightInverse_invFun G.node_surjective
+    have hF := Function.rightInverse_invFun G.face_surjective
+    have h1 : G.edge (G.node (G.face w)) = x := by
+      show G.edge (G.node (G.face w)) = x
+      rw [show G.face w = Function.invFun G.node (Function.invFun G.edge x) from hF _,
+          show G.node (Function.invFun G.node (Function.invFun G.edge x)) =
+            Function.invFun G.edge x from hN _,
+          hE]
+    rw [faceK] at h1
+    exact h1
 
 /-- The mirror hypermap. -/
 noncomputable def mirror (G : Hypermap) : Hypermap where
