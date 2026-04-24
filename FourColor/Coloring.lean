@@ -9,6 +9,7 @@ example, C-reducible, and embeddable.
 import FourColor.Hypermap
 import FourColor.Color
 import FourColor.Geometry
+import FourColor.Chromogram
 
 set_option maxHeartbeats 400000
 
@@ -246,13 +247,14 @@ def ValidContract (r : List G.Dart) (cc : Finset G.Dart) : Prop :=
   (1 ≤ cc.card ∧ cc.card ≤ 4) ∧
   (cc.card = 4 → ∃ x, kernel G r x ∧ Triad G (insertE G cc.toList) x)
 
-/-- Kempe coclosure: every contract ring trace can be adjusted via
-    Kempe chains to a ring trace of a full coloring. Placeholder definition
-    — the Kempe-chain infrastructure (colseq, cdirect, kempe_chain) lives
-    in Coq's chromogram.v / kempe.v which are not yet ported.
-    Corresponds to Coq `Kempe_coclosure` from kempe.v. -/
--- TODO: Fill in once chromogram.v / kempe.v are ported to Lean.
-def KempeCoclosure (_r : List G.Dart) (_et : List Color) : Prop := True
+/-- Kempe coclosure of the ring-trace predicate at the edge-trace `et`:
+    every Kempe-closed superset of the ring-trace predicate that contains `et`
+    must intersect it. Delegates to `FourColor.Chromogram.KempeCoclosure`
+    applied to the ring-trace predicate of the *reversed* ring (matching
+    Coq's `ring_trace (rev r)` in the definition of `C_reducible`).
+    Corresponds to `Kempe_coclosure (ring_trace (rev r))` in coloring.v:472-473. -/
+def KempeCoclosure (r : List G.Dart) (et : List Color) : Prop :=
+  FourColor.Chromogram.KempeCoclosure (fun et' => RingTrace (G := G) r.reverse et') et
 
 /-- C-reducibility: assuming G is a configuration with ring r, G is
     C-reducible with contract cc if cc is valid and any contract ring trace
