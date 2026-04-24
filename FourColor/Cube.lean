@@ -416,6 +416,42 @@ private theorem cubeFace_iter_CTen (G : Hypermap) (x : G.Dart) (k : ℕ) :
   · aesop;
   · unfold Hypermap.cubeFace; aesop;
 
+/-- Face iteration from (CTn, x) follows the 4-periodic pattern, shifted
+    from CTen by one step. -/
+private theorem cubeFace_iter_CTn (G : Hypermap) (x : G.Dart) (k : ℕ) :
+    (cubeFace G)^[4 * k] (CubeTag.CTn, x) = (CubeTag.CTn, G.face^[k] x) := by
+  induction k generalizing x with
+  | zero => rfl
+  | succ k ih =>
+    rw [show 4 * (k + 1) = 4 * k + 4 from by ring, Function.iterate_add_apply]
+    simp only [Function.iterate_succ_apply', Function.iterate_zero, id, cubeFace]
+    rw [(Function.Commute.iterate_self G.face k).symm.eq x]
+    exact ih (G.face x)
+
+/-- Face iteration from (CTf, x) follows the 4-periodic pattern, shifted
+    from CTen by two steps. -/
+private theorem cubeFace_iter_CTf (G : Hypermap) (x : G.Dart) (k : ℕ) :
+    (cubeFace G)^[4 * k] (CubeTag.CTf, x) = (CubeTag.CTf, G.face^[k] x) := by
+  induction k generalizing x with
+  | zero => rfl
+  | succ k ih =>
+    rw [show 4 * (k + 1) = 4 * k + 4 from by ring, Function.iterate_add_apply]
+    simp only [Function.iterate_succ_apply', Function.iterate_zero, id, cubeFace]
+    rw [(Function.Commute.iterate_self G.face k).symm.eq x]
+    exact ih (G.face x)
+
+/-- Face iteration from (CTnf, x) follows the 4-periodic pattern, shifted
+    from CTen by three steps. -/
+private theorem cubeFace_iter_CTnf (G : Hypermap) (x : G.Dart) (k : ℕ) :
+    (cubeFace G)^[4 * k] (CubeTag.CTnf, x) = (CubeTag.CTnf, G.face^[k] x) := by
+  induction k generalizing x with
+  | zero => rfl
+  | succ k ih =>
+    rw [show 4 * (k + 1) = 4 * k + 4 from by ring, Function.iterate_add_apply]
+    simp only [Function.iterate_succ_apply', Function.iterate_zero, id, cubeFace]
+    rw [(Function.Commute.iterate_self G.face k).symm.eq x]
+    exact ih (G.face x)
+
 /-
 Face orbit of (CTen, x) only contains darts with tags in {CTn, CTen, CTf, CTnf}
     and second component in the face orbit of x.

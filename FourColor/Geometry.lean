@@ -402,8 +402,7 @@ theorem kernel_not_mem (p : List G.Dart) (x : G.Dart) (h : kernel G p x) : x ∉
 /-! ### 15. `bridgeless_mirror` — see section 29 below (needs `cface_mirror`). -/
 
 /-! ### 16. `arity_mirror` (geometry.v:161) -/
--- TODO: Requires `Function.minimalPeriod` lemma for inverse permutations.
--- Skipped for now.
+-- Proved below (section 16b), after the inverse-iteration helpers.
 
 /-! ### 17. `simple_uniq` (geometry.v:205) -/
 
@@ -603,6 +602,30 @@ private theorem iterate_invFun_iff {α : Type*} [Finite α] [Nonempty α]
   constructor
   · rintro ⟨n, rfl⟩; exact ⟨n, iterate_apply_iterate_invFun hbij n x⟩
   · rintro ⟨n, rfl⟩; exact ⟨n, iterate_invFun_apply_iterate hbij n y⟩
+
+/-! ### 16b. `arity_mirror` (geometry.v:161) -/
+
+/-- `minimalPeriod` is the same for a bijection and its inverse. -/
+private theorem minimalPeriod_invFun_of_bijective {α : Type*} [Finite α] [Nonempty α]
+    {f : α → α} (hbij : Function.Bijective f) (x : α) :
+    Function.minimalPeriod (Function.invFun f) x = Function.minimalPeriod f x := by
+  rw [Function.minimalPeriod_eq_minimalPeriod_iff]
+  intro n
+  simp only [Function.IsPeriodicPt, Function.IsFixedPt]
+  constructor
+  · intro h
+    have := iterate_apply_iterate_invFun hbij n x
+    rw [h] at this; exact this
+  · intro h
+    have := iterate_invFun_apply_iterate hbij n x
+    rw [h] at this; exact this
+
+/-- Face arity is preserved by mirroring.
+    Corresponds to `arity_mirror` in geometry.v:161. -/
+theorem arity_mirror (G : Hypermap) (x : G.Dart) :
+    @arity (mirror G) x = arity G x := by
+  simp only [arity, orderOf, mirror_face]
+  exact minimalPeriod_invFun_of_bijective face_bijective x
 
 /-! ### 26. `cface` / `cnode` / `cedge` under `mirror`
 
