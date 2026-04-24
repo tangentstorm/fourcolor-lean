@@ -118,4 +118,207 @@ structure PlanarBridgelessPlainPrecubic extends Hypermap where
   plain : Plain toHypermap
   precubic : Precubic toHypermap
 
+/-! ================================================================
+    Ported supporting lemmas from `geometry.v` (rocq-community/fourcolor).
+    Each lemma is tagged with the original Coq name and line reference.
+    ================================================================ -/
+
+variable {G}
+
+/-! ### Orbit symmetry helper
+
+A reusable lemma: on a finite type, iteration orbits of an injective
+function are symmetric. Used for `cface_sym`, `cedge_sym`, `cnode_sym`. -/
+
+private theorem iterate_sym {α : Type*} [Finite α] {f : α → α}
+    (hf : Function.Injective f) {x y : α} (h : ∃ n : ℕ, f^[n] x = y) :
+    ∃ m : ℕ, f^[m] y = x := by
+  obtain ⟨n, rfl⟩ := h
+  have hpos := Function.minimalPeriod_pos_of_mem_periodicPts
+    (Function.Injective.mem_periodicPts hf x)
+  set p := Function.minimalPeriod f x
+  refine ⟨p - n % p, ?_⟩
+  rw [← Function.iterate_add_apply,
+      ← Function.iterate_mod_minimalPeriod_eq (f := f) (x := x)]
+  have hdvd : p ∣ (p - n % p + n) := by
+    refine ⟨1 + n / p, ?_⟩
+    zify [(Nat.mod_lt n hpos).le, Nat.mod_le n p]
+    linarith [Nat.div_add_mod n p]
+  rw [Nat.mod_eq_zero_of_dvd hdvd]
+  simp
+
+/-! ### 1. `insertE` lemmas (geometry.v:777–802) -/
+
+-- Coq: size_insertE in geometry.v:777
+theorem length_insertE (p : List G.Dart) :
+    (insertE G p).length = 2 * p.length := by
+  induction p with
+  | nil => rfl
+  | cons x xs ih => simp [insertE, List.flatMap_cons]; omega
+
+-- Coq: insertE_cat in geometry.v:802
+theorem insertE_append (p q : List G.Dart) :
+    insertE G (p ++ q) = insertE G p ++ insertE G q := by
+  simp [insertE, List.flatMap_append]
+
+/-! ### 2. `cface` / `cedge` / `cnode` reflexivity (geometry.v:~145) -/
+
+-- Coq: connect0 (specialized)
+theorem cface_refl (x : G.Dart) : cface G x x :=
+  ⟨0, rfl⟩
+
+theorem cedge_refl (x : G.Dart) : cedge G x x :=
+  ⟨0, rfl⟩
+
+theorem cnode_refl (x : G.Dart) : cnode G x x :=
+  ⟨0, rfl⟩
+
+/-! ### 3. Transitivity -/
+
+-- Coq: connect_trans (specialized)
+theorem cface_trans {x y z : G.Dart} (h₁ : cface G x y) (h₂ : cface G y z) :
+    cface G x z := by
+  obtain ⟨m, rfl⟩ := h₁
+  obtain ⟨n, rfl⟩ := h₂
+  exact ⟨n + m, by rw [Function.iterate_add_apply]⟩
+
+theorem cedge_trans {x y z : G.Dart} (h₁ : cedge G x y) (h₂ : cedge G y z) :
+    cedge G x z := by
+  obtain ⟨m, rfl⟩ := h₁
+  obtain ⟨n, rfl⟩ := h₂
+  exact ⟨n + m, by rw [Function.iterate_add_apply]⟩
+
+theorem cnode_trans {x y z : G.Dart} (h₁ : cnode G x y) (h₂ : cnode G y z) :
+    cnode G x z := by
+  obtain ⟨m, rfl⟩ := h₁
+  obtain ⟨n, rfl⟩ := h₂
+  exact ⟨n + m, by rw [Function.iterate_add_apply]⟩
+
+/-! ### 4. Symmetry (geometry.v: same_connect_rev / fconnect_sym etc.) -/
+
+-- Coq: cfaceC (symmetry of cface)
+theorem cface_sym {x y : G.Dart} (h : cface G x y) : cface G y x :=
+  iterate_sym face_injective h
+
+theorem cedge_sym {x y : G.Dart} (h : cedge G x y) : cedge G y x :=
+  iterate_sym edge_injective h
+
+theorem cnode_sym {x y : G.Dart} (h : cnode G x y) : cnode G y x :=
+  iterate_sym node_injective h
+
+/-! ### 5. Arity lemmas (geometry.v:145–161) -/
+
+private theorem minimalPeriod_iterate {α : Type*} [Finite α] {f : α → α}
+    (hf : Function.Injective f) (n : ℕ) (x : α) :
+    Function.minimalPeriod f (f^[n] x) = Function.minimalPeriod f x := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    rw [Function.iterate_succ', Function.comp_apply,
+        Function.minimalPeriod_apply (Function.Injective.mem_periodicPts hf _), ih]
+
+-- Coq: arity_face in geometry.v:155
+theorem arity_face (x : G.Dart) : arity G (G.face x) = arity G x := by
+  simp only [arity, orderOf]
+  exact Function.minimalPeriod_apply (Function.Injective.mem_periodicPts face_injective x)
+
+-- Coq: arity_iter_face in geometry.v:148
+theorem arity_iter_face (n : ℕ) (x : G.Dart) :
+    arity G (G.face^[n] x) = arity G x := by
+  simp only [arity, orderOf]
+  exact minimalPeriod_iterate face_injective n x
+
+-- Coq: arity_cface in geometry.v:158
+theorem arity_cface {x y : G.Dart} (h : cface G x y) :
+    arity G x = arity G y := by
+  obtain ⟨n, rfl⟩ := h
+  exact (arity_iter_face n x).symm
+
+/-! ### 6. Bridgeless unfolding (geometry.v:88) -/
+
+-- Coq: bridgeless_cface in geometry.v:88
+theorem bridgeless_not_cface (hB : Bridgeless G) (x : G.Dart) :
+    ¬ cface G x (G.edge x) :=
+  hB x
+
+/-! ### 7. `fband` lemmas (geometry.v:270–304) -/
+
+-- Coq: fbandF in geometry.v:~270
+theorem fband_nil (x : G.Dart) : ¬ fband G [] x := by
+  simp [fband]
+
+-- Coq: fband_cons in geometry.v
+theorem fband_cons (y : G.Dart) (p : List G.Dart) (x : G.Dart) :
+    fband G (y :: p) x ↔ cface G x y ∨ fband G p x := by
+  constructor
+  · rintro ⟨z, hz_mem, hz_face⟩
+    rcases List.mem_cons.mp hz_mem with rfl | hz_mem
+    · exact Or.inl hz_face
+    · exact Or.inr ⟨z, hz_mem, hz_face⟩
+  · rintro (h | ⟨z, hz_mem, hz_face⟩)
+    · exact ⟨y, List.mem_cons.mpr (Or.inl rfl), h⟩
+    · exact ⟨z, List.mem_cons.mpr (Or.inr hz_mem), hz_face⟩
+
+-- Coq: fband_cat in geometry.v:~290
+theorem fband_append (p q : List G.Dart) (x : G.Dart) :
+    fband G (p ++ q) x ↔ fband G p x ∨ fband G q x := by
+  constructor
+  · rintro ⟨z, hz_mem, hz_face⟩
+    rcases List.mem_append.mp hz_mem with hz_mem | hz_mem
+    · exact Or.inl ⟨z, hz_mem, hz_face⟩
+    · exact Or.inr ⟨z, hz_mem, hz_face⟩
+  · rintro (⟨z, hz_mem, hz_face⟩ | ⟨z, hz_mem, hz_face⟩)
+    · exact ⟨z, List.mem_append.mpr (Or.inl hz_mem), hz_face⟩
+    · exact ⟨z, List.mem_append.mpr (Or.inr hz_mem), hz_face⟩
+
+-- Coq: ring_fband (partial) – cface implies fband membership
+theorem fband_cface {p : List G.Dart} {x y : G.Dart}
+    (hy : y ∈ p) (hf : cface G x y) : fband G p x :=
+  ⟨y, hy, hf⟩
+
+-- fband is monotone in the list
+theorem fband_subset {p q : List G.Dart} (hsub : ∀ x, x ∈ p → x ∈ q) :
+    ∀ x, fband G p x → fband G q x := by
+  intro x ⟨y, hy_mem, hy_face⟩
+  exact ⟨y, hsub y hy_mem, hy_face⟩
+
+/-! ### 8. `Simple` (face-simple) lemmas (geometry.v:287–327) -/
+
+-- Coq: simple0 in geometry.v:~287
+theorem simple_nil : Simple G [] :=
+  List.Pairwise.nil
+
+-- Coq: simple_cons in geometry.v
+theorem simple_cons (x : G.Dart) (p : List G.Dart) :
+    Simple G (x :: p) ↔ (∀ y ∈ p, ¬ cface G x y) ∧ Simple G p := by
+  exact List.pairwise_cons
+
+-- Coq: simple_cat / simple_catC in geometry.v
+theorem simple_append (p q : List G.Dart) :
+    Simple G (p ++ q) ↔ Simple G p ∧ Simple G q ∧
+      (∀ x ∈ p, ∀ y ∈ q, ¬ cface G x y) := by
+  exact List.pairwise_append
+
+/-! ### 9. Additional connectivity lemmas -/
+
+-- Coq: cface1 in geometry.v – one-step connectivity
+theorem cface_face (x : G.Dart) : cface G x (G.face x) :=
+  ⟨1, rfl⟩
+
+theorem cedge_edge (x : G.Dart) : cedge G x (G.edge x) :=
+  ⟨1, rfl⟩
+
+theorem cnode_node (x : G.Dart) : cnode G x (G.node x) :=
+  ⟨1, rfl⟩
+
+-- cface from iterate
+theorem cface_iter_face (n : ℕ) (x : G.Dart) : cface G x (G.face^[n] x) :=
+  ⟨n, rfl⟩
+
+theorem cedge_iter_edge (n : ℕ) (x : G.Dart) : cedge G x (G.edge^[n] x) :=
+  ⟨n, rfl⟩
+
+theorem cnode_iter_node (n : ℕ) (x : G.Dart) : cnode G x (G.node^[n] x) :=
+  ⟨n, rfl⟩
+
 end Hypermap

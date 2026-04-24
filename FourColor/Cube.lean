@@ -327,25 +327,8 @@ theorem planar_cube (G : Hypermap) : Planar G ↔ Planar (cube G) := by
   unfold Planar
   rw [genus_cube]
 
-/-
-cface is symmetric on finite hypermaps: if face^n(x) = y, then face^m(y) = x for some m.
--/
-theorem cface_sym {G : Hypermap} (x y : G.Dart) : cface G x y → cface G y x := by
-  intro h
-  obtain ⟨n, hn⟩ := h
-  have h_inv : ∃ m, (G.face^[m] y) = x := by
-    -- Since $G$ is a finite hypermap, $G.face$ is injective and surjective (by Finite.injective_iff_surjective). So $G.face$ has finite order: there exists $p > 0$ with $G.face^p = id$.
-    obtain ⟨p, hp⟩ : ∃ p : ℕ, 0 < p ∧ G.face^[p] = id := by
-      use (Fintype.card (Equiv.Perm G.Dart));
-      refine' ⟨ Fintype.card_pos, _ ⟩;
-      have h_order : ∀ f : Equiv.Perm G.Dart, f ^ Fintype.card (Equiv.Perm G.Dart) = 1 := by
-        exact fun f => by rw [ pow_card_eq_one ] ;
-      convert congr_arg ( fun f : Equiv.Perm G.Dart => f.toFun ) ( h_order ( Equiv.ofBijective G.face face_bijective ) ) using 1;
-    use p - n % p;
-    rw [ ← hn, ← Function.iterate_add_apply ];
-    rw [ show p - n % p + n = p * ( n / p + 1 ) by linarith [ Nat.div_add_mod n p, Nat.sub_add_cancel ( show n % p ≤ p from Nat.le_of_lt ( Nat.mod_lt _ hp.1 ) ) ] ];
-    simp +decide [ *, Function.iterate_mul, Function.iterate_fixed ]
-  exact h_inv
+-- `cface_sym` is now provided centrally in Geometry.lean (ported from `cfaceC`
+-- in geometry.v). The Cube module re-uses the generic version.
 
 /-
 Face iteration in the cube preserves tag structure: iterating cubeFace
@@ -507,7 +490,7 @@ private theorem bridgeless_cube_fwd (G : Hypermap) (hB : Bridgeless G) :
     have hcf := cubeFace_CTnf_to_CTen G x (G.node (G.face x)) n hn
     -- cface G x (node(face x))
     -- By cface_sym: cface G (node(face x)) x
-    have hcf' := cface_sym x (G.node (G.face x)) hcf
+    have hcf' := cface_sym hcf
     -- edge(node(face x)) = x by faceK
     have hfK : G.edge (G.node (G.face x)) = x := faceK x
     -- So cface G (node(face x)) (edge(node(face x)))
