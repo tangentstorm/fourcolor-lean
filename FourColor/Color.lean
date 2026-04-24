@@ -160,4 +160,58 @@ def sumt : List Color → Color
 def ptrace (s : List Color) : List Color :=
   (trace s).dropLast
 
+/-! ## Edge-permutation lemmas (Coq: color.v:163-175) -/
+
+namespace EdgePerm
+
+-- Coq: color.v:163
+theorem inv_inv : ∀ g : EdgePerm, g.inv.inv = g := by intro g; cases g <;> rfl
+
+-- Coq: color.v:165
+theorem apply_inv (g : EdgePerm) (c : Color) : g.inv.apply (g.apply c) = c := by
+  cases g <;> cases c <;> rfl
+
+-- Coq: color.v:167
+theorem inv_apply (g : EdgePerm) (c : Color) : g.apply (g.inv.apply c) = c := by
+  cases g <;> cases c <;> rfl
+
+-- Coq: color.v:169
+theorem apply_injective (g : EdgePerm) : Function.Injective g.apply := by
+  intro a b h; rw [← apply_inv g a, ← apply_inv g b, h]
+
+-- Coq: color.v:171
+theorem apply_add (g : EdgePerm) (c1 c2 : Color) :
+    g.apply (c1 + c2) = g.apply c1 + g.apply c2 := by
+  cases g <;> cases c1 <;> cases c2 <;> rfl
+
+-- Coq: color.v:175
+theorem apply_zero (g : EdgePerm) : g.apply Color0 = Color0 := by cases g <;> rfl
+
+end EdgePerm
+
+/-! ## Trace lemmas (Coq: color.v:217-243) -/
+
+-- Coq: color.v:217
+@[simp] theorem trace_nil : trace ([] : List Color) = [] := rfl
+
+-- Coq: color.v:237
+theorem length_trace : ∀ s : List Color, (trace s).length = s.length
+  | [] => rfl
+  | x :: rest => by simp [trace, List.length_zipWith]
+
+-- Coq: color.v:220
+theorem sumt_nil : sumt ([] : List Color) = Color0 := rfl
+
+-- Coq: color.v:222
+theorem sumt_cons (c : Color) (cs : List Color) :
+    sumt (c :: cs) = c + sumt cs := rfl
+
+/-! ## Color addition cancellation (Coq: color.v:99) -/
+
+-- Coq: color.v:99
+theorem add_eq_zero (c1 c2 : Color) : c1 + c2 = Color0 ↔ c1 = c2 := by
+  constructor
+  · intro h; cases c1 <;> cases c2 <;> first | rfl | exact absurd h (by decide)
+  · rintro rfl; exact addc_self c1
+
 end Color
