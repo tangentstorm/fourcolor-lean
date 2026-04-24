@@ -321,4 +321,90 @@ theorem cedge_iter_edge (n : ℕ) (x : G.Dart) : cedge G x (G.edge^[n] x) :=
 theorem cnode_iter_node (n : ℕ) (x : G.Dart) : cnode G x (G.node^[n] x) :=
   ⟨n, rfl⟩
 
+/-! ================================================================
+    Batch 2: Additional supporting lemmas from `geometry.v`.
+    ================================================================ -/
+
+/-! ### 10. Plain edge characterisation -/
+
+-- Coq: plain_eq / plain_neq in geometry.v
+theorem plain_edge_invol (hP : Plain G) (x : G.Dart) : G.edge (G.edge x) = x :=
+  (hP x).1
+
+theorem plain_edge_ne (hP : Plain G) (x : G.Dart) : G.edge x ≠ x :=
+  (hP x).2
+
+private theorem edge_iter_plain (hP : Plain G) (n : ℕ) (x : G.Dart) :
+    G.edge^[n] x = x ∨ G.edge^[n] x = G.edge x := by
+  induction n with
+  | zero => exact Or.inl rfl
+  | succ n ih =>
+    simp only [Function.iterate_succ', Function.comp_apply]
+    rcases ih with h | h <;> rw [h]
+    · exact Or.inr rfl
+    · rw [plain_edge_invol hP]; exact Or.inl rfl
+
+/-- For a plain map, `cedge x y ↔ x = y ∨ G.edge x = y`. -/
+theorem cedge_plain (hP : Plain G) (x y : G.Dart) :
+    cedge G x y ↔ x = y ∨ G.edge x = y := by
+  constructor
+  · rintro ⟨n, rfl⟩
+    rcases edge_iter_plain hP n x with h | h <;> [exact Or.inl h.symm; exact Or.inr h.symm]
+  · rintro (rfl | rfl)
+    · exact cedge_refl x
+    · exact cedge_edge x
+
+/-! ### 11. `mem_insertE` (geometry.v:790) -/
+
+-- Coq: mem_insertE in geometry.v:790
+/-- For a plain map, `x ∈ insertE p` iff there exists `y ∈ p` with `cedge x y`. -/
+theorem mem_insertE (hP : Plain G) (p : List G.Dart) (x : G.Dart) :
+    x ∈ insertE G p ↔ ∃ y ∈ p, cedge G x y := by
+  simp only [insertE, List.mem_flatMap, List.mem_cons, List.mem_nil_iff, or_false]
+  constructor
+  · rintro ⟨a, ha_mem, h | h⟩
+    · exact ⟨a, ha_mem, h ▸ cedge_refl a⟩
+    · exact ⟨a, ha_mem, h ▸ cedge_sym (cedge_edge a)⟩
+  · rintro ⟨a, ha_mem, hcedge⟩
+    refine ⟨a, ha_mem, ?_⟩
+    rcases (cedge_plain hP x a).mp hcedge with rfl | h
+    · exact Or.inl rfl
+    · exact Or.inr (by rw [← h, plain_edge_invol hP])
+
+/-! ### 12. `fband_face` (geometry.v:173) -/
+
+-- Coq: fbandF in geometry.v:173
+/-- The face band is closed under the face permutation. -/
+theorem fband_face (p : List G.Dart) (x : G.Dart) :
+    fband G p (G.face x) ↔ fband G p x := by
+  constructor
+  · rintro ⟨y, hy_mem, hy_face⟩
+    exact ⟨y, hy_mem, cface_trans (cface_face x) hy_face⟩
+  · rintro ⟨y, hy_mem, hy_face⟩
+    exact ⟨y, hy_mem, cface_trans (cface_sym (cface_face x)) hy_face⟩
+
+/-! ### 13. `kernel_face` (geometry.v:189) -/
+
+-- Coq: kernel_face in geometry.v:189
+/-- The kernel is closed under the face permutation. -/
+theorem kernel_face (p : List G.Dart) (x : G.Dart) :
+    kernel G p (G.face x) ↔ kernel G p x := by
+  simp only [kernel, fband_face]
+
+/-! ### 14. `kernel_not_mem` (geometry.v:184) -/
+
+-- Coq: kernel_off_ring in geometry.v:184
+/-- A dart in the kernel is not in the ring. -/
+theorem kernel_not_mem (p : List G.Dart) (x : G.Dart) (h : kernel G p x) : x ∉ p := by
+  intro hmem
+  exact h ⟨x, hmem, cface_refl x⟩
+
+/-! ### 15. `bridgeless_mirror` (geometry.v:102) -/
+-- TODO: Relating cface in G and cface in mirror G requires substantial
+-- infrastructure (inverse-permutation orbit correspondence). Skipped for now.
+
+/-! ### 16. `arity_mirror` (geometry.v:161) -/
+-- TODO: Requires `Function.minimalPeriod` lemma for inverse permutations.
+-- Skipped for now.
+
 end Hypermap
