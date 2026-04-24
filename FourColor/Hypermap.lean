@@ -278,6 +278,26 @@ def MoebiusPath (G : Hypermap) (q : List G.Dart) : Prop :=
 def Jordan (G : Hypermap) : Prop :=
   ∀ q : List G.Dart, ¬ MoebiusPath G q
 
+/-- A Moebius path is never empty. -/
+theorem MoebiusPath.ne_nil {G : Hypermap} {q : List G.Dart}
+    (h : MoebiusPath G q) : q ≠ [] := by
+  intro hq; rw [hq] at h; exact h
+
+/-- `MoebiusPath G []` is vacuously false. -/
+theorem not_MoebiusPath_nil (G : Hypermap) :
+    ¬ MoebiusPath G ([] : List G.Dart) := fun h => h
+
+/-- A Moebius path has at least 2 darts: the head `x` and enough elements
+    in the tail `p` to support the `mem2` twist. -/
+theorem MoebiusPath.length_ge_two {G : Hypermap} {q : List G.Dart}
+    (h : MoebiusPath G q) : 2 ≤ q.length := by
+  match q, h with
+  | x :: p, ⟨_, _, hmem2⟩ =>
+    -- mem2 requires some j < p.length, so p is nonempty, so (x :: p).length ≥ 2.
+    obtain ⟨_, j, _, hj, _, _⟩ := hmem2
+    have : 0 < p.length := by omega
+    simp [List.length_cons]; omega
+
 /-! ## Derived maps -/
 
 /-- The dual hypermap: invert all permutations, swap node and face. -/
