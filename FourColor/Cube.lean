@@ -238,14 +238,17 @@ theorem cube_glink_lift (G : Hypermap) (x y : G.Dart) :
         exact cube_glink_to_CTnf G CubeTag.CTen x
       have h_chain : Relation.EqvGen G.cube.glink (CubeTag.CTen, x) (CubeTag.CTnf, y) := by
         apply Relation.EqvGen.rel;
-        exact Or.inl ( by aesop );
+        -- cubeEdge (CTen, x) = (CTnf, G.edge x) = (CTnf, y) since h : G.edge x = y
+        exact Or.inl (by subst h; rfl);
       exact Relation.EqvGen.trans _ _ _ ‹_› ‹_›;
     · have h_chain2 : Relation.EqvGen G.cube.glink (CubeTag.CTn, x) (CubeTag.CTen, y) := by
         apply Relation.EqvGen.rel;
-        exact Or.inr <| Or.inl <| by aesop;
+        -- cubeNode (CTn, x) = (CTen, G.node x) = (CTen, y) since h : G.node x = y
+        exact Or.inr <| Or.inl <| by subst h; rfl;
       grind +suggestions;
     · have h_cubeFace : G.cube.face (CubeTag.CTnf, x) = (CubeTag.CTn, y) := by
-        aesop;
+        -- cubeFace (CTnf, x) = (CTn, G.face x) = (CTn, y) since h : G.face x = y
+        subst h; rfl;
       have h_cube_glink_to_CTnf : Relation.EqvGen G.cube.glink (CubeTag.CTn, y) (CubeTag.CTnf, y) := by
         grind +suggestions;
       exact Relation.EqvGen.trans _ _ _ ( Relation.EqvGen.rel _ _ <| by tauto ) h_cube_glink_to_CTnf;
