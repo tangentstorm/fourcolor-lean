@@ -172,6 +172,45 @@ def RingTrace (r : List G.Dart) (et : List Color) : Prop :=
 def CcRingTrace (cc : Finset G.Dart) (r : List G.Dart) (et : List Color) : Prop :=
   ∃ k : G.Dart → Color, CcColoring cc k ∧ et = Color.trace (r.map k)
 
+-- Coq: coloring.v (ring trace length)
+/-- The length of a ring trace equals the length of the ring. -/
+theorem RingTrace_length {r : List G.Dart} {et : List Color}
+    (h : RingTrace r et) : et.length = r.length := by
+  obtain ⟨k, _, rfl⟩ := h
+  rw [Color.length_trace, List.length_map]
+
+-- Coq: coloring.v (cc ring trace length)
+/-- The length of a contract ring trace equals the length of the ring. -/
+theorem CcRingTrace_length {cc : Finset G.Dart} {r : List G.Dart} {et : List Color}
+    (h : CcRingTrace cc r et) : et.length = r.length := by
+  obtain ⟨k, _, rfl⟩ := h
+  rw [Color.length_trace, List.length_map]
+
+-- Coq: coloring.v (empty contract weakening)
+/-- An empty contract: a coloring is always a cc-coloring for the empty set. -/
+theorem coloring_to_cc_empty {k : G.Dart → Color} (h : Coloring k) :
+    CcColoring (∅ : Finset G.Dart) k := by
+  obtain ⟨hkE, hkF⟩ := h
+  refine ⟨?_, ?_, hkF⟩
+  · intro x _; exact hkE x
+  · intro x hx
+    rcases hx with hx | hx <;> exact absurd hx (Finset.notMem_empty _)
+
+/-- Every ring-trace is a cc-ring-trace for the empty contract. -/
+theorem RingTrace_to_CcRingTrace_empty {r : List G.Dart} {et : List Color}
+    (h : RingTrace r et) : CcRingTrace (∅ : Finset G.Dart) r et := by
+  obtain ⟨k, hk, heq⟩ := h
+  exact ⟨k, coloring_to_cc_empty hk, heq⟩
+
+/-- A ring trace is non-empty when the ring is non-empty. -/
+theorem RingTrace_ne_nil_of_ne_nil {r : List G.Dart} {et : List Color}
+    (h : RingTrace r et) (hr : r ≠ []) : et ≠ [] := by
+  intro het
+  have := RingTrace_length h
+  rw [het] at this
+  simp at this
+  exact hr (List.eq_nil_iff_length_eq_zero.mpr this.symm)
+
 /-! ## Minimal counter-example -/
 
 /-- A minimal counter-example to the four color theorem for hypermaps:
