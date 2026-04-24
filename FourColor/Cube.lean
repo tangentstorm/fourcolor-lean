@@ -155,8 +155,12 @@ theorem fcardEdge_of_plain (G : Hypermap) (hP : Plain G) :
   have h_support : (edgePerm G).support = Finset.univ := by
     ext x; simp [hP];
     exact hP x |>.2;
-  unfold Hypermap.fcardEdge;
-  unfold numOrbits; aesop;
+  -- fcardEdge G = |cycleFactorsFinset| + (|Dart| - |support|).
+  -- |support| = |univ| = |Dart|, so the fixed-point count is 0, and
+  -- |Dart| = 2 * |cycleFactorsFinset|, so the result is |Dart| / 2.
+  unfold Hypermap.fcardEdge numOrbits
+  rw [h_support, Finset.card_univ, h_total_darts, Nat.sub_self,
+      Nat.add_zero, Nat.mul_div_cancel_left _ (by decide : (0:ℕ) < 2)]
 
 /-
 In a cubic hypermap where every node orbit has exactly 3 elements,
