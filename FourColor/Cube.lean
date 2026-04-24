@@ -364,6 +364,15 @@ private theorem cubeFace_tag_edge (G : Hypermap) (x : G.Dart) (n : ℕ) :
   · rcases ih with ⟨ y, hy ⟩ ; rw [ Function.iterate_succ_apply', hy ] ;
     exact ⟨ _, rfl ⟩
 
+/-- In cube G, face iteration acting on (CTe, x) darts just iterates G.edge
+    in the second component. So the face-orbit of (CTe, x) projects 1-to-1
+    onto the edge-orbit of x. -/
+theorem cubeFace_CTe_iter (G : Hypermap) (x : G.Dart) (n : ℕ) :
+    (cubeFace G)^[n] (CubeTag.CTe, x) = (CubeTag.CTe, G.edge^[n] x) := by
+  induction n with
+  | zero => rfl
+  | succ n ih => rw [Function.iterate_succ_apply', ih]; simp [cubeFace, Function.iterate_succ_apply']
+
 /-
 Face iteration on CTfe stays in CTfe.
 -/

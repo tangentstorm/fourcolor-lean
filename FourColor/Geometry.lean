@@ -562,4 +562,87 @@ theorem fband_replicate (n : ℕ) (x y : G.Dart) :
     fband G [x] y ↔ cface G y x := by
   simp [fband]
 
+/-! ================================================================
+    Batch 3: `cface` / `cnode` / `cedge` under `dual` and `mirror`.
+    ================================================================ -/
+
+/-! ### 25. Inverse-permutation orbit correspondence
+
+Iterating `Function.invFun f` from `x` reaches `y` iff iterating `f`
+from `y` reaches `x`.  The proof is purely algebraic: `f` and
+`invFun f` are mutual inverses, so their iterates are as well. -/
+
+private theorem invFun_comp_apply {α : Type*} [Nonempty α]
+    {f : α → α} (hbij : Function.Bijective f) (x : α) :
+    Function.invFun f (f x) = x :=
+  hbij.1 (Function.rightInverse_invFun hbij.2 (f x))
+
+private theorem iterate_apply_iterate_invFun {α : Type*} [Nonempty α]
+    {f : α → α} (hbij : Function.Bijective f)
+    (n : ℕ) (x : α) : f^[n] ((Function.invFun f)^[n] x) = x := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    rw [Function.iterate_succ_apply f,
+        Function.iterate_succ_apply' (Function.invFun f),
+        Function.rightInverse_invFun hbij.2, ih]
+
+private theorem iterate_invFun_apply_iterate {α : Type*} [Nonempty α]
+    {f : α → α} (hbij : Function.Bijective f)
+    (n : ℕ) (x : α) : (Function.invFun f)^[n] (f^[n] x) = x := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    rw [Function.iterate_succ_apply (Function.invFun f),
+        Function.iterate_succ_apply' f,
+        invFun_comp_apply hbij, ih]
+
+/-- Iterating an inverse permutation from `x` reaches `y` iff iterating
+    the original permutation from `y` reaches `x`, in a finite setting. -/
+private theorem iterate_invFun_iff {α : Type*} [Finite α] [Nonempty α]
+    {f : α → α} (hbij : Function.Bijective f) (x y : α) :
+    (∃ n, (Function.invFun f)^[n] x = y) ↔ (∃ n, f^[n] y = x) := by
+  constructor
+  · rintro ⟨n, rfl⟩; exact ⟨n, iterate_apply_iterate_invFun hbij n x⟩
+  · rintro ⟨n, rfl⟩; exact ⟨n, iterate_invFun_apply_iterate hbij n y⟩
+
+/-! ### 26. `cface` / `cnode` / `cedge` under `mirror`
+
+`mirror` replaces face with `invFun face` and node with `invFun node`. -/
+
+theorem cface_mirror {x y : G.Dart} :
+    cface (mirror G) x y ↔ cface G y x := by
+  show (∃ n, (Function.invFun G.face)^[n] x = y) ↔ (∃ n, G.face^[n] y = x)
+  exact iterate_invFun_iff face_bijective x y
+
+theorem cnode_mirror {x y : G.Dart} :
+    cnode (mirror G) x y ↔ cnode G y x := by
+  show (∃ n, (Function.invFun G.node)^[n] x = y) ↔ (∃ n, G.node^[n] y = x)
+  exact iterate_invFun_iff node_bijective x y
+
+/-! ### 27. `cedge` / `cnode` / `cface` under `dual`
+
+`dual` maps edge ↦ invFun edge, node ↦ invFun face, face ↦ invFun node. -/
+
+theorem cedge_dual {x y : G.Dart} :
+    cedge (dual G) x y ↔ cedge G y x := by
+  show (∃ n, (Function.invFun G.edge)^[n] x = y) ↔ (∃ n, G.edge^[n] y = x)
+  exact iterate_invFun_iff edge_bijective x y
+
+theorem cnode_dual {x y : G.Dart} :
+    cnode (dual G) x y ↔ cface G y x := by
+  show (∃ n, (Function.invFun G.face)^[n] x = y) ↔ (∃ n, G.face^[n] y = x)
+  exact iterate_invFun_iff face_bijective x y
+
+theorem cface_dual {x y : G.Dart} :
+    cface (dual G) x y ↔ cnode G y x := by
+  show (∃ n, (Function.invFun G.node)^[n] x = y) ↔ (∃ n, G.node^[n] y = x)
+  exact iterate_invFun_iff node_bijective x y
+
+/-! ### 28. Dart cardinality under `mirror` (geometry.v) -/
+
+/-- Mirror preserves the dart count. -/
+theorem card_mirror' (G : Hypermap) :
+    Fintype.card (mirror G).Dart = Fintype.card G.Dart := rfl
+
 end Hypermap
