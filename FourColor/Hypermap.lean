@@ -515,4 +515,67 @@ theorem cconnect_cons (G : Hypermap) {x y z : G.Dart}
 -- They are available as Hypermap.even_genusP and Hypermap.euler_le
 -- after importing FourColor.Jordan.
 
+/-! ## Connected / Planar / nComp shape helpers -/
+
+theorem connected_intro {G : Hypermap} (h : ∀ x y : G.Dart, gcomp G x y) :
+    Connected G := h
+
+theorem connected_all_gcomp {G : Hypermap} (h : Connected G) (x y : G.Dart) :
+    gcomp G x y := h x y
+
+/-- Every hypermap has at least one connected component. -/
+theorem nComp_refl (G : Hypermap) : 1 ≤ nComp G := by
+  by_contra h_contra
+  convert Fintype.card_pos_iff.mpr _
+  · exact Iff.symm (iff_false_intro h_contra)
+  · exact ⟨Quotient.mk'' (Classical.arbitrary _)⟩
+
+theorem Planar.genus_eq_zero {G : Hypermap} (h : Planar G) : genus G = 0 := h
+theorem Planar.intro {G : Hypermap} (h : genus G = 0) : Planar G := h
+theorem Planar.iff_genus_zero (G : Hypermap) : Planar G ↔ genus G = 0 := Iff.rfl
+
+theorem Planar.eulerLhs_eq {G : Hypermap} (_h : Planar G) :
+    eulerLhs G = 2 * 0 + eulerRhs G → eulerLhs G = eulerRhs G := by
+  intro heq; simp at heq; exact heq
+
+/-! ## Dual bijectivity helpers -/
+
+theorem mirror_Dart_eq (G : Hypermap) : (mirror G).Dart = G.Dart := rfl
+theorem dual_Dart_eq (G : Hypermap) : (dual G).Dart = G.Dart := rfl
+
+theorem dual_edge_bijective (G : Hypermap) :
+    Function.Bijective (dual G).edge := by
+  show Function.Bijective (Function.invFun G.edge)
+  exact ⟨(Function.rightInverse_invFun G.edge_surjective).injective,
+         fun y => ⟨G.edge y, Function.leftInverse_invFun G.edge_injective y⟩⟩
+
+theorem dual_node_bijective (G : Hypermap) :
+    Function.Bijective (dual G).node := by
+  show Function.Bijective (Function.invFun G.face)
+  exact ⟨(Function.rightInverse_invFun G.face_surjective).injective,
+         fun y => ⟨G.face y, Function.leftInverse_invFun G.face_injective y⟩⟩
+
+theorem dual_face_bijective (G : Hypermap) :
+    Function.Bijective (dual G).face := by
+  show Function.Bijective (Function.invFun G.node)
+  exact ⟨(Function.rightInverse_invFun G.node_surjective).injective,
+         fun y => ⟨G.node y, Function.leftInverse_invFun G.node_injective y⟩⟩
+
+/-! ## More mem2 helpers -/
+
+theorem List.mem2.indices_lt {α : Type*} {p : List α} {a b : α}
+    (h : List.mem2 p a b) :
+    ∃ i j, i < j ∧ j < p.length ∧ p[i]? = some a ∧ p[j]? = some b := h
+
+theorem List.mem2.length_ge_two {α : Type*} {p : List α} {a b : α}
+    (h : List.mem2 p a b) : 2 ≤ p.length := by
+  obtain ⟨_, _, _, _, _, _⟩ := h
+  omega
+
+theorem List.not_mem2_singleton {α : Type*} (x a b : α) :
+    ¬ List.mem2 [x] a b := by
+  intro h
+  have := h.length_ge_two
+  simp at this
+
 end Hypermap

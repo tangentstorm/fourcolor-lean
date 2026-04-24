@@ -291,4 +291,39 @@ theorem length_pairmap (f : Color → Color → Color) (a : Color) (s : List Col
 theorem length_urtrace (s : List Color) :
     (urtrace s).length = s.length := length_pairmap _ _ _
 
+/-! ## Clarity helpers -/
+
+@[simp] theorem addc_zero_iff (c : Color) : c + Color0 = Color0 ↔ c = Color0 := by
+  constructor
+  · intro h; cases c <;> first | rfl | exact absurd h (by decide)
+  · rintro rfl; rfl
+
+@[simp] theorem zero_addc_iff (c : Color) : Color0 + c = Color0 ↔ c = Color0 := by
+  rw [addc_comm, addc_zero_iff]
+
+theorem addc_ne_zero_of_ne {c d : Color} (h : c ≠ d) : c + d ≠ Color0 := by
+  intro hzero; exact h ((add_eq_zero c d).mp hzero)
+
+theorem sumt_cons_zero (c : Color) (cs : List Color) :
+    sumt (c :: cs) = Color0 ↔ sumt cs = c := by
+  simp only [sumt_cons, add_eq_zero]
+  exact eq_comm
+
+/-! ## EdgePerm operation lemmas -/
+
+namespace EdgePerm
+
+@[simp] theorem Eperm123_apply (c : Color) : Eperm123.apply c = c := rfl
+
+@[simp] theorem inv_Eperm123 : Eperm123.inv = Eperm123 := rfl
+@[simp] theorem inv_Eperm132 : Eperm132.inv = Eperm132 := rfl
+@[simp] theorem inv_Eperm213 : Eperm213.inv = Eperm213 := rfl
+@[simp] theorem inv_Eperm321 : Eperm321.inv = Eperm321 := rfl
+@[simp] theorem inv_Eperm231 : Eperm231.inv = Eperm312 := rfl
+@[simp] theorem inv_Eperm312 : Eperm312.inv = Eperm231 := rfl
+
+theorem apply_zero_eq_zero (g : EdgePerm) : g.apply Color0 = Color0 := apply_zero g
+
+end EdgePerm
+
 end Color

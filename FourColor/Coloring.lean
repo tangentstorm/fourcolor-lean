@@ -493,4 +493,24 @@ def CReducible (r : List G.Dart) (cc : Finset G.Dart) : Prop :=
 instance (G : Hypermap) : Decidable (FourColorable G) :=
   Classical.dec _
 
+/-! ## Colorable existential builders -/
+
+theorem FourColorable.exists_coloring {G : Hypermap} (h : FourColorable G) :
+    ∃ k, Coloring k := h
+
+theorem FourColorable.intro {G : Hypermap} {k : G.Dart → Color} (hk : Coloring k) :
+    FourColorable G := ⟨k, hk⟩
+
+theorem GraphFourColorable.exists_coloring {G : Hypermap} (h : GraphFourColorable G) :
+    ∃ k, GraphColoring k := h
+
+theorem GraphFourColorable.intro {G : Hypermap} {k : G.Dart → Color}
+    (hk : GraphColoring k) : GraphFourColorable G := ⟨k, hk⟩
+
+theorem CcColorable.exists_coloring {G : Hypermap} {cc : Finset G.Dart}
+    (h : CcColorable cc) : ∃ k, CcColoring cc k := h
+
+theorem CcColorable.intro {G : Hypermap} {cc : Finset G.Dart} {k : G.Dart → Color}
+    (hk : CcColoring cc k) : CcColorable cc := ⟨k, hk⟩
+
 end Hypermap

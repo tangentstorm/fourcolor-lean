@@ -986,4 +986,123 @@ theorem nComp_mirror (G : Hypermap) : nComp (mirror G) = nComp G := by
   intro x y
   exact eqvGen_glink_mirror_iff x y
 
+/-! ## Cubic / Plain / Quasicubic / Pentagonal projections -/
+
+theorem Cubic.precubic {G : Hypermap} (h : Cubic G) : Precubic G :=
+  fun x => (h x).1
+
+theorem Cubic.node_ne {G : Hypermap} (h : Cubic G) (x : G.Dart) : G.node x ≠ x :=
+  (h x).2.1
+
+theorem Cubic.node_node_ne {G : Hypermap} (h : Cubic G) (x : G.Dart) :
+    G.node (G.node x) ≠ x := (h x).2.2
+
+theorem Plain.edge_inv {G : Hypermap} (h : Plain G) (x : G.Dart) :
+    G.edge (G.edge x) = x := (h x).1
+
+theorem Plain.edge_ne {G : Hypermap} (h : Plain G) (x : G.Dart) : G.edge x ≠ x :=
+  (h x).2
+
+/-- Full cubic triple for a dart outside the ring of a quasicubic map. -/
+theorem Quasicubic.cubic_off_ring {G : Hypermap} {r : Finset G.Dart}
+    (h : Quasicubic G r) {x : G.Dart} (hx : x ∉ r) :
+    G.node (G.node (G.node x)) = x ∧ G.node x ≠ x ∧ G.node (G.node x) ≠ x := h x hx
+
+theorem Quasicubic.precubic_off_ring {G : Hypermap} {r : Finset G.Dart}
+    (h : Quasicubic G r) {x : G.Dart} (hx : x ∉ r) :
+    G.node (G.node (G.node x)) = x := (h x hx).1
+
+theorem Pentagonal.arity_ge_five {G : Hypermap} (h : Pentagonal G) (x : G.Dart) :
+    5 ≤ arity G x := h x
+
+theorem Plain.edge_injective_on_support {G : Hypermap} (_hP : Plain G)
+    (s : Finset G.Dart) : Set.InjOn G.edge ↑s :=
+  fun _ _ _ _ h => G.edge_injective h
+
+/-! ## rlink / Srcycle shape helpers -/
+
+theorem rlink_def (G : Hypermap) (x y : G.Dart) :
+    rlink G x y ↔ cface G (G.node x) y := Iff.rfl
+
+theorem rlink_face_node (G : Hypermap) (x : G.Dart) : rlink G x (G.node x) :=
+  cface_refl _
+
+theorem Srcycle.ne_nil {G : Hypermap} {r : List G.Dart} (h : Srcycle G r) :
+    r ≠ [] := srcycle_ne_nil h
+
+theorem Srcycle.length_pos {G : Hypermap} {r : List G.Dart} (h : Srcycle G r) :
+    0 < r.length := srcycle_pos h
+
+theorem Srcycle.nodup {G : Hypermap} {r : List G.Dart} (h : Srcycle G r) :
+    r.Nodup := srcycle_nodup h
+
+theorem Srcycle.simple {G : Hypermap} {r : List G.Dart} (h : Srcycle G r) :
+    Simple G r := srcycle_simple h
+
+/-! ## cface / cedge / cnode constructor helpers -/
+
+theorem cface_zero (G : Hypermap) (x : G.Dart) : cface G x x := ⟨0, rfl⟩
+
+theorem cface_of_iterate (G : Hypermap) (n : ℕ) (x : G.Dart) :
+    cface G x (G.face^[n] x) := ⟨n, rfl⟩
+
+theorem cedge_of_iterate (G : Hypermap) (n : ℕ) (x : G.Dart) :
+    cedge G x (G.edge^[n] x) := ⟨n, rfl⟩
+
+theorem cnode_of_iterate (G : Hypermap) (n : ℕ) (x : G.Dart) :
+    cnode G x (G.node^[n] x) := ⟨n, rfl⟩
+
+theorem cface_one (G : Hypermap) (x : G.Dart) : cface G x (G.face x) := ⟨1, rfl⟩
+
+theorem cface_step_right {G : Hypermap} {x y : G.Dart} (h : cface G x y) :
+    cface G x (G.face y) := by
+  obtain ⟨n, rfl⟩ := h
+  exact ⟨n + 1, by rw [Function.iterate_succ_apply']⟩
+
+theorem cedge_step_right {G : Hypermap} {x y : G.Dart} (h : cedge G x y) :
+    cedge G x (G.edge y) := by
+  obtain ⟨n, rfl⟩ := h
+  exact ⟨n + 1, by rw [Function.iterate_succ_apply']⟩
+
+theorem cnode_step_right {G : Hypermap} {x y : G.Dart} (h : cnode G x y) :
+    cnode G x (G.node y) := by
+  obtain ⟨n, rfl⟩ := h
+  exact ⟨n + 1, by rw [Function.iterate_succ_apply']⟩
+
+/-! ## cedge_plain corollaries -/
+
+theorem cedge_plain_sym (hP : Plain G) {x y : G.Dart} (h : cedge G x y) :
+    cedge G y x := by
+  rcases (cedge_plain hP x y).mp h with rfl | rfl
+  · exact cedge_refl x
+  · exact ⟨1, plain_edge_invol hP x⟩
+
+theorem cedge_plain_card (hP : Plain G) (x : G.Dart) :
+    ∀ y, cedge G x y → y = x ∨ y = G.edge x := by
+  intro y h
+  rcases (cedge_plain hP x y).mp h with rfl | rfl
+  · exact Or.inl rfl
+  · exact Or.inr rfl
+
+theorem edge_iter_two_plain (hP : Plain G) (x : G.Dart) :
+    G.edge^[2] x = x := by
+  show G.edge (G.edge x) = x
+  exact plain_edge_invol hP x
+
+/-! ## arity unfolding helpers -/
+
+theorem arity_def (x : G.Dart) :
+    arity G x = Function.minimalPeriod G.face x := rfl
+
+theorem arity_eq_of_cface {x y : G.Dart} (h : cface G x y) :
+    arity G x = arity G y := arity_cface h
+
+theorem arity_eq_of_cface_symm {x y : G.Dart} (h : cface G x y) :
+    arity G y = arity G x := (arity_cface h).symm
+
+theorem arity_pos (x : G.Dart) : 0 < arity G x := by
+  unfold arity orderOf
+  exact Function.minimalPeriod_pos_of_mem_periodicPts
+    (Function.Injective.mem_periodicPts face_injective x)
+
 end Hypermap

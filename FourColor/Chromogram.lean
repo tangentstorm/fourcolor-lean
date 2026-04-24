@@ -171,4 +171,25 @@ theorem KempeClosed.empty : KempeClosed (fun _ => False) :=
 -- TODO: `matchg_balanced` (chromogram.v:131) — relates matchg to sumt and gramBalanced.
 -- TODO: `match_etrace` (chromogram.v:160)
 
+/-! ## Chromogram length / gramBalanced simp -/
+
+@[simp] theorem Chromogram.length_nil : ([] : Chromogram).length = 0 := rfl
+
+@[simp] theorem Chromogram.length_cons (s : GramSymbol) (w : Chromogram) :
+    (s :: w).length = w.length + 1 := rfl
+
+@[simp] theorem gramBalanced_Gpush (d : Nat) (b0 : Bool) (w : Chromogram) :
+    gramBalanced d b0 (GramSymbol.Gpush :: w) = gramBalanced (d + 1) b0 w := rfl
+
+@[simp] theorem gramBalanced_Gskip (d : Nat) (b0 : Bool) (w : Chromogram) :
+    gramBalanced d b0 (GramSymbol.Gskip :: w) = gramBalanced d (!b0) w := rfl
+
+@[simp] theorem matchg_nil_nil_nil : matchg [] [] [] = true := rfl
+
+@[simp] theorem matchg_empty_trace_nonempty_w (lb : List Bool) (s : GramSymbol)
+    (w : Chromogram) : matchg lb [] (s :: w) = false := by cases lb <;> rfl
+
+@[simp] theorem matchg_nonempty_trace_empty_w (lb : List Bool) (c : Color)
+    (et : List Color) : matchg lb (c :: et) [] = false := by cases lb <;> cases c <;> rfl
+
 end FourColor.Chromogram
