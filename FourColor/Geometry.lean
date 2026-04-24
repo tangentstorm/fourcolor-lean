@@ -518,4 +518,48 @@ theorem srcycle_cface_eq {r : List G.Dart} (hs : Srcycle G r)
     {x y : G.Dart} (hx : x ∈ r) (hy : y ∈ r) (h : cface G x y) : x = y :=
   simple_cface_eq (srcycle_simple hs) hx hy h
 
+/-! ### 21. `insertE_replicate` (geometry.v:780–782, `insertE_seqb`) -/
+
+-- Coq: insertE_seqb in geometry.v:780
+theorem insertE_replicate (b : Bool) (x : G.Dart) :
+    insertE G (List.replicate b.toNat x) =
+    List.replicate b.toNat x ++ List.replicate b.toNat (G.edge x) := by
+  cases b <;> rfl
+
+/-! ### 22. `fband_snoc` (geometry.v:273–276, `fband_rcons`) -/
+
+-- Coq: fband_rcons in geometry.v:273
+theorem fband_snoc (p : List G.Dart) (x y : G.Dart) :
+    fband G (p ++ [x]) y ↔ cface G y x ∨ fband G p y := by
+  constructor
+  · rintro ⟨z, hz_mem, hz_face⟩
+    rcases List.mem_append.mp hz_mem with hz_mem | hz_mem
+    · exact Or.inr ⟨z, hz_mem, hz_face⟩
+    · exact Or.inl (by rw [List.mem_singleton] at hz_mem; rwa [hz_mem] at hz_face)
+  · rintro (h | ⟨z, hz_mem, hz_face⟩)
+    · exact ⟨x, List.mem_append.mpr (Or.inr (List.mem_singleton.mpr rfl)), h⟩
+    · exact ⟨z, List.mem_append.mpr (Or.inl hz_mem), hz_face⟩
+
+/-! ### 23. `fband_replicate` (geometry.v:277–284, `fband_nseq`) -/
+
+-- Coq: fband_nseq in geometry.v:277
+theorem fband_replicate (n : ℕ) (x y : G.Dart) :
+    fband G (List.replicate n x) y ↔ 0 < n ∧ cface G y x := by
+  induction n with
+  | zero => simp [fband]
+  | succ n ih =>
+    simp only [List.replicate_succ, fband_cons, ih, Nat.zero_lt_succ, true_and]
+    constructor
+    · rintro (h | ⟨_, h⟩)
+      · exact h
+      · exact h
+    · intro h
+      exact Or.inl h
+
+/-! ### 24. `fband_singleton` -/
+
+@[simp] theorem fband_singleton (x y : G.Dart) :
+    fband G [x] y ↔ cface G y x := by
+  simp [fband]
+
 end Hypermap
