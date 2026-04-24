@@ -52,6 +52,49 @@ theorem four_colorable_bridgeless : FourColorable G → Bridgeless G := by
       exact ih
   exact this
 
+/-! ## Coloring composition with injection -/
+
+-- Coq: coloring.v:81
+/-- Composing a coloring with an injective function yields a coloring. -/
+theorem coloring_inj {h : Color → Color} (hinj : Function.Injective h)
+    {k : G.Dart → Color} (hk : Coloring k) : Coloring (h ∘ k) := by
+  obtain ⟨hkE, hkF⟩ := hk
+  exact ⟨fun x => hinj.ne (hkE x), fun x => congr_arg h (hkF x)⟩
+
+/-! ## Mirror coloring -/
+
+-- Coq: coloring.v:139
+/-- A coloring of the mirror hypermap induces a coloring of the original. -/
+theorem coloring_mirror {k : (mirror G).Dart → Color}
+    (hk : @Coloring (mirror G) k) : @Coloring G k := by
+  obtain ⟨hkE, hkF⟩ := hk
+  -- Face invariance: mirror.face = invFun G.face, so k ∘ face⁻¹ = k implies k ∘ face = k.
+  have hface : ∀ x, k (G.face x) = k x := by
+    intro x
+    have h := hkF (G.face x)
+    change k (Function.invFun G.face (G.face x)) = k (G.face x) at h
+    rw [Function.leftInverse_invFun face_bijective.injective] at h
+    exact h.symm
+  -- Node distinctness: mirror.edge = face ∘ node, so k(face(node x)) ≠ k x.
+  -- By face invariance, k(node x) ≠ k x.
+  have hnode_ne : ∀ x, k (G.node x) ≠ k x := by
+    intro x
+    have h := hkE x
+    change k (G.face (G.node x)) ≠ k x at h
+    rwa [hface (G.node x)] at h
+  -- Edge distinctness: from edgeK, n(f(e(x))) = x, so specializing
+  -- hnode_ne at f(e(x)) gives k(x) ≠ k(f(e(x))) = k(e(x)).
+  constructor
+  · intro x heq
+    exact hnode_ne (G.face (G.edge x)) (by rw [edgeK', hface]; exact heq.symm)
+  · exact hface
+
+-- Coq: coloring.v:147
+/-- If the mirror of G is four-colorable, then G is four-colorable. -/
+theorem colorable_mirror (h : FourColorable (mirror G)) : FourColorable G := by
+  obtain ⟨k, hk⟩ := h
+  exact ⟨k, coloring_mirror hk⟩
+
 /-! ## Graph coloring (dual) -/
 
 /-- A graph coloring: constant on nodes, distinct on edges. -/
@@ -62,6 +105,47 @@ def GraphColoring (k : G.Dart → Color) : Prop :=
 /-- A hypermap is graph-four-colorable. -/
 def GraphFourColorable (G : Hypermap) : Prop :=
   ∃ k : G.Dart → Color, GraphColoring k
+
+/-! ## Dual coloring -/
+
+-- Coq: coloring.v:123
+/-- A coloring on the dual hypermap corresponds to a graph coloring. -/
+theorem coloring_dual {k : G.Dart → Color} :
+    @Coloring (dual G) k ↔ GraphColoring k := by
+  constructor
+  · intro ⟨hkE, hkF⟩
+    constructor
+    · intro x
+      have h := hkE (G.edge x)
+      change k (Function.invFun G.edge (G.edge x)) ≠ k (G.edge x) at h
+      rw [Function.leftInverse_invFun edge_bijective.injective] at h
+      exact Ne.symm h
+    · intro x
+      have h := hkF (G.node x)
+      change k (Function.invFun G.node (G.node x)) = k (G.node x) at h
+      rw [Function.leftInverse_invFun node_bijective.injective] at h
+      exact h.symm
+  · intro ⟨hkE, hkN⟩
+    constructor
+    · intro x
+      obtain ⟨y, hy⟩ := @edge_surjective G x
+      subst hy
+      show k (Function.invFun G.edge (G.edge y)) ≠ k (G.edge y)
+      rw [Function.leftInverse_invFun edge_bijective.injective]
+      exact Ne.symm (hkE y)
+    · intro x
+      obtain ⟨y, hy⟩ := @node_surjective G x
+      subst hy
+      show k (Function.invFun G.node (G.node y)) = k (G.node y)
+      rw [Function.leftInverse_invFun node_bijective.injective]
+      exact (hkN y).symm
+
+-- Coq: coloring.v:135
+/-- Four-colorability of the dual corresponds to graph-four-colorability. -/
+theorem four_colorable_dual : FourColorable (dual G) ↔ GraphFourColorable G := by
+  constructor
+  · rintro ⟨k, hk⟩; exact ⟨k, coloring_dual.mp hk⟩
+  · rintro ⟨k, hk⟩; exact ⟨k, coloring_dual.mpr hk⟩
 
 /-! ## Contract coloring -/
 
