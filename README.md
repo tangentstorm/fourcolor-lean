@@ -6,7 +6,7 @@
 Overall port progress
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Core infrastructure    ██████████████░░░░░░  ~70%
-fcardFace_cube         █████████░░░░░░░░░░░  ~45%  helpers ready, partition pending
+fcardFace_cube         ██████████░░░░░░░░░░  ~50%  helpers ready, partition pending
 walkupE_euler_compon.  ███░░░░░░░░░░░░░░░░░  ~15%  clean helpers; main theorem stalled
 jordan_walkupE         ██░░░░░░░░░░░░░░░░░░  ~10%  blocked on walkupE_euler_components
 jordan_planar          ██░░░░░░░░░░░░░░░░░░  ~10%
