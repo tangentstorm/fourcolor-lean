@@ -405,6 +405,37 @@ theorem cconnect_gcomp {x y : G.Dart} (h : cconnect G x y) : gcomp G x y := by
   | refl => exact Relation.ReflTransGen.refl
   | tail _ hstep ih => exact ih.trans (clink_gcomp hstep)
 
+/-! ## clink path-lifting lemmas (for jordan_walkupE) -/
+
+-- Coq: hypermap.v (connect_refl)
+theorem cconnect_refl (G : Hypermap) (x : G.Dart) : cconnect G x x :=
+  Relation.ReflTransGen.refl
+
+-- Coq: hypermap.v (connect_trans)
+theorem cconnect_trans (G : Hypermap) : Transitive (cconnect G) :=
+  fun _ _ _ => Relation.ReflTransGen.trans
+
+-- Coq: hypermap.v (clinkN)
+theorem clinkN (G : Hypermap) (x : G.Dart) : clink G (G.node x) x :=
+  Or.inl rfl
+
+-- Coq: hypermap.v (clinkF)
+theorem clinkF (G : Hypermap) (x : G.Dart) : clink G x (G.face x) :=
+  Or.inr rfl
+
+-- Coq: hypermap.v (connect_node)
+theorem cconnect_node (G : Hypermap) (x : G.Dart) : cconnect G (G.node x) x :=
+  Relation.ReflTransGen.single (clinkN G x)
+
+-- Coq: hypermap.v (connect_face)
+theorem cconnect_face (G : Hypermap) (x : G.Dart) : cconnect G x (G.face x) :=
+  Relation.ReflTransGen.single (clinkF G x)
+
+-- Coq: hypermap.v (path lifting / cons)
+theorem cconnect_cons (G : Hypermap) {x y z : G.Dart}
+    (h : clink G x y) (hr : cconnect G y z) : cconnect G x z :=
+  Relation.ReflTransGen.head h hr
+
 -- TODO: cconnect_symm — reversing a single clink step requires iterating
 -- around finite permutation orbits (face-forward or node-backward), which
 -- needs the order-of-permutation machinery. Left for a future PR.
