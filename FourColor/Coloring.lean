@@ -227,6 +227,26 @@ def MinimalCounterExample (G : Hypermap) : Prop :=
     Planar H → Bridgeless H → Plain H → Precubic H →
     FourColorable H)
 
+/-- Extract non-four-colorability from a minimal counter-example. -/
+theorem MinimalCounterExample.not_four_colorable {G : Hypermap}
+    (h : MinimalCounterExample G) : ¬ FourColorable G := h.1
+
+/-- Extract planarity from a minimal counter-example. -/
+theorem MinimalCounterExample.planar {G : Hypermap}
+    (h : MinimalCounterExample G) : Planar G := h.2.1
+
+/-- Extract bridgelessness from a minimal counter-example. -/
+theorem MinimalCounterExample.bridgeless {G : Hypermap}
+    (h : MinimalCounterExample G) : Bridgeless G := h.2.2.1
+
+/-- Extract plainness from a minimal counter-example. -/
+theorem MinimalCounterExample.plain {G : Hypermap}
+    (h : MinimalCounterExample G) : Plain G := h.2.2.2.1
+
+/-- Extract precubicity from a minimal counter-example. -/
+theorem MinimalCounterExample.precubic {G : Hypermap}
+    (h : MinimalCounterExample G) : Precubic G := h.2.2.2.2.1
+
 /-! ## Good ring arity -/
 
 /-- The face arity of dart x is in the range {3, 4, 5, 6}.

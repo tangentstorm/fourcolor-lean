@@ -78,6 +78,18 @@ structure SimpleMap (m : Map) : Prop extends PlainMap m where
 structure FiniteSimpleMap (m : Map) : Prop extends SimpleMap m where
   finite : ∃ n, AtMostRegions n m
 
+/-- A finite simple map is also a plain map (convenience alias). -/
+theorem FiniteSimpleMap.plainMap {m : Map} (h : FiniteSimpleMap m) : PlainMap m :=
+  h.toSimpleMap.toPlainMap
+
+/-- Symmetry of a simple map's underlying relation. -/
+theorem SimpleMap.sym' {m : Map} (h : SimpleMap m) : ∀ z1 z2, m z1 z2 → m z2 z1 :=
+  h.toPlainMap.sym
+
+/-- Transitivity of a simple map's underlying relation. -/
+theorem SimpleMap.trans' {m : Map} (h : SimpleMap m) : ∀ z1 z2, m z1 z2 → m z2 ⊆ m z1 :=
+  h.toPlainMap.trans
+
 /-! ## Intervals and rectangles (realplane.v:80–82) -/
 
 /-- An open interval in ℝ, given by its endpoints. -/
@@ -126,6 +138,11 @@ theorem PlainMap.map_cover {m : Map} (mP : PlainMap m) {z1 z2 : Point}
   constructor
   · exact mP.trans z1 z2 h (mP.sym z1 z2 h)
   · exact mP.trans z2 z1 (mP.sym z1 z2 h) h
+
+/-- If two points are related, the first is in the cover. -/
+theorem cover_of_rel {m : Map} (hP : PlainMap m) {z1 z2 : Point}
+    (h : m z1 z2) : z1 ∈ cover m :=
+  (PlainMap.map_cover hP h).1
 
 /-! ## Borders and adjacency -/
 
