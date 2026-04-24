@@ -398,8 +398,8 @@ private theorem cubeFace_CTen_cface (G : Hypermap) (x : G.Dart) (n : ℕ) :
       t ∈ ({CubeTag.CTn, CubeTag.CTen, CubeTag.CTf, CubeTag.CTnf} : Set CubeTag) ∧
       (cubeFace G)^[n] (CubeTag.CTen, x) = (t, y) ∧
       cface G x y := by
-  rcases Nat.even_or_odd' n with ⟨ k, rfl | rfl ⟩ <;> simp +decide [ *, Function.iterate_succ_apply', Nat.even_add_one ] at *;
-  · rcases Nat.even_or_odd' k with ⟨ k, rfl | rfl ⟩ <;> simp +decide [ *, Function.iterate_mul, Function.iterate_fixed ] at *;
+  rcases Nat.even_or_odd' n with ⟨ k, rfl | rfl ⟩ <;> simp +decide [ *, Function.iterate_succ_apply' ] at *;
+  · rcases Nat.even_or_odd' k with ⟨ k, rfl | rfl ⟩ <;> simp +decide [ *, Function.iterate_mul ] at *;
     · refine Or.inr <| Or.inl ⟨ G.face^[k] x, ?_, ?_ ⟩;
       · refine' Nat.recOn k _ _ <;> simp_all +decide [ Function.iterate_succ_apply' ];
         intro _ _; simp [cubeFace]
@@ -412,12 +412,12 @@ private theorem cubeFace_CTen_cface (G : Hypermap) (x : G.Dart) (n : ℕ) :
       · exact ⟨ k, rfl ⟩;
   · induction k <;> simp_all +decide [ Nat.mul_succ, Function.iterate_succ_apply' ] ;
     · exact Or.inr <| Or.inr <| Or.inl ⟨ x, rfl, ⟨ 0, rfl ⟩ ⟩;
-    · rename_i k hk; rcases hk with ( ⟨ y, hy, hy' ⟩ | ⟨ y, hy, hy' ⟩ | ⟨ y, hy, hy' ⟩ | ⟨ y, hy, hy' ⟩ ) <;> simp_all +decide [ Function.iterate_succ_apply', Nat.mul_succ ] ;
-      · unfold Hypermap.cubeFace; simp +decide [ *, Function.iterate_succ_apply' ] ;
-      · unfold Hypermap.cubeFace; simp +decide [ *, Function.iterate_succ_apply' ] ;
-      · unfold Hypermap.cubeFace; simp +decide [ *, Function.iterate_succ_apply' ] ;
+    · rename_i k hk; rcases hk with ( ⟨ y, hy, hy' ⟩ | ⟨ y, hy, hy' ⟩ | ⟨ y, hy, hy' ⟩ | ⟨ y, hy, hy' ⟩ ) <;> simp_all +decide ;
+      · unfold Hypermap.cubeFace; simp +decide [ * ] ;
+      · unfold Hypermap.cubeFace; simp +decide [ * ] ;
+      · unfold Hypermap.cubeFace; simp +decide [ * ] ;
         exact ⟨ hy'.choose + 1, by simpa [ Function.iterate_succ_apply' ] using congr_arg G.face hy'.choose_spec ⟩;
-      · unfold Hypermap.cubeFace; simp +decide [ *, Function.iterate_succ_apply' ] ;
+      · unfold Hypermap.cubeFace; simp +decide [ * ] ;
         exact ⟨ hy'.choose + 1, by simp +decide [ Function.iterate_succ_apply', hy'.choose_spec ] ⟩
 
 /-
