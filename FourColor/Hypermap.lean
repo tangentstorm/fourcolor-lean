@@ -293,6 +293,44 @@ noncomputable def mirror (G : Hypermap) : Hypermap where
     convert Function.leftInverse_invFun G.node_bijective.injective _ using 1
     exact congr_arg _ (Function.leftInverse_invFun G.face_bijective.injective _)
 
+/-! ## Structural simp lemmas for dual and mirror
+
+These unfold the fields of `dual` and `mirror` by definitional reduction.
+Corresponds to projections used implicitly throughout `hypermap.v` and `geometry.v`
+in the Coq formalization. -/
+
+/-- `(dual G).Dart` is definitionally equal to `G.Dart`. (hypermap.v) -/
+@[simp] theorem dual_Dart (G : Hypermap) : (dual G).Dart = G.Dart := rfl
+
+/-- `(mirror G).Dart` is definitionally equal to `G.Dart`. (hypermap.v) -/
+@[simp] theorem mirror_Dart (G : Hypermap) : (mirror G).Dart = G.Dart := rfl
+
+/-- The cardinality of darts is invariant under `dual`. (hypermap.v) -/
+@[simp] theorem card_dual (G : Hypermap) :
+    Fintype.card (dual G).Dart = Fintype.card G.Dart := rfl
+
+/-- The cardinality of darts is invariant under `mirror`. (hypermap.v) -/
+@[simp] theorem card_mirror (G : Hypermap) :
+    Fintype.card (mirror G).Dart = Fintype.card G.Dart := rfl
+
+/-- The edge of the dual is the inverse of the original edge. (hypermap.v) -/
+@[simp] theorem dual_edge (G : Hypermap) : (dual G).edge = Function.invFun G.edge := rfl
+
+/-- The node of the dual is the inverse of the original face. (hypermap.v) -/
+@[simp] theorem dual_node (G : Hypermap) : (dual G).node = Function.invFun G.face := rfl
+
+/-- The face of the dual is the inverse of the original node. (hypermap.v) -/
+@[simp] theorem dual_face (G : Hypermap) : (dual G).face = Function.invFun G.node := rfl
+
+/-- The edge of the mirror is `face ∘ node`. (hypermap.v) -/
+@[simp] theorem mirror_edge (G : Hypermap) : (mirror G).edge = G.face ∘ G.node := rfl
+
+/-- The node of the mirror is the inverse of the original node. (hypermap.v) -/
+@[simp] theorem mirror_node (G : Hypermap) : (mirror G).node = Function.invFun G.node := rfl
+
+/-- The face of the mirror is the inverse of the original face. (hypermap.v) -/
+@[simp] theorem mirror_face (G : Hypermap) : (mirror G).face = Function.invFun G.face := rfl
+
 /-! ## Symmetry / equivalence lemmas for glink, gcomp, clink, cconnect -/
 
 -- Coq: hypermap.v (gcomp reflexivity)
