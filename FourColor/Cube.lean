@@ -208,8 +208,7 @@ theorem cube_glink_to_CTnf (G : Hypermap) (t : CubeTag) (x : G.Dart) :
     exact Or.inr <| Or.inr <| by unfold Hypermap.cubeFace; rfl;
   · exact Relation.EqvGen.refl _;
   · -- By definition of `cubeNode`, we have `cubeNode (CubeTag.CTe, x) = (CubeTag.CTf, x)`.
-    have h_cubeNode_CTe : G.cubeNode (CubeTag.CTe, x) = (CubeTag.CTf, x) := by
-      exact?;
+    have h_cubeNode_CTe : G.cubeNode (CubeTag.CTe, x) = (CubeTag.CTf, x) := rfl
     exact Relation.EqvGen.trans _ _ _ ( Relation.EqvGen.rel _ _ ( Or.inr ( Or.inl h_cubeNode_CTe ) ) ) ( Relation.EqvGen.rel _ _ ( Or.inr ( Or.inr rfl ) ) );
   · -- By definition of glink, we can connect (CTfe, x) to (CTn, x) via the edge function.
     have h_edge : Relation.EqvGen G.cube.glink (CubeTag.CTfe, x) (CubeTag.CTn, x) := by
@@ -236,7 +235,7 @@ theorem cube_glink_lift (G : Hypermap) (x y : G.Dart) :
   · obtain h | h | h := hxy;
     · have h_chain : Relation.EqvGen G.cube.glink (CubeTag.CTnf, x) (CubeTag.CTen, x) := by
         apply Relation.EqvGen.symm;
-        exact?;
+        exact cube_glink_to_CTnf G CubeTag.CTen x
       have h_chain : Relation.EqvGen G.cube.glink (CubeTag.CTen, x) (CubeTag.CTnf, y) := by
         apply Relation.EqvGen.rel;
         exact Or.inl ( by aesop );
@@ -298,7 +297,7 @@ theorem nComp_cube (G : Hypermap) :
       induction hxy;
       · exact h_glink _ _ ‹_›;
       · exact Relation.EqvGen.refl _;
-      · exact?;
+      · exact Relation.EqvGen.symm _ _ ‹_›
       · exact Relation.EqvGen.trans _ _ _ ‹_› ‹_›;
     · -- By definition of $cube$, we know that if $x.2$ and $y.2$ are related by $glink$ in $G$, then $x$ and $y$ are related by $glink$ in $cube G$.
       have h_rel : ∀ (x y : G.Dart), Relation.EqvGen G.glink x y → Relation.EqvGen (cube G).glink (CubeTag.CTnf, x) (CubeTag.CTnf, y) := by
@@ -403,12 +402,12 @@ private theorem cubeFace_CTen_cface (G : Hypermap) (x : G.Dart) (n : ℕ) :
   · rcases Nat.even_or_odd' k with ⟨ k, rfl | rfl ⟩ <;> simp +decide [ *, Function.iterate_mul, Function.iterate_fixed ] at *;
     · refine Or.inr <| Or.inl ⟨ G.face^[k] x, ?_, ?_ ⟩;
       · refine' Nat.recOn k _ _ <;> simp_all +decide [ Function.iterate_succ_apply' ];
-        exact?;
+        intro _ _; simp [cubeFace]
       · exact ⟨ k, rfl ⟩;
     · refine' Or.inr <| Or.inr <| Or.inr ⟨ _, _, _ ⟩;
       exact G.face^[k] x;
       · induction k <;> simp_all +decide [ Function.iterate_succ_apply' ];
-        · exact?;
+        · simp [cubeFace]
         · unfold Hypermap.cubeFace; aesop;
       · exact ⟨ k, rfl ⟩;
   · induction k <;> simp_all +decide [ Nat.mul_succ, Function.iterate_succ_apply' ] ;
