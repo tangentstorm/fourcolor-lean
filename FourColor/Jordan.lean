@@ -85,4 +85,13 @@ theorem planar_jordan (G : Hypermap) : Planar G → Jordan G := by
 theorem jordan_iff_planar (G : Hypermap) : Jordan G ↔ Planar G :=
   ⟨jordan_planar G, planar_jordan G⟩
 
+/-! ## Small helpers -/
+
+/-- `Planar` unfolds definitionally to `genus = 0`. -/
+@[simp] theorem planar_iff_genus_zero (G : Hypermap) : Planar G ↔ genus G = 0 :=
+  Iff.rfl
+
+/-- Genus is nonnegative (trivially, since it's a `Nat`). -/
+theorem genus_nonneg (G : Hypermap) : 0 ≤ genus G := Nat.zero_le _
+
 end Hypermap
