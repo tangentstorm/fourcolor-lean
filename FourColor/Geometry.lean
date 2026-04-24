@@ -782,4 +782,54 @@ theorem adj_fband {p : List G.Dart} {x y : G.Dart}
   obtain ⟨u, hu_mem, hu_face⟩ := hfb
   exact ⟨u, hu_mem, w, hxw, cface_trans (cface_sym hu_face) hyw⟩
 
+/-! ### 36. `cface` / `cedge` / `cnode` iteration helpers -/
+
+/-- Given `cface G x y`, produce the iteration count. -/
+theorem cface.exists_iterate {x y : G.Dart}
+    (h : cface G x y) : ∃ n, G.face^[n] x = y := h
+
+/-- Given `cedge G x y`, produce the iteration count. -/
+theorem cedge.exists_iterate {x y : G.Dart}
+    (h : cedge G x y) : ∃ n, G.edge^[n] x = y := h
+
+/-- Given `cnode G x y`, produce the iteration count. -/
+theorem cnode.exists_iterate {x y : G.Dart}
+    (h : cnode G x y) : ∃ n, G.node^[n] x = y := h
+
+/-- If `cface G x y`, any face iterate of `y` is also in the cface orbit. -/
+theorem cface_iter_face_right {x y : G.Dart}
+    (h : cface G x y) (n : ℕ) : cface G x (G.face^[n] y) := by
+  obtain ⟨m, rfl⟩ := h
+  exact ⟨n + m, by rw [Function.iterate_add_apply]⟩
+
+/-- If `cedge G x y`, any edge iterate of `y` is also in the cedge orbit. -/
+theorem cedge_iter_edge_right {x y : G.Dart}
+    (h : cedge G x y) (n : ℕ) : cedge G x (G.edge^[n] y) := by
+  obtain ⟨m, rfl⟩ := h
+  exact ⟨n + m, by rw [Function.iterate_add_apply]⟩
+
+/-- If `cnode G x y`, any node iterate of `y` is also in the cnode orbit. -/
+theorem cnode_iter_node_right {x y : G.Dart}
+    (h : cnode G x y) (n : ℕ) : cnode G x (G.node^[n] y) := by
+  obtain ⟨m, rfl⟩ := h
+  exact ⟨n + m, by rw [Function.iterate_add_apply]⟩
+
+/-- Prepending face iterates on the left preserves `cface`. -/
+theorem cface_iter_face_left (x : G.Dart) (n : ℕ) {y : G.Dart}
+    (h : cface G (G.face^[n] x) y) : cface G x y := by
+  obtain ⟨m, rfl⟩ := h
+  exact ⟨m + n, by rw [← Function.iterate_add_apply, Nat.add_comm]⟩
+
+/-- Prepending edge iterates on the left preserves `cedge`. -/
+theorem cedge_iter_edge_left (x : G.Dart) (n : ℕ) {y : G.Dart}
+    (h : cedge G (G.edge^[n] x) y) : cedge G x y := by
+  obtain ⟨m, rfl⟩ := h
+  exact ⟨m + n, by rw [← Function.iterate_add_apply, Nat.add_comm]⟩
+
+/-- Prepending node iterates on the left preserves `cnode`. -/
+theorem cnode_iter_node_left (x : G.Dart) (n : ℕ) {y : G.Dart}
+    (h : cnode G (G.node^[n] x) y) : cnode G x y := by
+  obtain ⟨m, rfl⟩ := h
+  exact ⟨m + n, by rw [← Function.iterate_add_apply, Nat.add_comm]⟩
+
 end Hypermap

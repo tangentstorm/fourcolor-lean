@@ -63,6 +63,14 @@ theorem addc_right_cancel (c : Color) : Function.Injective (· + c) := by
   intro a b h
   cases a <;> cases b <;> cases c <;> first | rfl | exact absurd h (by decide)
 
+/-- Left-commutativity of color addition. -/
+theorem addc_left_comm (a b c : Color) : a + (b + c) = b + (a + c) := by
+  cases a <;> cases b <;> cases c <;> rfl
+
+/-- Right-commutativity of color addition. -/
+theorem addc_right_comm (a b c : Color) : (a + b) + c = (a + c) + b := by
+  cases a <;> cases b <;> cases c <;> rfl
+
 /-! ## Color bits -/
 
 /-- The lower bit of a color. -/
@@ -205,6 +213,14 @@ theorem sumt_nil : sumt ([] : List Color) = Color0 := rfl
 -- Coq: color.v:222
 theorem sumt_cons (c : Color) (cs : List Color) :
     sumt (c :: cs) = c + sumt cs := rfl
+
+@[simp] theorem sumt_singleton (c : Color) : sumt [c] = c := by
+  rw [sumt_cons, sumt_nil, add_Color0_right]
+
+@[simp] theorem sumt_append (s t : List Color) : sumt (s ++ t) = sumt s + sumt t := by
+  induction s with
+  | nil => rw [List.nil_append, sumt_nil, add_Color0_left]
+  | cons x xs ih => rw [List.cons_append, sumt_cons, sumt_cons, ih, addc_assoc]
 
 /-! ## Color addition cancellation (Coq: color.v:99) -/
 

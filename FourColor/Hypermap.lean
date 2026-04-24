@@ -405,6 +405,54 @@ theorem cconnect_gcomp {x y : G.Dart} (h : cconnect G x y) : gcomp G x y := by
   | refl => exact Relation.ReflTransGen.refl
   | tail _ hstep ih => exact ih.trans (clink_gcomp hstep)
 
+/-! ## One-step glink witnesses and gcomp lifts -/
+
+/-- The edge-step is a glink. -/
+theorem glinkE (G : Hypermap) (x : G.Dart) : glink G x (G.edge x) := Or.inl rfl
+
+/-- The node-step is a glink. -/
+theorem glinkN' (G : Hypermap) (x : G.Dart) : glink G x (G.node x) := Or.inr (Or.inl rfl)
+
+/-- The face-step is a glink. -/
+theorem glinkF' (G : Hypermap) (x : G.Dart) : glink G x (G.face x) := Or.inr (Or.inr rfl)
+
+theorem gcomp_edge (G : Hypermap) (x : G.Dart) : gcomp G x (G.edge x) :=
+  Relation.ReflTransGen.single (glinkE G x)
+
+theorem gcomp_node (G : Hypermap) (x : G.Dart) : gcomp G x (G.node x) :=
+  Relation.ReflTransGen.single (glinkN' G x)
+
+theorem gcomp_face (G : Hypermap) (x : G.Dart) : gcomp G x (G.face x) :=
+  Relation.ReflTransGen.single (glinkF' G x)
+
+theorem gcomp_of_cedge (G : Hypermap) {x y : G.Dart} (h : cedge G x y) : gcomp G x y := by
+  obtain ⟨n, rfl⟩ := h
+  induction n with
+  | zero => exact Relation.ReflTransGen.refl
+  | succ n ih =>
+    rw [Function.iterate_succ_apply']
+    exact Relation.ReflTransGen.tail ih (glinkE G _)
+
+theorem gcomp_of_cnode (G : Hypermap) {x y : G.Dart} (h : cnode G x y) : gcomp G x y := by
+  obtain ⟨n, rfl⟩ := h
+  induction n with
+  | zero => exact Relation.ReflTransGen.refl
+  | succ n ih =>
+    rw [Function.iterate_succ_apply']
+    exact Relation.ReflTransGen.tail ih (glinkN' G _)
+
+theorem gcomp_of_cface (G : Hypermap) {x y : G.Dart} (h : cface G x y) : gcomp G x y := by
+  obtain ⟨n, rfl⟩ := h
+  induction n with
+  | zero => exact Relation.ReflTransGen.refl
+  | succ n ih =>
+    rw [Function.iterate_succ_apply']
+    exact Relation.ReflTransGen.tail ih (glinkF' G _)
+
+/-- In a connected hypermap every pair of darts is gcomp-related. -/
+theorem Connected.gcomp {G : Hypermap} (h : Connected G) (x y : G.Dart) :
+    gcomp G x y := h x y
+
 /-! ## clink path-lifting lemmas (for jordan_walkupE) -/
 
 -- Coq: hypermap.v (connect_refl)
