@@ -398,6 +398,26 @@ theorem cubeFace_CTfe_iter (G : Hypermap) (x : G.Dart) (n : ℕ) :
   | zero => rfl
   | succ n ih => rw [Function.iterate_succ_apply', ih]; simp [cubeFace, Function.iterate_succ_apply']
 
+/-- The cube face orbit of (CTe, x) stays at tag CTe. -/
+theorem cubeFace_tag_preserves_CTe (G : Hypermap) (x : G.Dart) (n : ℕ) :
+    ((cubeFace G)^[n] (CubeTag.CTe, x)).1 = CubeTag.CTe := by
+  rw [cubeFace_CTe_iter]
+
+/-- The cube face orbit of (CTfe, x) stays at tag CTfe. -/
+theorem cubeFace_tag_preserves_CTfe (G : Hypermap) (x : G.Dart) (n : ℕ) :
+    ((cubeFace G)^[n] (CubeTag.CTfe, x)).1 = CubeTag.CTfe := by
+  rw [cubeFace_CTfe_iter]
+
+/-- The second component of iterating cubeFace on (CTe, x) is `G.edge^[n] x`. -/
+theorem cubeFace_snd_CTe (G : Hypermap) (x : G.Dart) (n : ℕ) :
+    ((cubeFace G)^[n] (CubeTag.CTe, x)).2 = G.edge^[n] x := by
+  rw [cubeFace_CTe_iter]
+
+/-- The second component of iterating cubeFace on (CTfe, x) is `G.node^[n] x`. -/
+theorem cubeFace_snd_CTfe (G : Hypermap) (x : G.Dart) (n : ℕ) :
+    ((cubeFace G)^[n] (CubeTag.CTfe, x)).2 = G.node^[n] x := by
+  rw [cubeFace_CTfe_iter]
+
 /-
 Face iteration on CTfe stays in CTfe.
 -/
