@@ -187,7 +187,12 @@ theorem fcardNode_of_cubic (G : Hypermap) (hC : Cubic G) :
   have h_node_support_card : G.nodePerm.support.card = Fintype.card G.Dart := by
     refine' Finset.card_bij ( fun x hx => x ) _ _ _ <;> simp +decide [ hC ];
     exact fun x => by simpa [ Hypermap.nodePerm ] using hC x |>.2.1;
-  have := Equiv.Perm.sum_cycleType G.nodePerm; aesop;
+  -- support.card = |Dart| (no fixed points), and cycleType.sum = 3 * |cycleFactorsFinset|,
+  -- so |cycleFactorsFinset| = |Dart| / 3.
+  have hsum := Equiv.Perm.sum_cycleType G.nodePerm
+  rw [h_node_support_card, Nat.sub_self, Nat.add_zero]
+  rw [h_node_support_card] at hsum
+  rw [← hsum, h_node_cycle_count, Nat.mul_div_cancel_left _ (by decide : (0:ℕ) < 3)]
 
 /-- The number of face orbits in the cube equals the Euler rhs of G.
     Face orbits decompose into three types:
