@@ -189,27 +189,47 @@ def Planar (G : Hypermap) : Prop :=
 def cconnect (G : Hypermap) (x y : G.Dart) : Prop :=
   Relation.ReflTransGen (clink G) x y
 
-/-- A Moebius path in a hypermap: an injective clink-path with an
-    odd-crossing condition on node links that witnesses non-planarity.
+/-- `List.mem2 p a b` holds when `a` appears strictly before `b` in `p`,
+    i.e., there exist indices `i < j` with `p[i] = a` and `p[j] = b`.
+    This mirrors the Coq/ssreflect `mem2` from `seq.v`:
+      `mem2 s x y := y \in drop (index x s).+1 s`. -/
+def List.mem2 {α : Type*} (p : List α) (a b : α) : Prop :=
+  ∃ i j, i < j ∧ j < p.length ∧ p[i]? = some a ∧ p[j]? = some b
 
-    In the Coq formalization, this is defined as an injective cycle
-    of darts connected by clink steps, such that the path has a
-    topological "twist" detected by counting node-crossings modulo 2.
+/-- The inverse of the node permutation. Corresponds to `finv node` in the
+    Coq formalization. -/
+noncomputable def finvNode (G : Hypermap) : G.Dart → G.Dart :=
+  G.nodePerm.symm
 
-    For the purpose of stating the Jordan property, a hypermap has
-    the Jordan property iff it contains no Moebius paths. -/
+theorem finvNode_node (x : G.Dart) : G.finvNode (G.node x) = x := by
+  exact Equiv.ofBijective_symm_apply_apply G.node node_bijective x
+
+theorem node_finvNode (x : G.Dart) : G.node (G.finvNode x) = x := by
+  exact Equiv.ofBijective_apply_symm_apply G.node node_bijective x
+
+/-- A Moebius path in a hypermap.
+
+    Corresponds to `Moebius_path` in the Coq formalization (hypermap.v:260):
+
+      Definition Moebius_path q :=
+        if q isn't x :: p then false else
+        [&& uniq q, path clink x p & mem2 p (finv node (last x p)) (node x)].
+
+    That is, `q = x :: p` where:
+    - `q` has no duplicates (`uniq q` ↔ `q.Nodup`),
+    - `p` is a clink-path starting from `x` (`path clink x p` ↔ `List.Chain (clink G) x p`),
+    - `p` contains both `finv node (last x p)` and `node x`, with the former
+      appearing strictly before the latter (`mem2`). This "twist" on the
+      node-links at the endpoints detects a topological non-orientability.
+
+    A hypermap has the Jordan property iff it contains no Moebius paths. -/
 def MoebiusPath (G : Hypermap) (q : List G.Dart) : Prop :=
-  q ≠ [] ∧
-  q.Nodup ∧
-  (∀ (i : ℕ) (hi : i < q.length),
-    clink G (q.get ⟨i, hi⟩)
-      (q.get ⟨(i + 1) % q.length, Nat.mod_lt _ (by omega)⟩)) ∧
-  -- The Moebius twist: there exists a "crossing" that is topologically
-  -- non-orientable. This is detected by a parity condition on node-links
-  -- along the path.
-  ∃ x ∈ q, ∃ y ∈ q, x ≠ y ∧ G.node x = y ∧
-    -- The path visits x and y in an order that creates a non-orientable crossing
-    (∀ z ∈ q, cface G x z ∨ cface G y z)
+  match q with
+  | [] => False
+  | x :: p =>
+    (x :: p).Nodup ∧
+    List.IsChain (clink G) (x :: p) ∧
+    List.mem2 p (G.finvNode ((x :: p).getLast (by simp))) (G.node x)
 
 /-- The Jordan property: a hypermap has no Moebius paths. -/
 def Jordan (G : Hypermap) : Prop :=

@@ -12,7 +12,9 @@ import FourColor.Geometry
 
 set_option maxHeartbeats 400000
 
-open Hypermap Color
+open Hypermap Color Classical
+
+noncomputable section
 
 namespace Hypermap
 
@@ -101,40 +103,174 @@ def MinimalCounterExample (G : Hypermap) : Prop :=
     Planar H → Bridgeless H → Plain H → Precubic H →
     FourColorable H)
 
+/-! ## Good ring arity -/
+
+/-- The face arity of dart x is in the range {3, 4, 5, 6}.
+    Corresponds to Coq `good_ring_arity` (coloring.v:395):
+      Definition good_ring_arity (x : G) : bool := pred4 3 4 5 6 (order face x).
+-/
+def GoodRingArity (G : Hypermap) (x : G.Dart) : Prop :=
+  arity G x = 3 ∨ arity G x = 4 ∨ arity G x = 5 ∨ arity G x = 6
+
+/-! ## Radius 2 -/
+
+/-- Two darts x, y are at radius 2 within A if there exists a common
+    neighbor z ∈ A that is adjacent to both x and y.
+    Corresponds to Coq `at_radius2` (coloring.v:419-420):
+      Definition at_radius2 := [rel x y | ~~ [disjoint adj y & [predI adj x & A]]].
+    which unfolds to: ∃ z, adj y z ∧ adj x z ∧ A z. -/
+def AtRadius2 (G : Hypermap) (A : G.Dart → Prop) (x y : G.Dart) : Prop :=
+  ∃ z : G.Dart, A z ∧ adj G x z ∧ adj G y z
+
+/-- A predicate A has radius 2 if there is a center x ∈ A such that every
+    y ∈ A is at radius 2 from x within A.
+    Corresponds to Coq `radius2` (coloring.v:427):
+      Definition radius2 := ~~ [disjoint A & [pred x | A \subset at_radius2 x]].
+    i.e., ∃ x, A x ∧ ∀ y, A y → at_radius2 x y. -/
+def Radius2 (G : Hypermap) (A : G.Dart → Prop) : Prop :=
+  ∃ x : G.Dart, A x ∧ ∀ y : G.Dart, A y → AtRadius2 G A x y
+
+/-! ## Sparse -/
+
+/-- A sequence of darts is sparse (node-simple): no two darts belong to
+    the same node orbit.
+    Corresponds to Coq `sparse` (coloring.v:444):
+      Definition sparse (p : seq G) := simple (p : seq (permF G)).
+    In the permF (face-adjusted) structure, face-connectivity becomes
+    node-connectivity, so "simple under permF" means "node-simple". -/
+def Sparse (p : List G.Dart) : Prop :=
+  p.Pairwise (fun x y => ¬ cnode G x y)
+
+/-- Node-connectivity is symmetric: if y is reachable from x by iterating
+    node, then x is reachable from y (since node is a permutation on a
+    finite type). -/
+theorem cnode_symm (x y : G.Dart) : cnode G x y → cnode G y x := by
+  intro ⟨n, hn⟩
+  have hper : x ∈ Function.periodicPts G.node :=
+    node_injective.mem_periodicPts x
+  have hpos := Function.minimalPeriod_pos_of_mem_periodicPts hper
+  have hmp : G.node^[Function.minimalPeriod G.node x] x = x :=
+    Function.isPeriodicPt_minimalPeriod G.node x
+  set k := Function.minimalPeriod G.node x with hk_def
+  have hlt : n % k < k := Nat.mod_lt n hpos
+  use k - n % k
+  have step1 : G.node^[n % k] x = G.node^[n] x :=
+    Function.IsPeriodicPt.iterate_mod_apply hmp n
+  rw [← hn]
+  have step2 : G.node^[k - n % k] (G.node^[n] x) = x := by
+    rw [← step1, ← Function.iterate_add_apply]
+    have : k - n % k + n % k = k := by omega
+    rw [this]; exact hmp
+  exact step2
+
+/-- Sparse cons: a cons list is sparse iff the head is not node-connected
+    to any element of the tail, and the tail is sparse.
+    Corresponds to Coq `sparse_cons` (coloring.v:446). -/
+theorem sparse_cons (x : G.Dart) (p : List G.Dart) :
+    Sparse (x :: p) ↔ (∀ y ∈ p, ¬ cnode G x y) ∧ Sparse p := by
+  simp [Sparse, List.pairwise_cons]
+
+/-- Sparse is invariant under cyclic rotation of the list (append-commute).
+    Corresponds to Coq `sparse_catC` (coloring.v:449):
+      Lemma sparse_catC p1 p2 : sparse (p1 ++ p2) = sparse (p2 ++ p1). -/
+theorem sparse_append_comm (p1 p2 : List G.Dart) :
+    Sparse (p1 ++ p2) ↔ Sparse (p2 ++ p1) := by
+  simp only [Sparse, List.pairwise_append]
+  constructor <;> intro ⟨h1, h2, h3⟩ <;> refine ⟨h2, h1, ?_⟩ <;>
+    intro a ha b hb hab <;>
+    exact h3 b hb a ha (cnode_symm a b hab)
+
+/-! ## Face orbit -/
+
+/-- The face orbit of a dart x, as a Finset. This is the set of all darts
+    reachable from x by iterating G.face. -/
+def faceOrbit (G : Hypermap) (x : G.Dart) : Finset G.Dart :=
+  Finset.univ.filter (fun y => cface G x y)
+
+theorem mem_faceOrbit (x y : G.Dart) :
+    y ∈ faceOrbit G x ↔ cface G x y := by
+  simp [faceOrbit, Finset.mem_filter]
+
+/-! ## Triad -/
+
+/-- A dart x is a triad for the sequence p if at least 3 faces in the face
+    orbit of x have an edge landing in the face band of p, and not all
+    elements of p are adjacent to x.
+    Corresponds to Coq `triad` (coloring.v:458-460):
+      Definition triad (p : seq G) :=
+        let adjp y := fband p (edge y) in
+        [pred x | (2 < count adjp (orbit face x)) && ~~ (p \subset adj x)].
+-/
+def Triad (G : Hypermap) (p : List G.Dart) (x : G.Dart) : Prop :=
+  2 < ((faceOrbit G x).filter (fun z => fband G p (G.edge z))).card ∧
+  ¬ (∀ y ∈ p, adj G y x)
+
 /-! ## Embeddability -/
 
 /-- A configuration is embeddable with perimeter ring r if it is planar,
-    bridgeless, connected, plain, and r-quasicubic for the simple N-cycle r. -/
+    bridgeless, connected, plain, and r-quasicubic for the simple N-cycle r,
+    and additionally all ring darts have good ring arity and the kernel
+    has radius 2.
+    Corresponds to Coq `embeddable` record (coloring.v:438-442):
+      Record embeddable : Prop := Embeddable {
+        embeddable_base :> scycle_planar_bridgeless_plain_quasicubic_connected r;
+        embeddable_ring : all good_ring_arity r;
+        embeddable_kernel : radius2 (kernel r)
+      }. -/
 def Embeddable (r : List G.Dart) : Prop :=
   Planar G ∧
   Bridgeless G ∧
   Connected G ∧
   Plain G ∧
   Quasicubic G (r.toFinset) ∧
-  Srcycle G r
+  Srcycle G r ∧
+  (∀ x ∈ r, GoodRingArity G x) ∧
+  Radius2 G (kernel G r)
 
 /-! ## C-reducibility -/
 
-/-- A valid contract for ring r: cc has size ≤ 4, and certain combinatorial
-    conditions hold (sparseness, triad condition). -/
+/-- A valid contract for ring r: the edge-closure of cc is disjoint from r,
+    sparse, has size between 1 and 4, and if size is 4, there exists a
+    kernel triad.
+    Corresponds to Coq `valid_contract` record (coloring.v:462-468):
+      Record valid_contract : Prop := ValidContract {
+        valid_contract_is_off_ring : [disjoint r & insertE cc];
+        valid_contract_is_sparse : sparse (insertE cc);
+        valid_contract_size : pred4 1 2 3 4 (size cc);
+        valid_contract_triad :
+           size cc = 4 -> ~~ [disjoint kernel r & triad (insertE cc)]
+      }. -/
 def ValidContract (r : List G.Dart) (cc : Finset G.Dart) : Prop :=
-  cc.card ≤ 4 ∧
-  Disjoint (insertE G r).toFinset cc ∧
-  -- Additional sparseness and triad conditions
-  True
+  Disjoint r.toFinset (insertE G cc.toList).toFinset ∧
+  Sparse (insertE G cc.toList) ∧
+  (1 ≤ cc.card ∧ cc.card ≤ 4) ∧
+  (cc.card = 4 → ∃ x, kernel G r x ∧ Triad G (insertE G cc.toList) x)
+
+/-- Kempe coclosure: every contract ring trace can be adjusted via
+    Kempe chains to a ring trace of a full coloring. Placeholder definition
+    — the Kempe-chain infrastructure (colseq, cdirect, kempe_chain) lives
+    in Coq's chromogram.v / kempe.v which are not yet ported.
+    Corresponds to Coq `Kempe_coclosure` from kempe.v. -/
+-- TODO: Fill in once chromogram.v / kempe.v are ported to Lean.
+def KempeCoclosure (_r : List G.Dart) (_et : List Color) : Prop := True
 
 /-- C-reducibility: assuming G is a configuration with ring r, G is
     C-reducible with contract cc if cc is valid and any contract ring trace
-    for cc can be adjusted to a ring trace of a full coloring. -/
+    for cc is in the Kempe coclosure of the set of ring traces of colorings.
+    Corresponds to Coq `C_reducible` record (coloring.v:470-474):
+      Record C_reducible : Prop := Creducible {
+        C_reducible_base :> valid_contract;
+        C_reducible_coclosure : forall et : colseq,
+          cc_ring_trace cc (rev r) et -> Kempe_coclosure (ring_trace (rev r)) et
+      }. -/
 def CReducible (r : List G.Dart) (cc : Finset G.Dart) : Prop :=
   ValidContract r cc ∧
-  -- Kempe closure condition
-  True
+  ∀ et : List Color, CcRingTrace cc (r.reverse) et → KempeCoclosure r et
 
 /-! ## Decidability of four-colorability -/
 
 /-- Four-colorability is decidable for finite hypermaps. -/
-noncomputable instance (G : Hypermap) : Decidable (FourColorable G) :=
+instance (G : Hypermap) : Decidable (FourColorable G) :=
   Classical.dec _
 
 end Hypermap
