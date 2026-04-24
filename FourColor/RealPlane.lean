@@ -78,6 +78,55 @@ structure SimpleMap (m : Map) : Prop extends PlainMap m where
 structure FiniteSimpleMap (m : Map) : Prop extends SimpleMap m where
   finite : ∃ n, AtMostRegions n m
 
+/-! ## Intervals and rectangles (realplane.v:80–82) -/
+
+/-- An open interval in ℝ, given by its endpoints. -/
+structure Interval where
+  lo : ℝ
+  hi : ℝ
+
+/-- An open rectangle in the real plane. -/
+structure Rectangle where
+  hspan : Interval
+  vspan : Interval
+
+/-- Membership in an open interval: lo < t < hi. -/
+def Interval.contains (s : Interval) (t : ℝ) : Prop :=
+  s.lo < t ∧ t < s.hi
+
+/-- The region of points inside a rectangle. -/
+def Rectangle.region (rr : Rectangle) : Region :=
+  fun z => rr.hspan.contains z.1 ∧ rr.vspan.contains z.2
+
+/-! ## PlainMap transitivity helpers (finitize.v:93–99) -/
+
+/-- If m z1 z2, then (m z1 z) ↔ (m z2 z) for any z. -/
+theorem PlainMap.map_transl {m : Map} (mP : PlainMap m) {z1 z2 : Point}
+    (h : m z1 z2) : ∀ z, m z1 z ↔ m z2 z := by
+  intro z
+  constructor
+  · intro h1
+    exact mP.trans z2 z1 (mP.sym z1 z2 h) h1
+  · intro h2
+    exact mP.trans z1 z2 h h2
+
+/-- If m z1 z2, then (m z z1) ↔ (m z z2). -/
+theorem PlainMap.map_transr {m : Map} (mP : PlainMap m) {z1 z2 : Point}
+    (h : m z1 z2) : ∀ z, m z z1 ↔ m z z2 := by
+  intro z
+  constructor
+  · intro h1
+    exact mP.sym z2 z (mP.trans z2 z1 (mP.sym z1 z2 h) (mP.sym z z1 h1))
+  · intro h2
+    exact mP.sym z1 z (mP.trans z1 z2 h (mP.sym z z2 h2))
+
+/-- If m z1 z2, both z1 and z2 are in cover m. -/
+theorem PlainMap.map_cover {m : Map} (mP : PlainMap m) {z1 z2 : Point}
+    (h : m z1 z2) : cover m z1 ∧ cover m z2 := by
+  constructor
+  · exact mP.trans z1 z2 h (mP.sym z1 z2 h)
+  · exact mP.trans z2 z1 (mP.sym z1 z2 h) h
+
 /-! ## Borders and adjacency -/
 
 /-- The border between the regions of z1 and z2. -/
