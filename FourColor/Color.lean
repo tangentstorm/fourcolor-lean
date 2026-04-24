@@ -214,4 +214,65 @@ theorem add_eq_zero (c1 c2 : Color) : c1 + c2 = Color0 ↔ c1 = c2 := by
   · intro h; cases c1 <;> cases c2 <;> first | rfl | exact absurd h (by decide)
   · rintro rfl; exact addc_self c1
 
+/-! ## Head color and proper trace (Coq: color.v:220-222) -/
+
+/-- The first color in a sequence, defaulting to Color0. -/
+def head_color : List Color → Color
+  | []     => Color0
+  | c :: _ => c
+
+/-- A trace is proper when its first entry is nonzero. -/
+def proper_trace (et : List Color) : Prop := head_color et ≠ Color0
+
+@[simp] theorem head_color_nil : head_color ([] : List Color) = Color0 := rfl
+
+@[simp] theorem head_color_cons (c : Color) (s : List Color) :
+    head_color (c :: s) = c := rfl
+
+/-! ## Trace permutation (Coq: color.v:234) -/
+
+/-- Apply an edge permutation pointwise to a color sequence. -/
+def permt (g : EdgePerm) (s : List Color) : List Color :=
+  s.map g.apply
+
+@[simp] theorem permt_nil (g : EdgePerm) : permt g [] = [] := rfl
+
+@[simp] theorem permt_cons (g : EdgePerm) (c : Color) (s : List Color) :
+    permt g (c :: s) = g.apply c :: permt g s := rfl
+
+theorem length_permt (g : EdgePerm) (s : List Color) :
+    (permt g s).length = s.length := by simp [permt]
+
+/-! ## Closed trace (Coq: color.v:238) -/
+
+/-- The closed trace: append the sum of the trace to itself. -/
+def ctrace (et : List Color) : List Color := et ++ [sumt et]
+
+@[simp] theorem length_ctrace (et : List Color) :
+    (ctrace et).length = et.length + 1 := by
+  simp [ctrace, List.length_append]
+
+/-! ## Pairmap helper and unrolled trace (Coq: color.v:243) -/
+
+/-- Apply a binary function to consecutive pairs, starting with an initial value.
+    `pairmap f a [x₁, x₂, …, xₙ] = [f a x₁, f x₁ x₂, …, f xₙ₋₁ xₙ]` -/
+def pairmap (f : Color → Color → Color) : Color → List Color → List Color
+  | _, []      => []
+  | a, x :: xs => f a x :: pairmap f x xs
+
+/-- The unrolled trace: pairmap of addition starting from the last element. -/
+def urtrace (s : List Color) : List Color :=
+  pairmap (· + ·) (s.getLastD Color0) s
+
+@[simp] theorem urtrace_nil : urtrace ([] : List Color) = [] := rfl
+
+theorem length_pairmap (f : Color → Color → Color) (a : Color) (s : List Color) :
+    (pairmap f a s).length = s.length := by
+  induction s generalizing a with
+  | nil => rfl
+  | cons x xs ih => simp [pairmap, ih]
+
+theorem length_urtrace (s : List Color) :
+    (urtrace s).length = s.length := length_pairmap _ _ _
+
 end Color

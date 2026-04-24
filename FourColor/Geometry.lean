@@ -407,4 +407,71 @@ theorem kernel_not_mem (p : List G.Dart) (x : G.Dart) (h : kernel G p x) : x ∉
 -- TODO: Requires `Function.minimalPeriod` lemma for inverse permutations.
 -- Skipped for now.
 
+/-! ### 17. `simple_uniq` (geometry.v:205) -/
+
+-- Coq: simple_uniq in geometry.v:205
+/-- A face-simple list has no duplicates, because `cface` is reflexive. -/
+theorem simple_nodup {p : List G.Dart} (hs : Simple G p) : p.Nodup := by
+  have : Std.Irrefl (fun x y : G.Dart => ¬ cface G x y) :=
+    ⟨fun x h => h (cface_refl x)⟩
+  exact hs.nodup
+
+/-! ### 18. `simple_catC` (geometry.v:327) -/
+
+-- Coq: simple_catC in geometry.v:327
+/-- Face-simplicity is invariant under cyclic rotation of the list. -/
+theorem simple_append_comm (p q : List G.Dart) :
+    Simple G (p ++ q) ↔ Simple G (q ++ p) := by
+  simp only [Simple, List.pairwise_append]
+  constructor <;> intro ⟨h1, h2, h3⟩ <;> refine ⟨h2, h1, ?_⟩ <;>
+    intro a ha b hb hab <;>
+    exact h3 b hb a ha (cface_sym hab)
+
+/-! ### 19. `fproj` – face projection (geometry.v:193–197) -/
+
+-- Coq: cface is an equivalence relation, so cface x · = cface y · when cface x y.
+theorem cface_iff_of_cface {x y z : G.Dart} (h : cface G x y) :
+    cface G x z ↔ cface G y z :=
+  ⟨fun hxz => cface_trans (cface_sym h) hxz, fun hyz => cface_trans h hyz⟩
+
+open Classical in
+/-- Face projection: pick an element of `p` that is face-connected to `x`,
+    defaulting to `x` when none exists.
+    Corresponds to Coq `fproj` (geometry.v:193). -/
+noncomputable def fproj (G : Hypermap) (p : List G.Dart) (x : G.Dart) : G.Dart :=
+  if h : ∃ y ∈ p, cface G x y then h.choose else x
+
+-- Coq: fprojP in geometry.v:195
+/-- When `x` is in the face band of `p`, `fproj p x` lies in `p` and is
+    face-connected to `x`. -/
+theorem fproj_mem {p : List G.Dart} {x : G.Dart} (hx : fband G p x) :
+    fproj G p x ∈ p ∧ cface G x (fproj G p x) := by
+  unfold fproj
+  split
+  case isTrue h => exact h.choose_spec
+  case isFalse h => exact absurd hx h
+
+private theorem exists_choose_eq {α : Type*} {P Q : α → Prop} (heq : P = Q)
+    (hp : ∃ x, P x) (hq : ∃ x, Q x) : hp.choose = hq.choose := by
+  subst heq; rfl
+
+-- Coq: fproj_cface in geometry.v:197
+/-- Face-connected darts project to the same element of `p`.
+    The proof uses propext: when `cface x y`, the predicates `cface x ·` and
+    `cface y ·` are extensionally equal, so `Exists.choose` agrees by proof
+    irrelevance. -/
+theorem fproj_cface {p : List G.Dart} {x y : G.Dart}
+    (h : cface G x y) (hx : fband G p x) : fproj G p x = fproj G p y := by
+  have hy : fband G p y := by
+    obtain ⟨z, hz_mem, hz_face⟩ := hx
+    exact ⟨z, hz_mem, cface_trans (cface_sym h) hz_face⟩
+  have hpred : (fun z => z ∈ p ∧ cface G x z) = (fun z => z ∈ p ∧ cface G y z) :=
+    funext (fun z => by rw [propext (cface_iff_of_cface h)])
+  unfold fproj
+  split <;> rename_i h1
+  · split <;> rename_i h2
+    · exact exists_choose_eq hpred h1 h2
+    · exact absurd hy h2
+  · exact absurd hx h1
+
 end Hypermap
