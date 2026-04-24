@@ -273,6 +273,61 @@ noncomputable def mirror (G : Hypermap) : Hypermap where
     convert Function.leftInverse_invFun G.node_bijective.injective _ using 1
     exact congr_arg _ (Function.leftInverse_invFun G.face_bijective.injective _)
 
+/-! ## Symmetry / equivalence lemmas for glink, gcomp, clink, cconnect -/
+
+-- Coq: hypermap.v (gcomp reflexivity)
+theorem gcomp_refl (G : Hypermap) (x : G.Dart) : gcomp G x x :=
+  Relation.ReflTransGen.refl
+
+-- Coq: hypermap.v (gcomp transitivity)
+theorem gcomp_trans (G : Hypermap) : Transitive (gcomp G) :=
+  fun _ _ _ => Relation.ReflTransGen.trans
+
+/-- Reversing a single glink step yields a two-step gcomp path, using the
+    triangular identity to express the inverse. -/
+private theorem glink_reverse_gcomp {x y : G.Dart} (h : glink G x y) :
+    gcomp G y x := by
+  rcases h with he | hn | hf
+  · -- edge x = y ⟹ y →(face) face y →(node) node(face(edge x)) = x
+    subst he
+    exact Relation.ReflTransGen.head (Or.inr (Or.inr rfl))
+      (Relation.ReflTransGen.single (Or.inr (Or.inl (G.edgeK x))))
+  · -- node x = y ⟹ y →(edge) edge y →(face) face(edge(node x)) = x
+    subst hn
+    exact Relation.ReflTransGen.head (Or.inl rfl)
+      (Relation.ReflTransGen.single (Or.inr (Or.inr (G.nodeK x))))
+  · -- face x = y ⟹ y →(node) node y →(edge) edge(node(face x)) = x
+    subst hf
+    exact Relation.ReflTransGen.head (Or.inr (Or.inl rfl))
+      (Relation.ReflTransGen.single (Or.inl (G.faceK x)))
+
+-- Coq: hypermap.v (gcomp symmetry)
+theorem gcomp_symm {x y : G.Dart} (h : gcomp G x y) : gcomp G y x := by
+  induction h with
+  | refl => exact Relation.ReflTransGen.refl
+  | tail _ hstep ih => exact (glink_reverse_gcomp hstep).trans ih
+
+/-- Every clink step can be realized as a gcomp path (1 or 2 glink steps). -/
+-- Coq: hypermap.v (clink ⊂ gcomp)
+theorem clink_gcomp {x y : G.Dart} (h : clink G x y) : gcomp G x y := by
+  rcases h with hn | hf
+  · -- x = node y ⟹ x →(edge) edge x →(face) face(edge(node y)) = y
+    subst hn
+    exact Relation.ReflTransGen.head (Or.inl rfl)
+      (Relation.ReflTransGen.single (Or.inr (Or.inr (G.nodeK y))))
+  · -- face x = y ⟹ direct glink face step
+    exact Relation.ReflTransGen.single (Or.inr (Or.inr hf))
+
+-- Coq: hypermap.v (cconnect ⊂ gcomp)
+theorem cconnect_gcomp {x y : G.Dart} (h : cconnect G x y) : gcomp G x y := by
+  induction h with
+  | refl => exact Relation.ReflTransGen.refl
+  | tail _ hstep ih => exact ih.trans (clink_gcomp hstep)
+
+-- TODO: cconnect_symm — reversing a single clink step requires iterating
+-- around finite permutation orbits (face-forward or node-backward), which
+-- needs the order-of-permutation machinery. Left for a future PR.
+
 /-! ## Key planarity theorems -/
 
 -- The even genus property (even_genusP) and Euler inequality (euler_le)
