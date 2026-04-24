@@ -700,4 +700,86 @@ theorem bridgeless_mirror (G : Hypermap) : Bridgeless (mirror G) ↔ Bridgeless 
       @cface_trans G _ _ _ h1 (cface_sym h2)
     exact hB (G.node x) h3
 
+/-! ### 30. `bridgeless_dual` (geometry.v:95) -/
+
+private theorem dual_edge_eq_finvEdge (x : G.Dart) :
+    (dual G).edge x = G.finvEdge x := by
+  have h1 : G.edge (Function.invFun G.edge x) = x :=
+    Function.rightInverse_invFun G.edge_surjective x
+  have h2 : G.edge (G.finvEdge x) = x := edge_finvEdge x
+  exact G.edge_injective (h1.trans h2.symm)
+
+/-- Bridgeless on dual corresponds to Loopless on the original.
+    Coq: geometry.v:95 (`bridgeless_dual`). -/
+theorem bridgeless_dual (G : Hypermap) : Bridgeless (dual G) ↔ Loopless G := by
+  constructor
+  · -- Bridgeless (dual G) → Loopless G
+    intro hBd y hcn
+    apply hBd (G.edge y)
+    show cface (dual G) (G.edge y) ((dual G).edge (G.edge y))
+    rw [dual_edge_eq_finvEdge, finvEdge_edge]
+    exact cface_dual.mpr hcn
+  · -- Loopless G → Bridgeless (dual G)
+    intro hL x hcfd
+    apply hL (G.finvEdge x)
+    rw [edge_finvEdge]
+    have h := cface_dual.mp hcfd
+    rw [dual_edge_eq_finvEdge] at h
+    exact h
+
+/-! ### 31. `fband_iter_face` -/
+
+/-- The face band is closed under iterated face application.
+    Corresponds to iterated `fbandF` in geometry.v. -/
+theorem fband_iter_face (p : List G.Dart) (x : G.Dart) (n : ℕ) :
+    fband G p (G.face^[n] x) ↔ fband G p x := by
+  induction n with
+  | zero => simp
+  | succ n ih =>
+    rw [Function.iterate_succ_apply']
+    rw [fband_face]
+    exact ih
+
+/-! ### 32. `kernel_iter_face` -/
+
+/-- The kernel is closed under iterated face application. -/
+theorem kernel_iter_face (p : List G.Dart) (x : G.Dart) (n : ℕ) :
+    kernel G p (G.face^[n] x) ↔ kernel G p x := by
+  simp only [kernel, fband_iter_face]
+
+/-! ### 33. `loopless_sym` -/
+
+/-- Loopless is equivalent to: no edge-link inside a single node orbit,
+    stated with endpoints reversed. -/
+theorem loopless_sym (G : Hypermap) : Loopless G ↔ ∀ x, ¬ cnode G (G.edge x) x := by
+  unfold Loopless
+  exact ⟨fun h x hne => h x (cnode_sym hne), fun h x hne => h x (cnode_sym hne)⟩
+
+/-! ### 34. `bridgeless` corollaries -/
+
+/-- In a bridgeless hypermap, a dart's edge image is never face-connected
+    back to the dart (restated with endpoints reversed). -/
+theorem bridgeless_not_cedge_face (hB : Bridgeless G) (x : G.Dart) :
+    ¬ cface G (G.edge x) x := fun h => hB x (cface_sym h)
+
+/-- Bridgeless implies no face-connection between an iterated-face image
+    and the edge image. -/
+theorem bridgeless_not_cface_iter (hB : Bridgeless G) (x : G.Dart) (n : ℕ) :
+    ¬ cface G (G.face^[n] x) (G.edge x) := fun h =>
+  hB x (cface_trans (cface_iter_face n x) h)
+
+/-! ### 35. `adj` / `fband` interaction
+
+`adj_sym` requires the dual `adjN` infrastructure that hasn't been ported yet;
+left for a follow-up batch. -/
+
+/-- If `y` is adjacent to some dart in the face band of `p`, then `y`
+    is adjacent to some member of `p` directly. -/
+theorem adj_fband {p : List G.Dart} {x y : G.Dart}
+    (hadj : adj G x y) (hfb : fband G p y) :
+    ∃ z ∈ p, adj G x z := by
+  obtain ⟨w, hxw, hyw⟩ := hadj
+  obtain ⟨u, hu_mem, hu_face⟩ := hfb
+  exact ⟨u, hu_mem, w, hxw, cface_trans (cface_sym hu_face) hyw⟩
+
 end Hypermap

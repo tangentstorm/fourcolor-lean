@@ -147,6 +147,37 @@ theorem four_colorable_dual : FourColorable (dual G) ↔ GraphFourColorable G :=
   · rintro ⟨k, hk⟩; exact ⟨k, coloring_dual.mp hk⟩
   · rintro ⟨k, hk⟩; exact ⟨k, coloring_dual.mpr hk⟩
 
+/-! ## Coloring projections -/
+
+-- Coq: coloring.v – projection helpers for GraphColoring
+/-- Edge-distinctness from a graph coloring. -/
+theorem GraphColoring.edge_distinct {G : Hypermap} {k : G.Dart → Color}
+    (h : GraphColoring k) : ∀ x, k (G.edge x) ≠ k x := h.1
+
+/-- Node-invariance from a graph coloring. -/
+theorem GraphColoring.node_invariant {G : Hypermap} {k : G.Dart → Color}
+    (h : GraphColoring k) : ∀ x, k (G.node x) = k x := h.2
+
+-- Coq: coloring.v – projection helpers for Coloring
+/-- Edge-distinctness from a (map) coloring. -/
+theorem Coloring.edge_distinct {G : Hypermap} {k : G.Dart → Color}
+    (h : Coloring k) : ∀ x, k (G.edge x) ≠ k x := h.1
+
+/-- Face-invariance from a (map) coloring. -/
+theorem Coloring.face_invariant {G : Hypermap} {k : G.Dart → Color}
+    (h : Coloring k) : ∀ x, k (G.face x) = k x := h.2
+
+-- Coq: coloring.v – cface-invariance of a coloring
+/-- A Coloring is constant on cface-orbits. -/
+theorem Coloring.cface {G : Hypermap} {k : G.Dart → Color}
+    (h : Coloring k) {x y : G.Dart} (hc : cface G x y) : k y = k x := by
+  obtain ⟨n, rfl⟩ := hc
+  induction n with
+  | zero => rfl
+  | succ n ih =>
+    rw [Function.iterate_succ_apply', h.face_invariant]
+    exact ih
+
 /-! ## Contract coloring -/
 
 /-- A contract coloring for a set of contracted edges cc:
@@ -160,6 +191,32 @@ def CcColoring (cc : Finset G.Dart) (k : G.Dart → Color) : Prop :=
 /-- Contractibility: existence of a contract coloring. -/
 def CcColorable (cc : Finset G.Dart) : Prop :=
   ∃ k : G.Dart → Color, CcColoring cc k
+
+/-! ## CcColoring projections -/
+
+-- Coq: coloring.v – projection helpers for CcColoring
+/-- Off-contract edge-distinctness from a contract coloring. -/
+theorem CcColoring.edge_off_cc {G : Hypermap} {cc : Finset G.Dart} {k : G.Dart → Color}
+    (h : CcColoring cc k) : ∀ x, x ∉ cc ∧ G.edge x ∉ cc → k (G.edge x) ≠ k x := h.1
+
+/-- On-contract edge-invariance from a contract coloring. -/
+theorem CcColoring.edge_on_cc {G : Hypermap} {cc : Finset G.Dart} {k : G.Dart → Color}
+    (h : CcColoring cc k) : ∀ x, x ∈ cc ∨ G.edge x ∈ cc → k (G.edge x) = k x := h.2.1
+
+/-- Face-invariance from a contract coloring. -/
+theorem CcColoring.face_invariant {G : Hypermap} {cc : Finset G.Dart} {k : G.Dart → Color}
+    (h : CcColoring cc k) : ∀ x, k (G.face x) = k x := h.2.2
+
+-- Coq: coloring.v – a Coloring yields a CcColoring when no dart touches cc
+/-- A coloring is a contract coloring for any cc disjoint from every dart and
+    its edge-image. The hypothesis is strong (it forces cc = ∅ in practice);
+    the main use-case is `coloring_to_cc_empty`. -/
+theorem coloring_to_cc_of_disjoint {G : Hypermap} {cc : Finset G.Dart} {k : G.Dart → Color}
+    (hCol : Coloring k)
+    (hdisj : ∀ x, x ∉ cc ∧ G.edge x ∉ cc) : CcColoring cc k :=
+  ⟨fun x _ => hCol.edge_distinct x,
+   fun x h => absurd h (not_or.mpr (hdisj x)),
+   hCol.face_invariant⟩
 
 /-! ## Ring traces -/
 
