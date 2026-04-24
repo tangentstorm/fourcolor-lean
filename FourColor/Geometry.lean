@@ -474,4 +474,48 @@ theorem fproj_cface {p : List G.Dart} {x y : G.Dart}
     · exact absurd hy h2
   · exact absurd hx h1
 
+/-! ### 20. `scycle` projection lemmas (geometry.v:212–244) -/
+
+-- Coq: scycle_cycle in geometry.v:212
+theorem srcycle_rlink_cycle {r : List G.Dart} (hs : Srcycle G r) :
+    ∀ i : Fin r.length,
+      rlink G (r.get i)
+        (r.get ⟨(i.val + 1) % r.length, Nat.mod_lt _ (by
+          have := i.isLt; omega)⟩) := hs.2.2.2
+
+-- Coq: scycle_simple in geometry.v:215
+theorem srcycle_simple {r : List G.Dart} (hs : Srcycle G r) : Simple G r := hs.2.1
+
+-- Coq: scycle_uniq in geometry.v:218
+theorem srcycle_nodup {r : List G.Dart} (hs : Srcycle G r) : r.Nodup := hs.1
+
+-- Coq: scycle_pos (geometry.v, ring length > 0)
+theorem srcycle_pos {r : List G.Dart} (hs : Srcycle G r) : 0 < r.length := hs.2.2.1
+
+theorem srcycle_ne_nil {r : List G.Dart} (hs : Srcycle G r) : r ≠ [] := by
+  intro h; have := hs.2.2.1; rw [h] at this; simp at this
+
+/-
+Coq: simple_cface in geometry.v:244 (helper)
+
+In a face-simple list, face-connected members are equal.
+-/
+theorem simple_cface_eq {p : List G.Dart} (hs : Simple G p)
+    {x y : G.Dart} (hx : x ∈ p) (hy : y ∈ p) (h : cface G x y) : x = y := by
+  by_contra hne
+  unfold Simple at hs
+  rw [List.pairwise_iff_getElem] at hs
+  obtain ⟨i, hi, rfl⟩ := List.getElem_of_mem hx
+  obtain ⟨j, hj, rfl⟩ := List.getElem_of_mem hy
+  rcases lt_trichotomy i j with hij | hij | hij
+  · exact hs i j hi hj hij h
+  · subst hij; exact hne rfl
+  · exact hs j i hj hi hij (cface_sym h)
+
+-- Coq: scycle_cface in geometry.v:244
+/-- In a simple R-cycle, face-connected members are equal. -/
+theorem srcycle_cface_eq {r : List G.Dart} (hs : Srcycle G r)
+    {x y : G.Dart} (hx : x ∈ r) (hy : y ∈ r) (h : cface G x y) : x = y :=
+  simple_cface_eq (srcycle_simple hs) hx hy h
+
 end Hypermap
