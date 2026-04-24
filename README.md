@@ -1,6 +1,6 @@
 # fourcolor-lean
 
-Lean 4 port of Georges Gonthier et al.'s formal Four Color Theorem proof, translated from Rocq/Coq. Upstream Rocq source: <https://github.com/rocq-community/fourcolor>.
+Lean 4 port of Georges Gonthier et al.'s formal Four Color Theorem proof, translated from Rocq/Coq. Upstream Rocq source: <https://github.com/rocq-community/fourcolor>. Background paper: ["A computer-checked proof of the Four Colour Theorem" (Gonthier)](https://www.cse.chalmers.se/~abela/lehre/WS05-06/CAFR/4colproof.pdf).
 
 ## Progress
 
