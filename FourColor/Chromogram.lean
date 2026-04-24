@@ -150,6 +150,24 @@ theorem balanced_inj {w : Chromogram} {n1 n2 : Nat} {b1 b2 : Bool}
     · rcases n1 with ( _ | n1 ) <;> rcases n2 with ( _ | n2 ) <;> simp +decide at h1 h2 ⊢;
       obtain ⟨h, h'⟩ := ih h1 h2; exact ⟨by omega, Bool.not_inj h'⟩
 
+/-! ## KempeCoclosure basic properties -/
+
+/-- Enlarging `P` preserves `KempeCoclosure`. -/
+theorem KempeCoclosure.mono {P Q : List Color → Prop} {et : List Color}
+    (h : ∀ x, P x → Q x) (hco : KempeCoclosure P et) : KempeCoclosure Q et := by
+  intro R hR hRet
+  obtain ⟨et', hP, hR'⟩ := hco R hR hRet
+  exact ⟨et', h et' hP, hR'⟩
+
+/-- If `P et` holds, then `et` is in its own Kempe coclosure (take et' = et). -/
+theorem KempeCoclosure.self {P : List Color → Prop} {et : List Color}
+    (hP : P et) : KempeCoclosure P et :=
+  fun _ _ hRet => ⟨et, hP, hRet⟩
+
+/-- The empty predicate is vacuously Kempe-closed. -/
+theorem KempeClosed.empty : KempeClosed (fun _ => False) :=
+  fun _ hf => absurd hf id
+
 -- TODO: `matchg_balanced` (chromogram.v:131) — relates matchg to sumt and gramBalanced.
 -- TODO: `match_etrace` (chromogram.v:160)
 
