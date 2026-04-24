@@ -196,6 +196,29 @@ def cconnect (G : Hypermap) (x y : G.Dart) : Prop :=
 def List.mem2 {α : Type*} (p : List α) (a b : α) : Prop :=
   ∃ i j, i < j ∧ j < p.length ∧ p[i]? = some a ∧ p[j]? = some b
 
+namespace List.mem2
+
+/-- `mem2` on an empty list is always false. -/
+theorem not_nil {α : Type*} (a b : α) : ¬ List.mem2 ([] : List α) a b := by
+  rintro ⟨i, j, _, hj, _, _⟩
+  simp at hj
+
+/-- `mem2 p a b` requires both `a` and `b` to be in `p`. -/
+theorem mem_left {α : Type*} {p : List α} {a b : α}
+    (h : List.mem2 p a b) : a ∈ p := by
+  obtain ⟨i, j, hij, hj, ha, _⟩ := h
+  have hi : i < p.length := by omega
+  have heq : p[i] = a := Option.some.inj (by rw [← List.getElem?_eq_getElem hi]; exact ha)
+  exact heq ▸ List.getElem_mem hi
+
+theorem mem_right {α : Type*} {p : List α} {a b : α}
+    (h : List.mem2 p a b) : b ∈ p := by
+  obtain ⟨i, j, _, hj, _, hb⟩ := h
+  have heq : p[j] = b := Option.some.inj (by rw [← List.getElem?_eq_getElem hj]; exact hb)
+  exact heq ▸ List.getElem_mem hj
+
+end List.mem2
+
 /-- The inverse of the node permutation. Corresponds to `finv node` in the
     Coq formalization. -/
 noncomputable def finvNode (G : Hypermap) : G.Dart → G.Dart :=
