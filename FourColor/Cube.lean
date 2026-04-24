@@ -378,7 +378,7 @@ Face iteration on CTfe stays in CTfe.
 private theorem cubeFace_tag_fe (G : Hypermap) (x : G.Dart) (n : ℕ) :
     ∃ y, (cubeFace G)^[n] (CubeTag.CTfe, x) = (CubeTag.CTfe, y) := by
   induction n <;> simp_all +decide [ Function.iterate_succ_apply' ];
-  obtain ⟨ y, hy ⟩ := ‹_›; use G.node y; aesop;
+  obtain ⟨ y, hy ⟩ := ‹_›; exact ⟨ G.node y, by rw [hy]; rfl ⟩;
 
 /-
 Face iteration from (CTen, x) follows a 4-periodic pattern.
