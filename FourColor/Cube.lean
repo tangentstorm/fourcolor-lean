@@ -151,14 +151,13 @@ theorem fcardEdge_of_plain (G : Hypermap) (hP : Plain G) :
         rw [hxe, hxe]
     have h_cycle_2 : ∀ {σ : Equiv.Perm G.Dart}, σ.IsCycle → σ ^ 2 = 1 → σ.support.card = 2 := by
       intros σ hσ hσ_sq
-      have h_cycle_2 : σ.support.card ∣ 2 := by
-        have := hσ.orderOf;
-        exact this ▸ orderOf_dvd_of_pow_eq_one hσ_sq;
-      have := Nat.le_of_dvd ( by decide ) h_cycle_2; interval_cases _ : σ.support.card <;> simp_all +decide ;
-      obtain ⟨ x, hx ⟩ := Finset.card_eq_one.mp ‹_›; simp_all +decide [ Equiv.Perm.ext_iff ] ;
-      have := hσ_sq x; simp_all +decide [ sq, Equiv.Perm.ext_iff ] ;
-      simp_all +decide [ Finset.eq_singleton_iff_unique_mem ];
-      grind;
+      -- A cycle has support.card ≥ 2, and from σ^2 = 1 we get support.card ∣ 2.
+      have h_dvd : σ.support.card ∣ 2 := by
+        have := hσ.orderOf
+        exact this ▸ orderOf_dvd_of_pow_eq_one hσ_sq
+      have h_ge : 2 ≤ σ.support.card := hσ.two_le_card_support
+      have h_le : σ.support.card ≤ 2 := Nat.le_of_dvd (by decide) h_dvd
+      omega
     exact h_cycle_2
       ((Equiv.Perm.mem_cycleFactorsFinset_iff.mp hc).1) ‹_›;
   -- Since each cycle has length 2, the total number of darts is twice the number of cycles.
