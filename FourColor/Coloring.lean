@@ -265,6 +265,24 @@ theorem sparse_append_comm (p1 p2 : List G.Dart) :
     intro a ha b hb hab <;>
     exact h3 b hb a ha (cnode_symm a b hab)
 
+/-- Nothing is in a sparse empty list. -/
+theorem sparse_nil : Sparse ([] : List G.Dart) := List.Pairwise.nil
+
+/-- Sparse implies duplicate-free (since each element is cnode-related to
+    itself and the sparse predicate is ¬ cnode). -/
+theorem sparse_nodup {p : List G.Dart} (hs : Sparse p) : p.Nodup := by
+  induction p with
+  | nil => exact List.Pairwise.nil
+  | cons x xs ih =>
+    rcases (sparse_cons x xs).mp hs with ⟨hhead, htail⟩
+    refine List.Pairwise.cons ?_ (ih htail)
+    intro y hy heq
+    exact hhead y hy (heq ▸ cnode_refl x)
+
+/-- Singleton lists are sparse. -/
+theorem sparse_singleton (x : G.Dart) : Sparse [x] :=
+  List.pairwise_singleton _ _
+
 /-! ## Face orbit -/
 
 /-- The face orbit of a dart x, as a Finset. This is the set of all darts
