@@ -94,14 +94,63 @@ def KempeClosed (P : List Color → Prop) : Prop :=
 def KempeCoclosure (P : List Color → Prop) (et : List Color) : Prop :=
   ∀ P', KempeClosed P' → P' et → ∃ et', P et' ∧ P' et'
 
-/-! ## TODO: deeper lemmas from chromogram.v
+/-! ## Balance and matching lemmas -/
 
-The following lemmas are left for a future port:
-- `matchg_size` (chromogram.v:114)
-- `matchg_memc0` (chromogram.v:123)
-- `matchg_balanced` (chromogram.v:131)
-- `balanced_inj` (chromogram.v:148)
-- `match_etrace` (chromogram.v:160)
+-- Coq: chromogram.v:78
+@[simp] theorem gramBalanced_nil : gramBalanced 0 false [] = true := by rfl
+
+/-
+Coq: chromogram.v:114
+
+If `matchg lb et w` holds, then `w` and `et` have the same length.
 -/
+theorem matchg_size {lb : List Bool} {et : List Color} {w : Chromogram}
+    (h : matchg lb et w = true) : w.length = et.length := by
+  induction' w with s w ih generalizing lb et;
+  · cases et <;> cases lb <;> tauto;
+  · rcases et with ( _ | ⟨ e, et ⟩ ) <;> rcases lb with ( _ | ⟨ b, lb ⟩ ) <;> simp_all +decide;
+    · cases s <;> cases h;
+    · cases s <;> cases h;
+    · rcases e with ( _ | _ | _ | _ ) <;> rcases s with ( _ | _ | _ | _ ) <;> tauto;
+    · rcases e with ( _ | _ | _ | _ ) <;> rcases s with ( _ | _ | _ | _ );
+      all_goals cases b <;> cases lb <;> tauto
+
+/-
+Coq: chromogram.v:123
+
+A matching trace never contains `Color0`.
+-/
+theorem matchg_memc0 {lb : List Bool} {et : List Color} {w : Chromogram}
+    (h : matchg lb et w = true) : Color0 ∉ et := by
+  revert et w lb;
+  intros lb et w h_matchg
+  induction' w with w_head w_tail ih generalizing lb et;
+  · cases et <;> cases lb <;> tauto;
+  · rcases et with ( _ | ⟨ c, et ⟩ ) <;> rcases lb with ( _ | ⟨ b, lb ⟩ ) <;> simp_all +decide;
+    · rcases c with ( _ | _ | _ | _ | c ) <;> rcases w_head with ( _ | _ | _ | _ | w_head ) <;> tauto;
+    · cases c <;> cases w_head <;> simp_all +decide;
+      all_goals cases b <;> simp_all +decide [ matchg ];
+      all_goals exact ih h_matchg;
+
+/-
+Coq: chromogram.v:148
+
+`gramBalanced` determines the depth and parity uniquely.
+-/
+theorem balanced_inj {w : Chromogram} {n1 n2 : Nat} {b1 b2 : Bool}
+    (h1 : gramBalanced n1 b1 w = true) (h2 : gramBalanced n2 b2 w = true) :
+    n1 = n2 ∧ b1 = b2 := by
+  induction' w with s w ih generalizing n1 n2 b1 b2;
+  · cases n1 <;> cases n2 <;> cases b1 <;> cases b2 <;> trivial;
+  · rcases s with ( _ | _ | _ | _ ) <;> simp +decide [ gramBalanced ] at h1 h2 ⊢;
+    · obtain ⟨h, h'⟩ := ih h1 h2; exact ⟨by omega, h'⟩;
+    · obtain ⟨h, h'⟩ := @ih n1 n2 (!b1) (!b2) h1 h2; exact ⟨h, Bool.not_inj h'⟩;
+    · rcases n1 with ( _ | n1 ) <;> rcases n2 with ( _ | n2 ) <;> simp +decide at h1 h2 ⊢;
+      exact ih h1 h2;
+    · rcases n1 with ( _ | n1 ) <;> rcases n2 with ( _ | n2 ) <;> simp +decide at h1 h2 ⊢;
+      obtain ⟨h, h'⟩ := ih h1 h2; exact ⟨by omega, Bool.not_inj h'⟩
+
+-- TODO: `matchg_balanced` (chromogram.v:131) — relates matchg to sumt and gramBalanced.
+-- TODO: `match_etrace` (chromogram.v:160)
 
 end FourColor.Chromogram
