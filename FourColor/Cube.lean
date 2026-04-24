@@ -462,7 +462,11 @@ private theorem cubeFace_CTnf_to_CTen (G : Hypermap) (x y : G.Dart) (n : ℕ)
     cface G x y := by
   -- If (CTnf, x) is face-connected to (CTen, y) in cube G, then cface G x y follows from the structure of the face orbit.
   have h_orbit : ∀ m : ℕ, (cubeFace G)^[m+2] (CubeTag.CTnf, x) = (cubeFace G)^[m] (CubeTag.CTen, G.face x) := by
-    unfold Hypermap.cubeFace; aesop;
+    -- cubeFace (CTnf, x) = (CTn, G.face x); cubeFace (CTn, G.face x) = (CTen, G.face x).
+    intro m
+    rw [show m + 2 = m + 1 + 1 from rfl,
+        Function.iterate_succ_apply, Function.iterate_succ_apply]
+    rfl
   rcases n with ( _ | _ | n ) <;> simp_all +decide [ Function.iterate_succ_apply' ];
   · cases hn;
   · -- By cubeFace_CTen_cface, we have cface G (face x) y.
