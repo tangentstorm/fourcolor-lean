@@ -159,12 +159,15 @@ theorem fcardEdge_of_plain (G : Hypermap) (hP : Plain G) :
       have := hσ_sq x; simp_all +decide [ sq, Equiv.Perm.ext_iff ] ;
       simp_all +decide [ Finset.eq_singleton_iff_unique_mem ];
       grind;
-    exact h_cycle_2 ( by rw [ Equiv.Perm.mem_cycleFactorsFinset_iff ] at hc; aesop ) ‹_›;
+    exact h_cycle_2
+      ((Equiv.Perm.mem_cycleFactorsFinset_iff.mp hc).1) ‹_›;
   -- Since each cycle has length 2, the total number of darts is twice the number of cycles.
   have h_total_darts : (Fintype.card G.Dart) = 2 * (edgePerm G).cycleFactorsFinset.card := by
     have h_total_darts : ∑ c ∈ (edgePerm G).cycleFactorsFinset, c.support.card = Fintype.card G.Dart := by
       convert Equiv.Perm.sum_cycleType G.edgePerm using 1;
-      exact congr_arg Finset.card ( by ext x; specialize hP x; aesop );
+      -- edgePerm.support = univ, so it equals the universal set.
+      refine congr_arg Finset.card ?_
+      ext x; simp [hP]; exact (hP x).2;
     rw [ ← h_total_darts, Finset.sum_congr rfl h_cycle_length, Finset.sum_const, smul_eq_mul, mul_comm ];
   have h_support : (edgePerm G).support = Finset.univ := by
     ext x; simp [hP];
