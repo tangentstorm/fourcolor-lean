@@ -201,11 +201,31 @@ def List.mem2 {α : Type*} (p : List α) (a b : α) : Prop :=
 noncomputable def finvNode (G : Hypermap) : G.Dart → G.Dart :=
   G.nodePerm.symm
 
-theorem finvNode_node (x : G.Dart) : G.finvNode (G.node x) = x := by
-  exact Equiv.ofBijective_symm_apply_apply G.node node_bijective x
+theorem finvNode_node (x : G.Dart) : G.finvNode (G.node x) = x :=
+  Equiv.ofBijective_symm_apply_apply G.node node_bijective x
 
-theorem node_finvNode (x : G.Dart) : G.node (G.finvNode x) = x := by
-  exact Equiv.ofBijective_apply_symm_apply G.node node_bijective x
+theorem node_finvNode (x : G.Dart) : G.node (G.finvNode x) = x :=
+  Equiv.ofBijective_apply_symm_apply G.node node_bijective x
+
+/-- The inverse of the edge permutation. -/
+noncomputable def finvEdge (G : Hypermap) : G.Dart → G.Dart :=
+  G.edgePerm.symm
+
+theorem finvEdge_edge (x : G.Dart) : G.finvEdge (G.edge x) = x :=
+  Equiv.ofBijective_symm_apply_apply G.edge edge_bijective x
+
+theorem edge_finvEdge (x : G.Dart) : G.edge (G.finvEdge x) = x :=
+  Equiv.ofBijective_apply_symm_apply G.edge edge_bijective x
+
+/-- The inverse of the face permutation. -/
+noncomputable def finvFace (G : Hypermap) : G.Dart → G.Dart :=
+  G.facePerm.symm
+
+theorem finvFace_face (x : G.Dart) : G.finvFace (G.face x) = x :=
+  Equiv.ofBijective_symm_apply_apply G.face face_bijective x
+
+theorem face_finvFace (x : G.Dart) : G.face (G.finvFace x) = x :=
+  Equiv.ofBijective_apply_symm_apply G.face face_bijective x
 
 /-- A Moebius path in a hypermap.
 
