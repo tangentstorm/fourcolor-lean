@@ -399,9 +399,7 @@ theorem kernel_not_mem (p : List G.Dart) (x : G.Dart) (h : kernel G p x) : x ∉
   intro hmem
   exact h ⟨x, hmem, cface_refl x⟩
 
-/-! ### 15. `bridgeless_mirror` (geometry.v:102) -/
--- TODO: Relating cface in G and cface in mirror G requires substantial
--- infrastructure (inverse-permutation orbit correspondence). Skipped for now.
+/-! ### 15. `bridgeless_mirror` — see section 29 below (needs `cface_mirror`). -/
 
 /-! ### 16. `arity_mirror` (geometry.v:161) -/
 -- TODO: Requires `Function.minimalPeriod` lemma for inverse permutations.
@@ -644,5 +642,39 @@ theorem cface_dual {x y : G.Dart} :
 /-- Mirror preserves the dart count. -/
 theorem card_mirror' (G : Hypermap) :
     Fintype.card (mirror G).Dart = Fintype.card G.Dart := rfl
+
+/-! ### 29. `bridgeless_mirror` (geometry.v:102) -/
+
+/-- Bridgeless is preserved (equivalently detected) by mirroring.
+    Corresponds to `bridgeless_mirror` in geometry.v:102. -/
+theorem bridgeless_mirror (G : Hypermap) : Bridgeless (mirror G) ↔ Bridgeless G := by
+  constructor
+  · -- Bridgeless (mirror G) → Bridgeless G
+    intro hBm x hcf
+    -- Reformulate hBm via cface_mirror: ∀ z, ¬ cface G (G.face (G.node z)) z
+    have hBm' : ∀ z : G.Dart, ¬ cface G (G.face (G.node z)) z := by
+      intro z hz
+      exact hBm z ((@cface_mirror G z (G.face (G.node z))).mpr hz)
+    -- Apply at z = G.face (G.edge x); edgeK' gives G.node (G.face (G.edge x)) = x
+    apply hBm' (G.face (G.edge x))
+    rw [@edgeK' G x]
+    -- Goal: cface G (G.face x) (G.face (G.edge x))
+    exact @cface_trans G _ _ _ (cface_sym (cface_face x))
+      (@cface_trans G _ _ _ hcf (cface_face (G.edge x)))
+  · -- Bridgeless G → Bridgeless (mirror G)
+    intro hB x hcfm
+    -- By cface_mirror: cface G (G.face (G.node x)) x
+    have hcf : cface G (G.face (G.node x)) x :=
+      (@cface_mirror G x (G.face (G.node x))).mp hcfm
+    -- cface G (G.node x) x by transitivity with cface_face
+    have h1 : cface G (G.node x) x :=
+      @cface_trans G _ _ _ (cface_face (G.node x)) hcf
+    -- nodeK: G.face (G.edge (G.node x)) = x, giving one face step
+    have h2 : cface G (G.edge (G.node x)) x :=
+      ⟨1, @nodeK G x⟩
+    -- Combine: cface G (G.node x) (G.edge (G.node x))
+    have h3 : cface G (G.node x) (G.edge (G.node x)) :=
+      @cface_trans G _ _ _ h1 (cface_sym h2)
+    exact hB (G.node x) h3
 
 end Hypermap

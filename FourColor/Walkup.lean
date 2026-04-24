@@ -81,6 +81,19 @@ theorem skipEdge1_ne (x : G.Dart) (hx : x ≠ z) : skipEdge1 G z x ≠ z := by
     exact h2 (by rw [h3, hfz])
   · exact h3
 
+/-- When `G.edge z = z`, `skipEdge1` agrees with `G.edge` on all darts. -/
+theorem skipEdge1_of_edge_fixed (hez : G.edge z = z) (x : G.Dart) :
+    skipEdge1 G z x = G.edge x := by
+  unfold skipEdge1
+  rw [if_pos hez]
+
+/-- When `G.edge z ≠ z` and `G.edge x ≠ z` and `G.face (G.edge x) ≠ z`,
+    `skipEdge1 G z x = G.edge x`. -/
+theorem skipEdge1_of_ne (hez : G.edge z ≠ z) (hex : G.edge x ≠ z)
+    (hfex : G.face (G.edge x) ≠ z) : skipEdge1 G z x = G.edge x := by
+  unfold skipEdge1
+  rw [if_neg hez, if_neg hfex, if_neg hex]
+
 /-! ## Walkup transforms -/
 
 noncomputable def walkupE (h2 : Fintype.card G.Dart ≥ 2) : Hypermap where
@@ -101,6 +114,18 @@ noncomputable def walkupE (h2 : Fintype.card G.Dart ≥ 2) : Hypermap where
     all_goals unfold Hypermap.skipEdge1; simp_all +decide [ Hypermap.skip1 ];
     all_goals have := G.edgeK a; have := G.faceK a; have := G.nodeK a; split_ifs at * <;> simp_all +decide [ Function.Injective.eq_iff G.edge_injective, Function.Injective.eq_iff G.node_injective, Function.Injective.eq_iff G.face_injective ] ;
     all_goals have := G.edgeK z; have := G.faceK z; have := G.nodeK z; simp_all +decide [ Function.Injective.eq_iff G.edge_injective, Function.Injective.eq_iff G.node_injective, Function.Injective.eq_iff G.face_injective ] ;
+
+@[simp] theorem walkupE_Dart (h2 : Fintype.card G.Dart ≥ 2) :
+    (walkupE G z h2).Dart = {x : G.Dart // x ≠ z} := rfl
+
+@[simp] theorem walkupE_edge_val (h2 : Fintype.card G.Dart ≥ 2) (x : (walkupE G z h2).Dart) :
+    ((walkupE G z h2).edge x).val = skipEdge1 G z x.val := rfl
+
+@[simp] theorem walkupE_node_val (h2 : Fintype.card G.Dart ≥ 2) (x : (walkupE G z h2).Dart) :
+    ((walkupE G z h2).node x).val = skip1 G z G.node x.val := rfl
+
+@[simp] theorem walkupE_face_val (h2 : Fintype.card G.Dart ≥ 2) (x : (walkupE G z h2).Dart) :
+    ((walkupE G z h2).face x).val = skip1 G z G.face x.val := rfl
 
 /-- WalkupN: remove z, adjusting the node permutation specially. -/
 noncomputable def walkupN (h2 : Fintype.card G.Dart ≥ 2) : Hypermap :=
