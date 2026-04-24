@@ -129,12 +129,26 @@ theorem fcardEdge_of_plain (G : Hypermap) (hP : Plain G) :
     intro c hc;
     -- Since $c$ is a cycle in the edge permutation, and $G$ is plain, $c$ must be a 2-cycle.
     have h_cycle_2 : c ^ 2 = 1 := by
-      have h_cycle_2 : G.edgePerm ^ 2 = 1 := by
-        ext x; simp +decide [ sq, hP ] ;
-        exact hP x |>.1;
-      simp_all +decide [ Equiv.Perm.ext_iff, sq ];
-      rw [ Equiv.Perm.mem_cycleFactorsFinset_iff ] at hc;
-      grind +suggestions;
+      have h_edgePerm_sq : G.edgePerm ^ 2 = 1 := by
+        ext x
+        show G.edgePerm (G.edgePerm x) = x
+        have := hP x
+        simp [edgePerm]; exact this.1
+      rw [Equiv.Perm.mem_cycleFactorsFinset_iff] at hc
+      obtain ⟨hc_cyc, hc_sub⟩ := hc
+      ext x
+      show c (c x) = x
+      by_cases hx : x ∈ c.support
+      · -- x ∈ support: c agrees with edgePerm here, iterate twice uses edgePerm^2 = 1.
+        have hcx_mem : c x ∈ c.support := Equiv.Perm.apply_mem_support.mpr hx
+        rw [hc_sub (c x) hcx_mem, hc_sub x hx]
+        have := congr_fun (congr_arg (fun p : Equiv.Perm G.Dart => (p : _ → _)) h_edgePerm_sq) x
+        simpa [sq, Equiv.Perm.mul_apply] using this
+      · -- x ∉ support: c x = x.
+        have hxe : c x = x := by
+          by_contra hne
+          exact hx (Equiv.Perm.mem_support.mpr hne)
+        rw [hxe, hxe]
     have h_cycle_2 : ∀ {σ : Equiv.Perm G.Dart}, σ.IsCycle → σ ^ 2 = 1 → σ.support.card = 2 := by
       intros σ hσ hσ_sq
       have h_cycle_2 : σ.support.card ∣ 2 := by
@@ -369,6 +383,15 @@ private theorem cubeFace_tag_edge (G : Hypermap) (x : G.Dart) (n : ℕ) :
     onto the edge-orbit of x. -/
 theorem cubeFace_CTe_iter (G : Hypermap) (x : G.Dart) (n : ℕ) :
     (cubeFace G)^[n] (CubeTag.CTe, x) = (CubeTag.CTe, G.edge^[n] x) := by
+  induction n with
+  | zero => rfl
+  | succ n ih => rw [Function.iterate_succ_apply', ih]; simp [cubeFace, Function.iterate_succ_apply']
+
+/-- In cube G, face iteration acting on (CTfe, x) darts just iterates G.node
+    in the second component. So the face-orbit of (CTfe, x) projects 1-to-1
+    onto the node-orbit of x. -/
+theorem cubeFace_CTfe_iter (G : Hypermap) (x : G.Dart) (n : ℕ) :
+    (cubeFace G)^[n] (CubeTag.CTfe, x) = (CubeTag.CTfe, G.node^[n] x) := by
   induction n with
   | zero => rfl
   | succ n ih => rw [Function.iterate_succ_apply', ih]; simp [cubeFace, Function.iterate_succ_apply']
