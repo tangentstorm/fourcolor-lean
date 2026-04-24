@@ -161,6 +161,36 @@ theorem insertE_append (p q : List G.Dart) :
     insertE G (p ++ q) = insertE G p ++ insertE G q := by
   simp [insertE, List.flatMap_append]
 
+/-- `insertE` on the empty list is empty. -/
+@[simp] theorem insertE_nil : insertE G ([] : List G.Dart) = [] := rfl
+
+/-- `insertE` unfolds on a cons: prepend `x` and `edge x` before the recursive result. -/
+@[simp] theorem insertE_cons (x : G.Dart) (p : List G.Dart) :
+    insertE G (x :: p) = x :: G.edge x :: insertE G p := by
+  simp [insertE, List.flatMap_cons]
+
+/-- Every element of `p` belongs to `insertE G p`. -/
+theorem mem_insertE_self (p : List G.Dart) {x : G.Dart}
+    (h : x ∈ p) : x ∈ insertE G p := by
+  induction p with
+  | nil => simp at h
+  | cons y ys ih =>
+    rw [insertE_cons]
+    rcases List.mem_cons.mp h with rfl | h'
+    · exact List.mem_cons.mpr (Or.inl rfl)
+    · exact List.mem_cons.mpr (Or.inr (List.mem_cons.mpr (Or.inr (ih h'))))
+
+/-- For every element of `p`, its edge image belongs to `insertE G p`. -/
+theorem mem_insertE_edge (p : List G.Dart) {x : G.Dart}
+    (h : x ∈ p) : G.edge x ∈ insertE G p := by
+  induction p with
+  | nil => simp at h
+  | cons y ys ih =>
+    rw [insertE_cons]
+    rcases List.mem_cons.mp h with rfl | h'
+    · exact List.mem_cons.mpr (Or.inr (List.mem_cons.mpr (Or.inl rfl)))
+    · exact List.mem_cons.mpr (Or.inr (List.mem_cons.mpr (Or.inr (ih h'))))
+
 /-! ### 2. `cface` / `cedge` / `cnode` reflexivity (geometry.v:~145) -/
 
 -- Coq: connect0 (specialized)
