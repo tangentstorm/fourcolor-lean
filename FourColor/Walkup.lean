@@ -44,6 +44,13 @@ theorem skip1_ne (f : G.Dart → G.Dart) (hf : Function.Injective f)
     exact hx (hf (hfx.trans hfz.symm))
   · assumption
 
+/-- When f is injective and f z = z, skip1 G z f agrees with f on darts ≠ z. -/
+theorem skip1_of_fixed (f : G.Dart → G.Dart) (hf : Function.Injective f)
+    (hfz : f z = z) (x : G.Dart) (hx : x ≠ z) : skip1 G z f x = f x := by
+  unfold skip1
+  have : f x ≠ z := fun h => hx (hf (h.trans hfz.symm))
+  rw [if_neg this]
+
 /-! ## The special skip_edge function -/
 
 /-- The special edge skip function for WalkupE.
@@ -110,6 +117,45 @@ theorem card_walkupE (h2 : Fintype.card G.Dart ≥ 2) :
     Fintype.card (walkupE G z h2).Dart = Fintype.card G.Dart - 1 := by
   simp only [walkupE]
   rw [Fintype.card_subtype_compl, Fintype.card_ofSubsingleton]
+
+/-- Equivalent formulation: card G = card (walkupE G z h2) + 1. -/
+theorem card_walkupE_succ (h2 : Fintype.card G.Dart ≥ 2) :
+    Fintype.card G.Dart = Fintype.card (walkupE G z h2).Dart + 1 := by
+  have := card_walkupE G z h2; omega
+
+/-! ## Triangular identity consequences at z
+
+These four lemmas describe how the three fixed-point conditions
+edge z = z, node z = z, face z = z propagate via `edgeK`/`faceK`/`nodeK`.
+They are used when case-analyzing the shape of z for `walkupE_euler_components`. -/
+
+/-- If edge z = z and node z = z, then face z = z (from edgeK). -/
+theorem face_eq_z_of_edge_node (hez : G.edge z = z) (hnz : G.node z = z) :
+    G.face z = z := by
+  have h := G.edgeK z
+  rw [hez] at h
+  exact node_injective (h.trans hnz.symm)
+
+/-- If node z = z and face z = z, then edge z = z (from faceK). -/
+theorem edge_eq_z_of_node_face (hnz : G.node z = z) (hfz : G.face z = z) :
+    G.edge z = z := by
+  have := G.faceK z
+  rw [hfz, hnz] at this
+  exact this
+
+/-- If edge z ≠ z and node z = z, then face z ≠ z. -/
+theorem face_ne_z_of_edge_ne_node_eq (hez : G.edge z ≠ z) (hnz : G.node z = z) :
+    G.face z ≠ z := by
+  intro hfz
+  exact hez (edge_eq_z_of_node_face G z hnz hfz)
+
+/-- If node z ≠ z and face z = z, then edge z ≠ z. -/
+theorem edge_ne_z_of_node_ne_face_eq (hnz : G.node z ≠ z) (hfz : G.face z = z) :
+    G.edge z ≠ z := by
+  intro hez
+  have := G.edgeK z
+  rw [hez, hfz] at this
+  exact hnz this
 
 /-! ## Euler formula changes under WalkupE -/
 
