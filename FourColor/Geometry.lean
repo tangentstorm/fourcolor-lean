@@ -862,4 +862,128 @@ theorem cnode_iter_node_left (x : G.Dart) (n : ℕ) {y : G.Dart}
   obtain ⟨m, rfl⟩ := h
   exact ⟨m + n, by rw [← Function.iterate_add_apply, Nat.add_comm]⟩
 
+/-! ## Convenience lemmas: fband, Simple, kernel -/
+
+/-- The face band is invariant under list reversal. -/
+theorem fband_reverse (p : List G.Dart) (x : G.Dart) :
+    fband G p.reverse x ↔ fband G p x := by
+  simp only [fband, List.mem_reverse]
+
+/-- A singleton list is always face-simple. -/
+theorem Simple.singleton (x : G.Dart) : Simple G [x] :=
+  List.pairwise_singleton _ _
+
+/-- Face-simplicity is preserved under list reversal. -/
+theorem Simple.reverse {p : List G.Dart} (h : Simple G p) :
+    Simple G p.reverse := by
+  unfold Simple at h ⊢
+  rw [List.pairwise_reverse]
+  exact h.imp fun hab => hab ∘ cface_sym
+
+/-- The kernel of an empty list is the full set. -/
+@[simp] theorem kernel_nil (x : G.Dart) : kernel G [] x := by
+  intro ⟨_, hm, _⟩
+  exact List.not_mem_nil hm
+
+/-! ## nComp_dual and nComp_mirror -/
+
+/-- A single glink step in `dual G` generates an EqvGen step in `G`. -/
+private theorem glink_dual_eqvGen (x y : G.Dart) (h : glink (dual G) x y) :
+    Relation.EqvGen (glink G) x y := by
+  rcases h with rfl | rfl | rfl
+  · exact Relation.EqvGen.symm _ _ (Relation.EqvGen.rel _ _
+      (Or.inl (Function.rightInverse_invFun edge_surjective x)))
+  · exact Relation.EqvGen.symm _ _ (Relation.EqvGen.rel _ _
+      (Or.inr (Or.inr (Function.rightInverse_invFun face_surjective x))))
+  · exact Relation.EqvGen.symm _ _ (Relation.EqvGen.rel _ _
+      (Or.inr (Or.inl (Function.rightInverse_invFun node_surjective x))))
+
+/-- A single glink step in `G` generates an EqvGen step in `dual G`. -/
+private theorem glink_eqvGen_dual (x y : G.Dart) (h : glink G x y) :
+    Relation.EqvGen (glink (dual G)) x y := by
+  rcases h with rfl | rfl | rfl
+  · exact Relation.EqvGen.symm _ _ (Relation.EqvGen.rel _ _
+      (Or.inl (Function.leftInverse_invFun edge_bijective.injective x)))
+  · exact Relation.EqvGen.symm _ _ (Relation.EqvGen.rel _ _
+      (Or.inr (Or.inr (Function.leftInverse_invFun node_bijective.injective x))))
+  · exact Relation.EqvGen.symm _ _ (Relation.EqvGen.rel _ _
+      (Or.inr (Or.inl (Function.leftInverse_invFun face_bijective.injective x))))
+
+/-- The EqvGen closures of glink for `G` and `dual G` coincide. -/
+private theorem eqvGen_glink_dual_iff (x y : G.Dart) :
+    Relation.EqvGen (glink (dual G)) x y ↔ Relation.EqvGen (glink G) x y := by
+  constructor
+  · intro h
+    induction h with
+    | rel x y h => exact glink_dual_eqvGen x y h
+    | refl => exact Relation.EqvGen.refl _
+    | symm _ _ _ ih => exact Relation.EqvGen.symm _ _ ih
+    | trans _ _ _ _ _ ih₁ ih₂ => exact Relation.EqvGen.trans _ _ _ ih₁ ih₂
+  · intro h
+    induction h with
+    | rel x y h => exact glink_eqvGen_dual x y h
+    | refl => exact Relation.EqvGen.refl _
+    | symm _ _ _ ih => exact Relation.EqvGen.symm _ _ ih
+    | trans _ _ _ _ _ ih₁ ih₂ => exact Relation.EqvGen.trans _ _ _ ih₁ ih₂
+
+/-- The number of connected components is preserved by the dual construction. -/
+theorem nComp_dual (G : Hypermap) : nComp (dual G) = nComp G := by
+  convert Fintype.card_congr (Quotient.congr (Equiv.refl _) ?_)
+  intro x y
+  exact eqvGen_glink_dual_iff x y
+
+/-- A single glink step in `mirror G` generates an EqvGen step in `G`. -/
+private theorem glink_mirror_eqvGen (x y : G.Dart) (h : glink (mirror G) x y) :
+    Relation.EqvGen (glink G) x y := by
+  rcases h with rfl | rfl | rfl
+  · exact Relation.EqvGen.trans _ _ _
+      (Relation.EqvGen.rel _ _ (Or.inr (Or.inl rfl)))
+      (Relation.EqvGen.rel _ _ (Or.inr (Or.inr rfl)))
+  · exact Relation.EqvGen.symm _ _ (Relation.EqvGen.rel _ _
+      (Or.inr (Or.inl (Function.rightInverse_invFun node_surjective x))))
+  · exact Relation.EqvGen.symm _ _ (Relation.EqvGen.rel _ _
+      (Or.inr (Or.inr (Function.rightInverse_invFun face_surjective x))))
+
+/-- A single glink step in `G` generates an EqvGen step in `mirror G`. -/
+private theorem glink_eqvGen_mirror (x y : G.Dart) (h : glink G x y) :
+    Relation.EqvGen (glink (mirror G)) x y := by
+  rcases h with rfl | rfl | rfl
+  · have h1 : (mirror G).face ((mirror G).node x) = G.edge x := by
+      show Function.invFun G.face (Function.invFun G.node x) = G.edge x
+      have : G.node (G.face (G.edge x)) = x := G.edgeK x
+      have hfex : G.face (G.edge x) = Function.invFun G.node x := by
+        have := Function.rightInverse_invFun node_surjective x
+        exact node_injective (this.symm ▸ ‹G.node (G.face (G.edge x)) = x›)
+      rw [← hfex, Function.leftInverse_invFun face_bijective.injective]
+    exact Relation.EqvGen.trans _ _ _
+      (Relation.EqvGen.rel _ _ (Or.inr (Or.inl rfl)))
+      (Relation.EqvGen.rel _ _ (Or.inr (Or.inr h1)))
+  · exact Relation.EqvGen.symm _ _ (Relation.EqvGen.rel _ _
+      (Or.inr (Or.inl (Function.leftInverse_invFun node_bijective.injective x))))
+  · exact Relation.EqvGen.symm _ _ (Relation.EqvGen.rel _ _
+      (Or.inr (Or.inr (Function.leftInverse_invFun face_bijective.injective x))))
+
+/-- The EqvGen closures of glink for `G` and `mirror G` coincide. -/
+private theorem eqvGen_glink_mirror_iff (x y : G.Dart) :
+    Relation.EqvGen (glink (mirror G)) x y ↔ Relation.EqvGen (glink G) x y := by
+  constructor
+  · intro h
+    induction h with
+    | rel x y h => exact glink_mirror_eqvGen x y h
+    | refl => exact Relation.EqvGen.refl _
+    | symm _ _ _ ih => exact Relation.EqvGen.symm _ _ ih
+    | trans _ _ _ _ _ ih₁ ih₂ => exact Relation.EqvGen.trans _ _ _ ih₁ ih₂
+  · intro h
+    induction h with
+    | rel x y h => exact glink_eqvGen_mirror x y h
+    | refl => exact Relation.EqvGen.refl _
+    | symm _ _ _ ih => exact Relation.EqvGen.symm _ _ ih
+    | trans _ _ _ _ _ ih₁ ih₂ => exact Relation.EqvGen.trans _ _ _ ih₁ ih₂
+
+/-- The number of connected components is preserved by the mirror construction. -/
+theorem nComp_mirror (G : Hypermap) : nComp (mirror G) = nComp G := by
+  convert Fintype.card_congr (Quotient.congr (Equiv.refl _) ?_)
+  intro x y
+  exact eqvGen_glink_mirror_iff x y
+
 end Hypermap
