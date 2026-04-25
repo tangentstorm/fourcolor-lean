@@ -931,6 +931,25 @@ theorem Simple.reverse {p : List G.Dart} (h : Simple G p) :
   intro ⟨_, hm, _⟩
   exact List.not_mem_nil hm
 
+@[simp] theorem kernel_cons (y : G.Dart) (p : List G.Dart) (x : G.Dart) :
+    kernel G (y :: p) x ↔ ¬ cface G x y ∧ kernel G p x := by
+  unfold kernel
+  rw [fband_cons]
+  push_neg
+  rfl
+
+@[simp] theorem kernel_singleton (x y : G.Dart) :
+    kernel G [x] y ↔ ¬ cface G y x := by
+  unfold kernel
+  rw [fband_singleton]
+
+@[simp] theorem fproj_nil (x : G.Dart) : fproj G [] x = x := by
+  unfold fproj
+  split
+  case isTrue h =>
+    exact absurd h (by rintro ⟨_, hm, _⟩; exact List.not_mem_nil hm)
+  case isFalse => rfl
+
 /-! ## nComp_dual and nComp_mirror -/
 
 /-- A single glink step in `dual G` generates an EqvGen step in `G`. -/
@@ -1166,6 +1185,18 @@ theorem arity_pos (x : G.Dart) : 0 < arity G x := by
   unfold arity orderOf
   exact Function.minimalPeriod_pos_of_mem_periodicPts
     (Function.Injective.mem_periodicPts face_injective x)
+
+theorem arity_face_iter (G : Hypermap) (n : ℕ) (x : G.Dart) :
+    arity G (G.face^[n] x) = arity G x := arity_iter_face n x
+
+@[simp] theorem arity_eq_zero_iff (G : Hypermap) (x : G.Dart) :
+    arity G x = 0 ↔ False := by
+  constructor
+  · intro h
+    have := arity_pos x
+    omega
+  · intro h
+    exact h.elim
 
 /-! ## cnode/cedge zero & one helpers (counterparts to cface_zero/one) -/
 

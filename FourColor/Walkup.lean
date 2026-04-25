@@ -163,6 +163,13 @@ noncomputable def walkupE (h2 : Fintype.card G.Dart ≥ 2) : Hypermap where
     (x : G.Dart) (hx : x ≠ z) :
     (⟨x, hx⟩ : (walkupE G z h2).Dart).val = x := rfl
 
+theorem walkupE_Dart_eq (h2 : Fintype.card G.Dart ≥ 2) (x y : (walkupE G z h2).Dart) :
+    x = y ↔ x.val = y.val := Subtype.ext_iff
+
+@[simp] theorem walkupE_Dart_val_inj (h2 : Fintype.card G.Dart ≥ 2)
+    (x y : (walkupE G z h2).Dart) :
+    x.val = y.val ↔ x = y := Subtype.ext_iff.symm
+
 /-- Every dart of `walkupE G z h2` has underlying value different from `z`. -/
 theorem walkupE_dart_subtype (h2 : Fintype.card G.Dart ≥ 2) (x : (walkupE G z h2).Dart) :
     x.val ≠ z :=

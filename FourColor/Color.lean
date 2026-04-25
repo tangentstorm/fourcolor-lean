@@ -409,4 +409,20 @@ theorem ctrace_nil : ctrace ([] : List Color) = [Color0] := by rfl
 @[simp] theorem ctrace_length (s : List Color) : (ctrace s).length = s.length + 1 := by
   unfold ctrace; simp [List.length_append]
 
+@[simp] theorem sumt_reverse (s : List Color) : sumt s.reverse = sumt s := by
+  induction s with
+  | nil => rfl
+  | cons c cs ih =>
+    rw [List.reverse_cons, sumt_append, ih, sumt_singleton, sumt_cons,
+        addc_comm c (sumt cs)]
+
+@[simp] theorem sumt_replicate_zero (c : Color) : sumt (List.replicate 0 c) = Color0 := rfl
+
+theorem sumt_replicate_two (c : Color) : sumt (List.replicate 2 c) = Color0 := by
+  show c + (c + Color0) = Color0
+  simp
+
+theorem head_color_append_left (c : Color) (s t : List Color) :
+    head_color ((c :: s) ++ t) = c := rfl
+
 end Color

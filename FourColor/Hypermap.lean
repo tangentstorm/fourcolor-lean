@@ -206,6 +206,22 @@ theorem cface_imp_gcomp {G : Hypermap} {x y : G.Dart} (h : cface G x y) : gcomp 
     rw [Function.iterate_succ_apply']
     exact gcomp.trans ih (gcomp.face G _)
 
+/-- A Connected hypermap relates any two darts via gcomp from cedge. -/
+theorem Connected.gcomp_of_any {G : Hypermap} (h : Connected G) (x y : G.Dart) : gcomp G x y :=
+  h x y
+
+/-- glink applied via cedge: a single edge step is a glink. -/
+theorem glink_of_cedge_step {G : Hypermap} (x : G.Dart) : glink G x (G.edge x) :=
+  glink.edge G x
+
+/-- glink applied via cnode: a single node step is a glink. -/
+theorem glink_of_cnode_step {G : Hypermap} (x : G.Dart) : glink G x (G.node x) :=
+  glink.node G x
+
+/-- glink applied via cface: a single face step is a glink. -/
+theorem glink_of_cface_step {G : Hypermap} (x : G.Dart) : glink G x (G.face x) :=
+  glink.face G x
+
 /-! ## Euler formula and genus -/
 
 /-- The equivalence closure of glink, used for counting connected components. -/
