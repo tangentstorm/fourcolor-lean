@@ -192,4 +192,52 @@ theorem KempeClosed.empty : KempeClosed (fun _ => False) :=
 @[simp] theorem matchg_nonempty_trace_empty_w (lb : List Bool) (c : Color)
     (et : List Color) : matchg lb (c :: et) [] = false := by cases lb <;> cases c <;> rfl
 
+/-! ## gramBalanced Gpop simp lemmas -/
+
+@[simp] theorem gramBalanced_Gpop0_zero (b0 : Bool) (w : Chromogram) :
+    gramBalanced 0 b0 (GramSymbol.Gpop0 :: w) = false := rfl
+
+@[simp] theorem gramBalanced_Gpop1_zero (b0 : Bool) (w : Chromogram) :
+    gramBalanced 0 b0 (GramSymbol.Gpop1 :: w) = false := rfl
+
+@[simp] theorem gramBalanced_Gpop0_succ (d : Nat) (b0 : Bool) (w : Chromogram) :
+    gramBalanced (d + 1) b0 (GramSymbol.Gpop0 :: w) = gramBalanced d b0 w := rfl
+
+@[simp] theorem gramBalanced_Gpop1_succ (d : Nat) (b0 : Bool) (w : Chromogram) :
+    gramBalanced (d + 1) b0 (GramSymbol.Gpop1 :: w) = gramBalanced d (!b0) w := rfl
+
+/-! ## matchg first-element simp lemmas -/
+
+@[simp] theorem matchg_Color0 (lb : List Bool) (et : List Color) (s : GramSymbol)
+    (w : Chromogram) : matchg lb (Color0 :: et) (s :: w) = false := by
+  cases lb <;> cases s <;> rfl
+
+@[simp] theorem matchg_Color1_Gskip (lb : List Bool) (et : List Color) (w : Chromogram) :
+    matchg lb (Color1 :: et) (GramSymbol.Gskip :: w) = matchg lb et w := by
+  cases lb <;> rfl
+
+@[simp] theorem matchg_Color1_Gpush (lb : List Bool) (et : List Color) (w : Chromogram) :
+    matchg lb (Color1 :: et) (GramSymbol.Gpush :: w) = false := by
+  cases lb <;> rfl
+
+@[simp] theorem matchg_Color1_Gpop0 (lb : List Bool) (et : List Color) (w : Chromogram) :
+    matchg lb (Color1 :: et) (GramSymbol.Gpop0 :: w) = false := by
+  rcases lb with _ | ⟨_ | _, _⟩ <;> rfl
+
+@[simp] theorem matchg_Color1_Gpop1 (lb : List Bool) (et : List Color) (w : Chromogram) :
+    matchg lb (Color1 :: et) (GramSymbol.Gpop1 :: w) = false := by
+  rcases lb with _ | ⟨_ | _, _⟩ <;> rfl
+
+@[simp] theorem matchg_Color2_Gpush (lb : List Bool) (et : List Color) (w : Chromogram) :
+    matchg lb (Color2 :: et) (GramSymbol.Gpush :: w) = matchg (false :: lb) et w := by
+  cases lb <;> rfl
+
+@[simp] theorem matchg_Color2_Gpop0_false (lb : List Bool) (et : List Color)
+    (w : Chromogram) :
+    matchg (false :: lb) (Color2 :: et) (GramSymbol.Gpop0 :: w) = matchg lb et w := rfl
+
+@[simp] theorem matchg_Color2_Gpop0_true (lb : List Bool) (et : List Color)
+    (w : Chromogram) :
+    matchg (true :: lb) (Color2 :: et) (GramSymbol.Gpop0 :: w) = false := rfl
+
 end FourColor.Chromogram

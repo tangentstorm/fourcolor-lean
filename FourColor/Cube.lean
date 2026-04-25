@@ -636,4 +636,15 @@ theorem cube_colorable (G : Hypermap) : FourColorable (cube G) → FourColorable
   · grind;
   · grind
 
+/-! ## Cube cardinality helpers -/
+
+theorem cube_card (G : Hypermap) :
+    Fintype.card (cube G).Dart = 6 * Fintype.card G.Dart := card_cube_dart G
+
+@[simp] theorem cube_tag_card : Fintype.card CubeTag = 6 := card_CubeTag
+
+theorem cube_dart_six_times (G : Hypermap) :
+    Fintype.card (cube G).Dart / 6 = Fintype.card G.Dart := by
+  rw [card_cube_dart, Nat.mul_div_cancel_left _ (by decide : (0:ℕ) < 6)]
+
 end Hypermap

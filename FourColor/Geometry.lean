@@ -1113,4 +1113,15 @@ theorem arity_pos (x : G.Dart) : 0 < arity G x := by
   exact Function.minimalPeriod_pos_of_mem_periodicPts
     (Function.Injective.mem_periodicPts face_injective x)
 
+/-! ## cnode/cedge zero & one helpers (counterparts to cface_zero/one) -/
+
+theorem cedge_zero (x : G.Dart) : cedge G x x := ⟨0, rfl⟩
+theorem cnode_zero (x : G.Dart) : cnode G x x := ⟨0, rfl⟩
+theorem cedge_one (x : G.Dart) : cedge G x (G.edge x) := ⟨1, rfl⟩
+theorem cnode_one (x : G.Dart) : cnode G x (G.node x) := ⟨1, rfl⟩
+
+/-- In a plain hypermap, `node ∘ face = edge` (from `faceK` and edge involution). -/
+theorem cnode_plain (hP : Plain G) (x : G.Dart) : G.node (G.face x) = G.edge x :=
+  edge_injective (by rw [faceK, plain_edge_invol hP])
+
 end Hypermap

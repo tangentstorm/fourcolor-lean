@@ -326,4 +326,21 @@ theorem apply_zero_eq_zero (g : EdgePerm) : g.apply Color0 = Color0 := apply_zer
 
 end EdgePerm
 
+/-! ## cbit / ccons simp lemmas -/
+
+@[simp] theorem cbit0_Color0 : cbit0 Color0 = false := rfl
+@[simp] theorem cbit0_Color1 : cbit0 Color1 = true := rfl
+@[simp] theorem cbit0_Color2 : cbit0 Color2 = false := rfl
+@[simp] theorem cbit0_Color3 : cbit0 Color3 = true := rfl
+
+@[simp] theorem cbit1_Color0 : cbit1 Color0 = false := rfl
+@[simp] theorem cbit1_Color1 : cbit1 Color1 = false := rfl
+@[simp] theorem cbit1_Color2 : cbit1 Color2 = true := rfl
+@[simp] theorem cbit1_Color3 : cbit1 Color3 = true := rfl
+
+@[simp] theorem ccons_false_false : ccons false false = Color0 := rfl
+@[simp] theorem ccons_false_true : ccons false true = Color1 := rfl
+@[simp] theorem ccons_true_false : ccons true false = Color2 := rfl
+@[simp] theorem ccons_true_true : ccons true true = Color3 := rfl
+
 end Color

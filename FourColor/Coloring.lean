@@ -514,4 +514,16 @@ theorem CcColorable.exists_coloring {G : Hypermap} {cc : Finset G.Dart}
 theorem CcColorable.intro {G : Hypermap} {cc : Finset G.Dart} {k : G.Dart → Color}
     (hk : CcColoring cc k) : CcColorable cc := ⟨k, hk⟩
 
+/-! ## GraphColoring orbit invariance -/
+
+/-- A GraphColoring is constant on cnode-orbits. -/
+theorem GraphColoring.cnode {G : Hypermap} {k : G.Dart → Color}
+    (h : GraphColoring k) {x y : G.Dart} (hc : cnode G x y) : k y = k x := by
+  obtain ⟨n, rfl⟩ := hc
+  induction n with
+  | zero => rfl
+  | succ n ih =>
+    rw [Function.iterate_succ_apply', h.node_invariant]
+    exact ih
+
 end Hypermap
