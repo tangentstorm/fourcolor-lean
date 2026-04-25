@@ -483,4 +483,11 @@ theorem sumt_replicate_two (c : Color) : sumt (List.replicate 2 c) = Color0 := b
 theorem head_color_append_left (c : Color) (s t : List Color) :
     head_color ((c :: s) ++ t) = c := rfl
 
+/-- `sumt` over a list equals folding addition from the right with `Color0` as initial value. -/
+theorem sumt_eq_foldr (cs : List Color) :
+    sumt cs = cs.foldr (· + ·) Color0 := by
+  induction cs with
+  | nil => rfl
+  | cons c cs ih => rw [sumt_cons, List.foldr_cons, ih]
+
 end Color

@@ -777,6 +777,16 @@ theorem MoebiusPath.cons_length_ge_two {G : Hypermap} {x : G.Dart} {p : List G.D
 theorem MoebiusPath.tail_ne_nil {G : Hypermap} {x : G.Dart} {p : List G.Dart}
     (h : MoebiusPath G (x :: p)) : p ≠ [] := MoebiusPath.cons_ne_nil h
 
+/-- The head of a MoebiusPath is in the path. -/
+theorem MoebiusPath.head_mem {G : Hypermap} {x : G.Dart} {p : List G.Dart}
+    (_h : MoebiusPath G (x :: p)) : x ∈ (x :: p) := List.mem_cons_self ..
+
+/-- Two distinct elements of a MoebiusPath. -/
+theorem MoebiusPath.head_ne_tail_head {G : Hypermap} {x : G.Dart} {p : List G.Dart}
+    (h : MoebiusPath G (x :: p)) (y : G.Dart) (hy : y ∈ p) : x ≠ y := by
+  intro hxy
+  exact MoebiusPath.head_not_in_tail h (hxy ▸ hy)
+
 /-! ## edgePerm / nodePerm / facePerm apply simp lemmas -/
 
 @[simp] theorem edgePerm_apply {G : Hypermap} (x : G.Dart) :

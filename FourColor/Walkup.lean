@@ -165,6 +165,13 @@ theorem walkupE_face_val_of_face_fixed (h2 : Fintype.card G.Dart ≥ 2)
   rw [walkupE_face_val]
   exact skip1_of_fixed G z G.face face_injective hfz x.val x.property
 
+/-- When `node z = z`, walkupE.node acts as G.node on x.val (lifted). -/
+theorem walkupE_node_val_of_node_fixed (h2 : Fintype.card G.Dart ≥ 2)
+    (hnz : G.node z = z) (x : (walkupE G z h2).Dart) :
+    ((walkupE G z h2).node x).val = G.node x.val := by
+  rw [walkupE_node_val]
+  exact skip1_of_fixed G z G.node node_injective hnz x.val x.property
+
 /-- The underlying value of a dart constructed via subtype literal in `walkupE` is itself. -/
 @[simp] theorem walkupE_Dart_mk_val (h2 : Fintype.card G.Dart ≥ 2)
     (x : G.Dart) (hx : x ≠ z) :

@@ -591,6 +591,18 @@ theorem GraphColoring.node_iter_symm {G : Hypermap} {k : G.Dart → Color}
     (h : GraphColoring k) (n : ℕ) (x : G.Dart) : k x = k ((G.node^[n]) x) :=
   (GraphColoring.node_iter h n x).symm
 
+/-- A `Coloring` value at face^[n] x equals value at face^[m] x for any m,n. -/
+theorem Coloring.face_iter_eq_iter {G : Hypermap} {k : G.Dart → Color}
+    (h : Coloring k) (m n : ℕ) (x : G.Dart) :
+    k ((G.face^[m]) x) = k ((G.face^[n]) x) := by
+  rw [Coloring.face_iter h m, Coloring.face_iter h n]
+
+/-- A `GraphColoring` value at node^[n] x equals value at node^[m] x. -/
+theorem GraphColoring.node_iter_eq_iter {G : Hypermap} {k : G.Dart → Color}
+    (h : GraphColoring k) (m n : ℕ) (x : G.Dart) :
+    k ((G.node^[m]) x) = k ((G.node^[n]) x) := by
+  rw [GraphColoring.node_iter h m, GraphColoring.node_iter h n]
+
 /-- Face-invariance projection for CcColoring. -/
 theorem CcColoring.face_eq {G : Hypermap} {cc : Finset G.Dart} {k : G.Dart → Color}
     (h : CcColoring cc k) (x : G.Dart) : k (G.face x) = k x :=
