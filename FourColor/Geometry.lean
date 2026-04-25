@@ -365,6 +365,16 @@ theorem cedge_iter_edge (n : ℕ) (x : G.Dart) : cedge G x (G.edge^[n] x) :=
 theorem cnode_iter_node (n : ℕ) (x : G.Dart) : cnode G x (G.node^[n] x) :=
   ⟨n, rfl⟩
 
+-- Transitive step lemmas: extending an orbit element stays in the orbit.
+theorem cface_step_left (x y : G.Dart) (h : cface G x y) : cface G x (G.face y) := by
+  obtain ⟨n, rfl⟩ := h; exact ⟨n + 1, by rw [Function.iterate_succ_apply']⟩
+
+theorem cedge_step_left (x y : G.Dart) (h : cedge G x y) : cedge G x (G.edge y) := by
+  obtain ⟨n, rfl⟩ := h; exact ⟨n + 1, by rw [Function.iterate_succ_apply']⟩
+
+theorem cnode_step_left (x y : G.Dart) (h : cnode G x y) : cnode G x (G.node y) := by
+  obtain ⟨n, rfl⟩ := h; exact ⟨n + 1, by rw [Function.iterate_succ_apply']⟩
+
 /-! ================================================================
     Batch 2: Additional supporting lemmas from `geometry.v`.
     ================================================================ -/

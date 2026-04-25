@@ -172,6 +172,18 @@ theorem KempeCoclosure.self {P : List Color → Prop} {et : List Color}
     (hP : P et) : KempeCoclosure P et :=
   fun _ _ hRet => ⟨et, hP, hRet⟩
 
+/-- If `et` is in the Kempe coclosure of `P` and `P` implies `Q`, then `et` is
+    in the Kempe coclosure of `Q`. (alias of `KempeCoclosure.mono` with iff hypothesis) -/
+theorem KempeCoclosure.mono_iff {P Q : List Color → Prop} {et : List Color}
+    (h : ∀ x, P x ↔ Q x) : KempeCoclosure P et ↔ KempeCoclosure Q et :=
+  ⟨KempeCoclosure.mono (fun x hp => (h x).mp hp),
+   KempeCoclosure.mono (fun x hq => (h x).mpr hq)⟩
+
+/-- KempeCoclosure is monotone in both directions. -/
+theorem KempeCoclosure.imp {P Q : List Color → Prop} {et : List Color}
+    (hPQ : ∀ x, P x → Q x) (hP : KempeCoclosure P et) : KempeCoclosure Q et :=
+  KempeCoclosure.mono hPQ hP
+
 /-- The empty predicate is vacuously Kempe-closed. -/
 theorem KempeClosed.empty : KempeClosed (fun _ => False) :=
   fun _ hf => absurd hf id

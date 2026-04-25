@@ -163,6 +163,22 @@ theorem glink.node (G : Hypermap) (x : G.Dart) : glink G x (G.node x) :=
 theorem glink.face (G : Hypermap) (x : G.Dart) : glink G x (G.face x) :=
   Or.inr (Or.inr rfl)
 
+theorem gcomp.refl (G : Hypermap) (x : G.Dart) : gcomp G x x :=
+  Relation.ReflTransGen.refl
+
+theorem gcomp.trans {G : Hypermap} {x y z : G.Dart}
+    (h1 : gcomp G x y) (h2 : gcomp G y z) : gcomp G x z :=
+  Relation.ReflTransGen.trans h1 h2
+
+theorem gcomp.edge (G : Hypermap) (x : G.Dart) : gcomp G x (G.edge x) :=
+  Relation.ReflTransGen.single (glink.edge G x)
+
+theorem gcomp.node (G : Hypermap) (x : G.Dart) : gcomp G x (G.node x) :=
+  Relation.ReflTransGen.single (glink.node G x)
+
+theorem gcomp.face (G : Hypermap) (x : G.Dart) : gcomp G x (G.face x) :=
+  Relation.ReflTransGen.single (glink.face G x)
+
 /-! ## Euler formula and genus -/
 
 /-- The equivalence closure of glink, used for counting connected components. -/
@@ -838,5 +854,29 @@ theorem face_iter_one (G : Hypermap) (x : G.Dart) : G.face^[1] x = G.face x := r
 theorem edge_iter_one (G : Hypermap) (x : G.Dart) : G.edge^[1] x = G.edge x := rfl
 
 theorem node_iter_one (G : Hypermap) (x : G.Dart) : G.node^[1] x = G.node x := rfl
+
+theorem face_iter_succ (G : Hypermap) (x : G.Dart) (n : ℕ) :
+    G.face^[n + 1] x = G.face (G.face^[n] x) := by
+  rw [Function.iterate_succ_apply']
+
+theorem edge_iter_succ (G : Hypermap) (x : G.Dart) (n : ℕ) :
+    G.edge^[n + 1] x = G.edge (G.edge^[n] x) := by
+  rw [Function.iterate_succ_apply']
+
+theorem node_iter_succ (G : Hypermap) (x : G.Dart) (n : ℕ) :
+    G.node^[n + 1] x = G.node (G.node^[n] x) := by
+  rw [Function.iterate_succ_apply']
+
+theorem face_iter_add (G : Hypermap) (x : G.Dart) (m n : ℕ) :
+    G.face^[m + n] x = G.face^[m] (G.face^[n] x) := by
+  rw [Function.iterate_add_apply]
+
+theorem edge_iter_add (G : Hypermap) (x : G.Dart) (m n : ℕ) :
+    G.edge^[m + n] x = G.edge^[m] (G.edge^[n] x) := by
+  rw [Function.iterate_add_apply]
+
+theorem node_iter_add (G : Hypermap) (x : G.Dart) (m n : ℕ) :
+    G.node^[m + n] x = G.node^[m] (G.node^[n] x) := by
+  rw [Function.iterate_add_apply]
 
 end Hypermap

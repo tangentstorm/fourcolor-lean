@@ -385,6 +385,25 @@ theorem proper_trace_cons (c : Color) (s : List Color) :
 
 /-! ## Compositional helpers for trace operations -/
 
+namespace EdgePerm
+
+theorem apply_inj (g : EdgePerm) {a b : Color} : g.apply a = g.apply b ↔ a = b := by
+  constructor
+  · exact fun h => g.apply_injective h
+  · rintro rfl; rfl
+
+end EdgePerm
+
+theorem permt_singleton (g : EdgePerm) (c : Color) : permt g [c] = [g.apply c] := rfl
+
+theorem sumt_permt (g : EdgePerm) (s : List Color) :
+    sumt (permt g s) = g.apply (sumt s) := by
+  induction s with
+  | nil => simp [sumt, permt, EdgePerm.apply_zero]
+  | cons c s ih =>
+      change g.apply c + sumt (permt g s) = g.apply (c + sumt s)
+      rw [ih, EdgePerm.apply_add]
+
 theorem ctrace_nil : ctrace ([] : List Color) = [Color0] := by rfl
 
 @[simp] theorem ctrace_length (s : List Color) : (ctrace s).length = s.length + 1 := by
