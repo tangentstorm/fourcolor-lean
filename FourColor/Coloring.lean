@@ -598,6 +598,11 @@ theorem GraphFourColorable.of_FourColorable_dual {G : Hypermap}
   obtain ⟨k, hk⟩ := h
   exact ⟨k, GraphColoring_of_dual_Coloring hk⟩
 
+/-- If G is graph-four-colorable, then the dual hypermap is four-colorable. -/
+theorem FourColorable.of_GraphFourColorable_dual {G : Hypermap}
+    (h : GraphFourColorable G) : FourColorable (dual G) :=
+  four_colorable_dual.mpr h
+
 /-- A coloring of (mirror G).Dart is also a coloring of G.Dart. -/
 theorem mirror_Coloring (G : Hypermap) {k : G.Dart → Color}
     (h : @Coloring (mirror G) k) : Coloring k := coloring_mirror h

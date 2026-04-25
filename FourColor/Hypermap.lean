@@ -179,6 +179,33 @@ theorem gcomp.node (G : Hypermap) (x : G.Dart) : gcomp G x (G.node x) :=
 theorem gcomp.face (G : Hypermap) (x : G.Dart) : gcomp G x (G.face x) :=
   Relation.ReflTransGen.single (glink.face G x)
 
+/-- Any cedge-related dart is gcomp-related. -/
+theorem cedge_imp_gcomp {G : Hypermap} {x y : G.Dart} (h : cedge G x y) : gcomp G x y := by
+  obtain ⟨n, rfl⟩ := h
+  induction n with
+  | zero => exact gcomp.refl G x
+  | succ n ih =>
+    rw [Function.iterate_succ_apply']
+    exact gcomp.trans ih (gcomp.edge G _)
+
+/-- Any cnode-related dart is gcomp-related. -/
+theorem cnode_imp_gcomp {G : Hypermap} {x y : G.Dart} (h : cnode G x y) : gcomp G x y := by
+  obtain ⟨n, rfl⟩ := h
+  induction n with
+  | zero => exact gcomp.refl G x
+  | succ n ih =>
+    rw [Function.iterate_succ_apply']
+    exact gcomp.trans ih (gcomp.node G _)
+
+/-- Any cface-related dart is gcomp-related. -/
+theorem cface_imp_gcomp {G : Hypermap} {x y : G.Dart} (h : cface G x y) : gcomp G x y := by
+  obtain ⟨n, rfl⟩ := h
+  induction n with
+  | zero => exact gcomp.refl G x
+  | succ n ih =>
+    rw [Function.iterate_succ_apply']
+    exact gcomp.trans ih (gcomp.face G _)
+
 /-! ## Euler formula and genus -/
 
 /-- The equivalence closure of glink, used for counting connected components. -/
