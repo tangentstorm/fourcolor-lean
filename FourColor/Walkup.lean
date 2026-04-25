@@ -200,6 +200,11 @@ theorem card_walkupE_lt (h2 : Fintype.card G.Dart ≥ 2) :
     Fintype.card (walkupE G z h2).Dart < Fintype.card G.Dart := by
   rw [card_walkupE]; omega
 
+/-- The predecessor relationship via Nat.add_one. -/
+theorem card_walkupE_add_one (h2 : Fintype.card G.Dart ≥ 2) :
+    Fintype.card (walkupE G z h2).Dart + 1 = Fintype.card G.Dart := by
+  rw [card_walkupE]; omega
+
 /-! ## Triangular identity consequences at z
 
 These four lemmas describe how the three fixed-point conditions

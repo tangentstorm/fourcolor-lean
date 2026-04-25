@@ -210,6 +210,18 @@ theorem cface_imp_gcomp {G : Hypermap} {x y : G.Dart} (h : cface G x y) : gcomp 
 theorem Connected.gcomp_of_any {G : Hypermap} (h : Connected G) (x y : G.Dart) : gcomp G x y :=
   h x y
 
+/-- A Connected hypermap relates dart x to its edge image. -/
+theorem Connected.gcomp_edge {G : Hypermap} (h : Connected G) (x : G.Dart) :
+    gcomp G x (G.edge x) := h x (G.edge x)
+
+/-- A Connected hypermap relates dart x to its node image. -/
+theorem Connected.gcomp_node {G : Hypermap} (h : Connected G) (x : G.Dart) :
+    gcomp G x (G.node x) := h x (G.node x)
+
+/-- A Connected hypermap relates dart x to its face image. -/
+theorem Connected.gcomp_face {G : Hypermap} (h : Connected G) (x : G.Dart) :
+    gcomp G x (G.face x) := h x (G.face x)
+
 /-- glink applied via cedge: a single edge step is a glink. -/
 theorem glink_of_cedge_step {G : Hypermap} (x : G.Dart) : glink G x (G.edge x) :=
   glink.edge G x

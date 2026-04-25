@@ -395,6 +395,24 @@ theorem cedge_step_left (x y : G.Dart) (h : cedge G x y) : cedge G x (G.edge y) 
 theorem cnode_step_left (x y : G.Dart) (h : cnode G x y) : cnode G x (G.node y) := by
   obtain ⟨n, rfl⟩ := h; exact ⟨n + 1, by rw [Function.iterate_succ_apply']⟩
 
+theorem cface_iter_step (G : Hypermap) (n : ℕ) (x y : G.Dart)
+    (h : cface G x y) : cface G (G.face^[n] x) (G.face^[n] y) := by
+  obtain ⟨m, rfl⟩ := h
+  refine ⟨m, ?_⟩
+  rw [← Function.iterate_add_apply, ← Function.iterate_add_apply, Nat.add_comm]
+
+theorem cedge_iter_step (G : Hypermap) (n : ℕ) (x y : G.Dart)
+    (h : cedge G x y) : cedge G (G.edge^[n] x) (G.edge^[n] y) := by
+  obtain ⟨m, rfl⟩ := h
+  refine ⟨m, ?_⟩
+  rw [← Function.iterate_add_apply, ← Function.iterate_add_apply, Nat.add_comm]
+
+theorem cnode_iter_step (G : Hypermap) (n : ℕ) (x y : G.Dart)
+    (h : cnode G x y) : cnode G (G.node^[n] x) (G.node^[n] y) := by
+  obtain ⟨m, rfl⟩ := h
+  refine ⟨m, ?_⟩
+  rw [← Function.iterate_add_apply, ← Function.iterate_add_apply, Nat.add_comm]
+
 /-! ================================================================
     Batch 2: Additional supporting lemmas from `geometry.v`.
     ================================================================ -/

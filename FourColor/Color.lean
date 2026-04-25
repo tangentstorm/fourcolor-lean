@@ -430,6 +430,11 @@ theorem proper_trace_cons (c : Color) (s : List Color) :
   | nil => rfl
   | cons c rest ih => simp only [permt_cons, EdgePerm.apply_inv, ih]
 
+/-- Applying `permt g.inv` to `g.apply c :: permt g s` recovers `c :: s`. -/
+theorem permt_apply_then_inv (g : EdgePerm) (c : Color) (s : List Color) :
+    permt g.inv (g.apply c :: permt g s) = c :: s := by
+  rw [permt_cons, EdgePerm.apply_inv, permt_inv_apply]
+
 @[simp] theorem permt_apply_inv (g : EdgePerm) (s : List Color) :
     permt g (permt g.inv s) = s := by
   induction s with

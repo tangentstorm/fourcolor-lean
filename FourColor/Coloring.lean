@@ -604,6 +604,11 @@ theorem GraphColoring.cnode {G : Hypermap} {k : G.Dart → Color}
     rw [Function.iterate_succ_apply', h.node_invariant]
     exact ih
 
+/-- A `GraphColoring` is constant on cnode-orbits (n-step variant). -/
+theorem GraphColoring.cnode_iff_eq {G : Hypermap} {k : G.Dart → Color}
+    (h : GraphColoring k) {x y : G.Dart} (hc : Hypermap.cnode G x y) : k x = k y :=
+  (GraphColoring.cnode h hc).symm
+
 /-- A GraphColoring is constant on cnode-orbits (Coloring-namespace alias). -/
 theorem Coloring.cnode_invariant_of_GraphColoring {G : Hypermap} {k : G.Dart → Color}
     (h : GraphColoring k) {x y : G.Dart} (hc : cnode G x y) : k y = k x :=
