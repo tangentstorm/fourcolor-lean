@@ -580,6 +580,22 @@ theorem List.not_mem2_singleton {α : Type*} (x a b : α) :
 
 /-! ## MoebiusPath cons-shape helpers -/
 
+/-- A Moebius path is duplicate-free. -/
+theorem MoebiusPath.nodup {G : Hypermap} {q : List G.Dart}
+    (h : MoebiusPath G q) : q.Nodup := by
+  match q, h with
+  | x :: p, ⟨hnodup, _, _⟩ => exact hnodup
+
+/-- A Moebius path's clink-chain. -/
+theorem MoebiusPath.chain {G : Hypermap} {x : G.Dart} {p : List G.Dart}
+    (h : MoebiusPath G (x :: p)) : List.IsChain (clink G) (x :: p) := h.2.1
+
+/-- A Moebius path's mem2 twist. -/
+theorem MoebiusPath.twist {G : Hypermap} {x : G.Dart} {p : List G.Dart}
+    (h : MoebiusPath G (x :: p)) :
+    List.mem2 p (G.finvNode ((x :: p).getLast (List.cons_ne_nil x p))) (G.node x) :=
+  h.2.2
+
 theorem MoebiusPath.head_not_in_tail {G : Hypermap} {x : G.Dart} {p : List G.Dart}
     (h : MoebiusPath G (x :: p)) : x ∉ p := by
   obtain ⟨hnodup, _, _⟩ := h
@@ -707,5 +723,32 @@ theorem nComp_eq_one_of_connected (G : Hypermap) (hc : Connected G) :
 /-- Every connected hypermap has a positive number of connected components. -/
 theorem nComp_pos_of_connected (G : Hypermap) (_h : Connected G) : 0 < nComp G :=
   Nat.lt_of_lt_of_le Nat.zero_lt_one (nComp_refl G)
+
+/-! ## gcomp_glink: lifting and chaining helpers -/
+
+/-- A direct gcomp lift from glink. -/
+theorem gcomp_of_glink (G : Hypermap) {x y : G.Dart} (h : glink G x y) :
+    gcomp G x y := Relation.ReflTransGen.single h
+
+/-- Two glink steps compose to gcomp. -/
+theorem gcomp_two (G : Hypermap) {x y z : G.Dart}
+    (hxy : glink G x y) (hyz : glink G y z) : gcomp G x z :=
+  Relation.ReflTransGen.head hxy (Relation.ReflTransGen.single hyz)
+
+/-- gcomp is an equivalence relation. -/
+theorem gcomp_equivalence (G : Hypermap) : Equivalence (gcomp G) :=
+  ⟨gcomp_refl G, fun h => gcomp_symm h, fun hab hbc => gcomp_trans G hab hbc⟩
+
+/-! ## Dual–mirror cross-construction lemmas -/
+
+@[simp] theorem dual_mirror_edge (G : Hypermap) (x : G.Dart) :
+    (dual (mirror G)).edge x = Function.invFun ((mirror G).edge) x := rfl
+
+@[simp] theorem mirror_dual_edge (G : Hypermap) (x : G.Dart) :
+    (mirror (dual G)).edge x = (dual G).face ((dual G).node x) := rfl
+
+theorem dual_swaps_node_face (G : Hypermap) :
+    (dual G).node = Function.invFun G.face ∧ (dual G).face = Function.invFun G.node :=
+  ⟨rfl, rfl⟩
 
 end Hypermap

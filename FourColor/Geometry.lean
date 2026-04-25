@@ -501,6 +501,28 @@ theorem fproj_cface {p : List G.Dart} {x y : G.Dart}
     · exact absurd hy h2
   · exact absurd hx h1
 
+/-- fproj of a singleton list. -/
+theorem fproj_singleton (G : Hypermap) (x y : G.Dart) (h : cface G y x) :
+    fproj G [x] y = x := by
+  unfold fproj
+  split
+  · rename_i h_exists
+    rcases h_exists.choose_spec with ⟨hz_mem, _hz_face⟩
+    rw [List.mem_singleton] at hz_mem
+    exact hz_mem
+  · rename_i h_no
+    exfalso
+    apply h_no
+    exact ⟨x, List.mem_singleton.mpr rfl, h⟩
+
+/-- fproj is in the list when fband holds. -/
+theorem fproj_mem_self (G : Hypermap) {p : List G.Dart} {x : G.Dart}
+    (hx : fband G p x) : fproj G p x ∈ p := (fproj_mem hx).1
+
+/-- fproj is cface-connected to x when fband holds. -/
+theorem fproj_cface_self (G : Hypermap) {p : List G.Dart} {x : G.Dart}
+    (hx : fband G p x) : cface G x (fproj G p x) := (fproj_mem hx).2
+
 /-! ### 20. `scycle` projection lemmas (geometry.v:212–244) -/
 
 -- Coq: scycle_cycle in geometry.v:212
@@ -1046,6 +1068,14 @@ theorem Srcycle.nodup {G : Hypermap} {r : List G.Dart} (h : Srcycle G r) :
 
 theorem Srcycle.simple {G : Hypermap} {r : List G.Dart} (h : Srcycle G r) :
     Simple G r := srcycle_simple h
+
+/-- An Srcycle is a Simple list (alias). -/
+theorem Srcycle.toSimple {G : Hypermap} {r : List G.Dart} (h : Srcycle G r) :
+    Simple G r := h.simple
+
+/-- An Srcycle is Nodup (alias). -/
+theorem Srcycle.toNodup {G : Hypermap} {r : List G.Dart} (h : Srcycle G r) :
+    r.Nodup := h.nodup
 
 /-! ## cface / cedge / cnode constructor helpers -/
 

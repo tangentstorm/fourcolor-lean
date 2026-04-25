@@ -542,4 +542,23 @@ theorem GraphColoring.cnode {G : Hypermap} {k : G.Dart → Color}
     rw [Function.iterate_succ_apply', h.node_invariant]
     exact ih
 
+/-- A GraphColoring is constant on cnode-orbits (Coloring-namespace alias). -/
+theorem Coloring.cnode_invariant_of_GraphColoring {G : Hypermap} {k : G.Dart → Color}
+    (h : GraphColoring k) {x y : G.Dart} (hc : cnode G x y) : k y = k x :=
+  GraphColoring.cnode h hc
+
+/-- A graph coloring induces a coloring of the dual hypermap. -/
+theorem dual_Coloring_of_GraphColoring {G : Hypermap} {k : G.Dart → Color}
+    (h : GraphColoring k) : @Coloring (dual G) k :=
+  coloring_dual.mpr h
+
+/-- A coloring of the dual hypermap induces a graph coloring. -/
+theorem GraphColoring_of_dual_Coloring {G : Hypermap} {k : G.Dart → Color}
+    (h : @Coloring (dual G) k) : GraphColoring k :=
+  coloring_dual.mp h
+
+/-- A coloring of (mirror G).Dart is also a coloring of G.Dart. -/
+theorem mirror_Coloring (G : Hypermap) {k : G.Dart → Color}
+    (h : @Coloring (mirror G) k) : Coloring k := coloring_mirror h
+
 end Hypermap

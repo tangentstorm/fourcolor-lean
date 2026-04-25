@@ -240,4 +240,40 @@ theorem KempeClosed.empty : KempeClosed (fun _ => False) :=
     (w : Chromogram) :
     matchg (true :: lb) (Color2 :: et) (GramSymbol.Gpop0 :: w) = false := rfl
 
+@[simp] theorem matchg_Color2_Gpop1_true (lb : List Bool) (et : List Color)
+    (w : Chromogram) :
+    matchg (true :: lb) (Color2 :: et) (GramSymbol.Gpop1 :: w) = matchg lb et w := rfl
+
+@[simp] theorem matchg_Color2_Gpop1_false (lb : List Bool) (et : List Color)
+    (w : Chromogram) :
+    matchg (false :: lb) (Color2 :: et) (GramSymbol.Gpop1 :: w) = false := rfl
+
+@[simp] theorem matchg_Color2_Gskip (lb : List Bool) (et : List Color) (w : Chromogram) :
+    matchg lb (Color2 :: et) (GramSymbol.Gskip :: w) = false := by
+  cases lb <;> rfl
+
+@[simp] theorem matchg_Color3_Gpush (lb : List Bool) (et : List Color) (w : Chromogram) :
+    matchg lb (Color3 :: et) (GramSymbol.Gpush :: w) = matchg (true :: lb) et w := by
+  cases lb <;> rfl
+
+@[simp] theorem matchg_Color3_Gpop0_true (lb : List Bool) (et : List Color)
+    (w : Chromogram) :
+    matchg (true :: lb) (Color3 :: et) (GramSymbol.Gpop0 :: w) = matchg lb et w := rfl
+
+@[simp] theorem matchg_Color3_Gpop0_false (lb : List Bool) (et : List Color)
+    (w : Chromogram) :
+    matchg (false :: lb) (Color3 :: et) (GramSymbol.Gpop0 :: w) = false := rfl
+
+@[simp] theorem matchg_Color3_Gpop1_false (lb : List Bool) (et : List Color)
+    (w : Chromogram) :
+    matchg (false :: lb) (Color3 :: et) (GramSymbol.Gpop1 :: w) = matchg lb et w := rfl
+
+@[simp] theorem matchg_Color3_Gpop1_true (lb : List Bool) (et : List Color)
+    (w : Chromogram) :
+    matchg (true :: lb) (Color3 :: et) (GramSymbol.Gpop1 :: w) = false := rfl
+
+@[simp] theorem matchg_Color3_Gskip (lb : List Bool) (et : List Color) (w : Chromogram) :
+    matchg lb (Color3 :: et) (GramSymbol.Gskip :: w) = false := by
+  cases lb <;> rfl
+
 end FourColor.Chromogram

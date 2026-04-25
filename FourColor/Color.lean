@@ -202,10 +202,14 @@ end EdgePerm
 -- Coq: color.v:217
 @[simp] theorem trace_nil : trace ([] : List Color) = [] := rfl
 
+theorem trace_nil_eq_nil : trace ([] : List Color) = [] := rfl
+
 -- Coq: color.v:237
 theorem length_trace : ∀ s : List Color, (trace s).length = s.length
   | [] => rfl
   | x :: rest => by simp [trace, List.length_zipWith]
+
+@[simp] theorem trace_length (s : List Color) : (trace s).length = s.length := length_trace s
 
 -- Coq: color.v:220
 theorem sumt_nil : sumt ([] : List Color) = Color0 := rfl
