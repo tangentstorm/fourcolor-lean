@@ -472,6 +472,16 @@ theorem dual_face_apply (G : Hypermap) (x : G.Dart) :
 /-- The face of the mirror is the inverse of the original face. (hypermap.v) -/
 @[simp] theorem mirror_face (G : Hypermap) : (mirror G).face = Function.invFun G.face := rfl
 
+/-- Composition of mirror node with original node yields identity. -/
+theorem mirror_node_apply (G : Hypermap) (x : G.Dart) :
+    G.node ((mirror G).node x) = x :=
+  Function.rightInverse_invFun G.node_surjective x
+
+/-- Composition of mirror face with original face yields identity. -/
+theorem mirror_face_apply (G : Hypermap) (x : G.Dart) :
+    G.face ((mirror G).face x) = x :=
+  Function.rightInverse_invFun G.face_surjective x
+
 /-! ## Symmetry / equivalence lemmas for glink, gcomp, clink, cconnect -/
 
 -- Coq: hypermap.v (gcomp reflexivity)

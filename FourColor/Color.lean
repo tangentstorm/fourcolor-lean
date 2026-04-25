@@ -227,6 +227,10 @@ theorem length_trace : ∀ s : List Color, (trace s).length = s.length
 @[simp] theorem trace_length (s : List Color) : (trace s).length = s.length := length_trace s
 
 -- Coq: color.v:220
+/-- Note: `trace [c] = [c + c] = [Color0]` because the shifted list wraps around. -/
+theorem trace_singleton (c : Color) : trace [c] = [c + c] := by
+  unfold trace; rfl
+
 theorem sumt_nil : sumt ([] : List Color) = Color0 := rfl
 
 -- Coq: color.v:222
@@ -304,11 +308,19 @@ def pairmap (f : Color → Color → Color) : Color → List Color → List Colo
   | _, []      => []
   | a, x :: xs => f a x :: pairmap f x xs
 
+@[simp] theorem pairmap_nil (f : Color → Color → Color) (a : Color) :
+    pairmap f a [] = [] := rfl
+
 /-- The unrolled trace: pairmap of addition starting from the last element. -/
 def urtrace (s : List Color) : List Color :=
   pairmap (· + ·) (s.getLastD Color0) s
 
 @[simp] theorem urtrace_nil : urtrace ([] : List Color) = [] := rfl
+
+/-- Note: `urtrace [c] = [c + c] = [Color0]` because the last element equals `c`,
+    so `pairmap` computes `c + c`. -/
+theorem urtrace_singleton (c : Color) : urtrace [c] = [c + c] := by
+  unfold urtrace; rfl
 
 theorem length_pairmap (f : Color → Color → Color) (a : Color) (s : List Color) :
     (pairmap f a s).length = s.length := by

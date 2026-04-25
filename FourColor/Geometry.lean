@@ -337,6 +337,17 @@ theorem Simple.head_not_band {x : G.Dart} {p : List G.Dart}
     (h : Simple G (x :: p)) (y : G.Dart) (hy : y ∈ p) : ¬ cface G x y :=
   ((Simple.cons_iff x p).mp h).1 y hy
 
+/-- Construct a face-simple cons from its components. -/
+theorem Simple.cons {x : G.Dart} {p : List G.Dart}
+    (h₁ : ∀ y ∈ p, ¬ cface G x y) (h₂ : Simple G p) : Simple G (x :: p) :=
+  (Simple.cons_iff x p).mpr ⟨h₁, h₂⟩
+
+/-- A two-element list is face-simple iff the two darts are not coface. -/
+theorem Simple.pair {x y : G.Dart}
+    (h : ¬ cface G x y) : Simple G [x, y] := by
+  unfold Simple
+  exact List.pairwise_pair.mpr h
+
 -- Coq: simple_cat / simple_catC in geometry.v
 theorem simple_append (p q : List G.Dart) :
     Simple G (p ++ q) ↔ Simple G p ∧ Simple G q ∧
