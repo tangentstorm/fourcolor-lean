@@ -68,6 +68,41 @@ def cubeFace (G : Hypermap) : CubeTag × G.Dart → CubeTag × G.Dart
   | (CubeTag.CTe,  x) => (CubeTag.CTe,  G.edge x)
   | (CubeTag.CTfe, x) => (CubeTag.CTfe, G.node x)
 
+/-! ## Direct computation lemmas for cubeFace / cubeEdge / cubeNode -/
+
+@[simp] theorem cubeFace_CTn (G : Hypermap) (x : G.Dart) :
+    cubeFace G (CubeTag.CTn, x) = (CubeTag.CTen, x) := rfl
+
+@[simp] theorem cubeFace_CTen (G : Hypermap) (x : G.Dart) :
+    cubeFace G (CubeTag.CTen, x) = (CubeTag.CTf, x) := rfl
+
+@[simp] theorem cubeFace_CTf (G : Hypermap) (x : G.Dart) :
+    cubeFace G (CubeTag.CTf, x) = (CubeTag.CTnf, x) := rfl
+
+@[simp] theorem cubeFace_CTnf (G : Hypermap) (x : G.Dart) :
+    cubeFace G (CubeTag.CTnf, x) = (CubeTag.CTn, G.face x) := rfl
+
+@[simp] theorem cubeFace_CTe (G : Hypermap) (x : G.Dart) :
+    cubeFace G (CubeTag.CTe, x) = (CubeTag.CTe, G.edge x) := rfl
+
+@[simp] theorem cubeFace_CTfe (G : Hypermap) (x : G.Dart) :
+    cubeFace G (CubeTag.CTfe, x) = (CubeTag.CTfe, G.node x) := rfl
+
+@[simp] theorem cubeEdge_CTn (G : Hypermap) (x : G.Dart) :
+    cubeEdge G (CubeTag.CTn, x) = (CubeTag.CTfe, x) := rfl
+
+@[simp] theorem cubeEdge_CTfe (G : Hypermap) (x : G.Dart) :
+    cubeEdge G (CubeTag.CTfe, x) = (CubeTag.CTn, x) := rfl
+
+@[simp] theorem cubeEdge_CTen (G : Hypermap) (x : G.Dart) :
+    cubeEdge G (CubeTag.CTen, x) = (CubeTag.CTnf, G.edge x) := rfl
+
+@[simp] theorem cubeNode_CTn (G : Hypermap) (x : G.Dart) :
+    cubeNode G (CubeTag.CTn, x) = (CubeTag.CTen, G.node x) := rfl
+
+@[simp] theorem cubeNode_CTen (G : Hypermap) (x : G.Dart) :
+    cubeNode G (CubeTag.CTen, x) = (CubeTag.CTfe, x) := rfl
+
 /-- The triangular identity for the cube. -/
 theorem cube_cancel3 (G : Hypermap) (u : CubeTag × G.Dart) :
     cubeNode G (cubeFace G (cubeEdge G u)) = u := by
@@ -230,7 +265,6 @@ theorem cube_glink_to_CTnf (G : Hypermap) (t : CubeTag) (x : G.Dart) :
   exact Relation.EqvGen.trans _ _ _ ( Relation.EqvGen.rel _ _ ( Or.inr ( Or.inr rfl ) ) ) ( Relation.EqvGen.trans _ _ _ ( Relation.EqvGen.rel _ _ ( Or.inr ( Or.inr rfl ) ) ) ( Relation.EqvGen.rel _ _ ( Or.inr ( Or.inr rfl ) ) ) );
   · exact Relation.EqvGen.trans _ _ _ ( Relation.EqvGen.rel _ _ ( Or.inr ( Or.inr rfl ) ) ) ( Relation.EqvGen.rel _ _ ( Or.inr ( Or.inr rfl ) ) );
   · apply Relation.EqvGen.rel; simp [Hypermap.glink];
-    exact Or.inr <| Or.inr <| by unfold Hypermap.cubeFace; rfl;
   · exact Relation.EqvGen.refl _;
   · -- By definition of `cubeNode`, we have `cubeNode (CubeTag.CTe, x) = (CubeTag.CTf, x)`.
     have h_cubeNode_CTe : G.cubeNode (CubeTag.CTe, x) = (CubeTag.CTf, x) := rfl
@@ -294,7 +328,7 @@ theorem nComp_cube (G : Hypermap) :
       have h_glink : ∀ x y : CubeTag × G.Dart, glink (cube G) x y → Relation.EqvGen (glink G) x.2 y.2 := by
         rintro ⟨ t₁, x₁ ⟩ ⟨ t₂, x₂ ⟩ ( h | h | h ) <;> simp_all +decide [ Hypermap.glink ];
         · cases t₁ <;> cases t₂ <;> simp_all +decide [ Hypermap.cube ];
-          all_goals unfold Hypermap.cubeEdge at h; simp_all +decide [ Hypermap.glink ] ;
+          all_goals (try unfold Hypermap.cubeEdge at h); (try simp_all +decide [ Hypermap.glink ]) ;
           any_goals exact Relation.EqvGen.refl _;
           · exact Relation.EqvGen.rel _ _ ( by tauto );
           · apply Relation.EqvGen.trans;
@@ -305,7 +339,7 @@ theorem nComp_cube (G : Hypermap) :
             exact Relation.EqvGen.rel _ _ ( Or.inr <| Or.inl <| by tauto );
           · exact Relation.EqvGen.rel _ _ ( by tauto );
         · rcases t₁ with ( _ | _ | _ | _ | _ | _ ) <;> rcases t₂ with ( _ | _ | _ | _ | _ | _ ) <;> simp_all +decide [ Hypermap.cube ];
-          all_goals unfold Hypermap.cubeNode at h; simp_all +decide [ Hypermap.glink ] ;
+          all_goals (try unfold Hypermap.cubeNode at h); (try simp_all +decide [ Hypermap.glink ]) ;
           any_goals exact Relation.EqvGen.refl _;
           · exact Relation.EqvGen.rel _ _ ( by tauto );
           · exact Relation.EqvGen.rel _ _ ( by tauto );
@@ -317,7 +351,7 @@ theorem nComp_cube (G : Hypermap) :
             exact Relation.EqvGen.rel _ _ ( Or.inl rfl );
             exact Relation.EqvGen.rel _ _ ( Or.inr <| Or.inr rfl );
         · cases t₁ <;> cases t₂ <;> simp_all +decide [ Hypermap.cube ];
-          all_goals unfold Hypermap.cubeFace at h; simp_all +decide [ Hypermap.glink ] ;
+          all_goals (try unfold Hypermap.cubeFace at h); (try simp_all +decide [ Hypermap.glink ]) ;
           any_goals exact Relation.EqvGen.refl _;
           · exact Relation.EqvGen.rel _ _ ( by tauto );
           · exact Relation.EqvGen.rel _ _ ( by tauto );
@@ -435,8 +469,6 @@ private theorem cubeFace_iter_CTen (G : Hypermap) (x : G.Dart) (k : ℕ) :
     (cubeFace G)^[4 * k + 2] (CubeTag.CTen, x) = (CubeTag.CTnf, G.face^[k] x) ∧
     (cubeFace G)^[4 * k + 3] (CubeTag.CTen, x) = (CubeTag.CTn, G.face^[k + 1] x) := by
   induction' k with k ih <;> simp_all +decide [ Nat.mul_succ, Function.iterate_succ_apply' ];
-  · aesop;
-  · unfold Hypermap.cubeFace; aesop;
 
 /-- Face iteration from (CTn, x) follows the 4-periodic pattern, shifted
     from CTen by one step. -/
@@ -487,23 +519,15 @@ private theorem cubeFace_CTen_cface (G : Hypermap) (x : G.Dart) (n : ℕ) :
   · rcases Nat.even_or_odd' k with ⟨ k, rfl | rfl ⟩ <;> simp +decide [ *, Function.iterate_mul ] at *;
     · refine Or.inr <| Or.inl ⟨ G.face^[k] x, ?_, ?_ ⟩;
       · refine' Nat.recOn k _ _ <;> simp_all +decide [ Function.iterate_succ_apply' ];
-        intro _ _; simp [cubeFace]
       · exact ⟨ k, rfl ⟩;
     · refine' Or.inr <| Or.inr <| Or.inr ⟨ _, _, _ ⟩;
       exact G.face^[k] x;
       · induction k <;> simp_all +decide [ Function.iterate_succ_apply' ];
-        · simp [cubeFace]
-        · unfold Hypermap.cubeFace; aesop;
       · exact ⟨ k, rfl ⟩;
   · induction k <;> simp_all +decide [ Nat.mul_succ, Function.iterate_succ_apply' ] ;
-    · exact Or.inr <| Or.inr <| Or.inl ⟨ x, rfl, ⟨ 0, rfl ⟩ ⟩;
-    · rename_i k hk; rcases hk with ( ⟨ y, hy, hy' ⟩ | ⟨ y, hy, hy' ⟩ | ⟨ y, hy, hy' ⟩ | ⟨ y, hy, hy' ⟩ ) <;> simp_all +decide ;
-      · unfold Hypermap.cubeFace; simp +decide [ * ] ;
-      · unfold Hypermap.cubeFace; simp +decide [ * ] ;
-      · unfold Hypermap.cubeFace; simp +decide [ * ] ;
-        exact ⟨ hy'.choose + 1, by simpa [ Function.iterate_succ_apply' ] using congr_arg G.face hy'.choose_spec ⟩;
-      · unfold Hypermap.cubeFace; simp +decide [ * ] ;
-        exact ⟨ hy'.choose + 1, by simp +decide [ Function.iterate_succ_apply', hy'.choose_spec ] ⟩
+    · exact ⟨ 0, rfl ⟩;
+    · rename_i k hk; rcases hk with ( ⟨ y, hy, hy' ⟩ | ⟨ y, hy, hy' ⟩ | ⟨ y, hy, hy' ⟩ | ⟨ y, hy, hy' ⟩ ) <;> simp_all +decide <;>
+      obtain ⟨m, hm⟩ := hy' <;> exact ⟨m + 1, by simp [Function.iterate_succ_apply', hm]⟩
 
 /-
 Face orbit of (CTnf, x): stays in mixed tags and second component in face orbit of x.
@@ -515,11 +539,7 @@ private theorem cubeFace_CTnf_mixed (G : Hypermap) (x : G.Dart) (n : ℕ) :
   simp;
   induction' n with n ih;
   · exact Or.inr <| Or.inr <| Or.inr <| ⟨ x, rfl ⟩;
-  · rcases ih with ( ⟨ y, hy ⟩ | ⟨ y, hy ⟩ | ⟨ y, hy ⟩ | ⟨ y, hy ⟩ ) <;> simp_all +decide [ Function.iterate_succ_apply' ];
-    · exact Or.inr <| Or.inl ⟨ _, rfl ⟩;
-    · exact Or.inr <| Or.inr <| Or.inl ⟨ _, rfl ⟩;
-    · exact Or.inr <| Or.inr <| Or.inr <| ⟨ _, rfl ⟩;
-    · exact Or.inl ⟨ _, rfl ⟩
+  · rcases ih with ( ⟨ y, hy ⟩ | ⟨ y, hy ⟩ | ⟨ y, hy ⟩ | ⟨ y, hy ⟩ ) <;> simp_all +decide [ Function.iterate_succ_apply' ]
 
 /-
 Face orbit of (CTf, x): stays in mixed tags.
@@ -530,11 +550,7 @@ private theorem cubeFace_CTf_mixed (G : Hypermap) (x : G.Dart) (n : ℕ) :
       (cubeFace G)^[n] (CubeTag.CTf, x) = (t, y) := by
   induction' n with n ih generalizing x;
   · exact ⟨ _, _, Or.inr <| Or.inr <| Or.inl rfl, rfl ⟩;
-  · rcases ih x with ⟨ t, y, h, h' ⟩ ; rcases h with ( rfl | rfl | rfl | rfl ) <;> simp_all +decide [ Function.iterate_succ_apply' ] ;
-    · exact Or.inr <| Or.inl ⟨ _, rfl ⟩;
-    · exact Or.inr <| Or.inr <| Or.inl ⟨ _, rfl ⟩;
-    · exact Or.inr <| Or.inr <| Or.inr <| ⟨ _, rfl ⟩;
-    · exact Or.inl ⟨ _, rfl ⟩
+  · rcases ih x with ⟨ t, y, h, h' ⟩ ; rcases h with ( rfl | rfl | rfl | rfl ) <;> simp_all +decide [ Function.iterate_succ_apply' ]
 
 /-
 If (CTnf, x) is face-connected to (CTen, y) in cube G, then cface G x y.
@@ -550,12 +566,12 @@ private theorem cubeFace_CTnf_to_CTen (G : Hypermap) (x y : G.Dart) (n : ℕ)
         Function.iterate_succ_apply, Function.iterate_succ_apply]
     rfl
   rcases n with ( _ | _ | n ) <;> simp_all +decide [ Function.iterate_succ_apply' ];
-  · cases hn;
-  · -- By cubeFace_CTen_cface, we have cface G (face x) y.
-    have h_cface_face : cface G (G.face x) y := by
-      obtain ⟨ t, y, ht, hy, hxy ⟩ := cubeFace_CTen_cface G ( G.face x ) n; aesop;
-    obtain ⟨ m, hm ⟩ := h_cface_face;
-    exact ⟨ m + 1, hm ⟩
+  -- By cubeFace_CTen_cface, we have cface G (face x) y.
+  have h_cface_face : cface G (G.face x) y := by
+    obtain ⟨ t, y, ht, hy, hxy ⟩ := cubeFace_CTen_cface G ( G.face x ) n
+    simp_all +decide
+  obtain ⟨ m, hm ⟩ := h_cface_face;
+  exact ⟨ m + 1, hm ⟩
 
 /-- Forward direction: Bridgeless G → Bridgeless (cube G) -/
 private theorem bridgeless_cube_fwd (G : Hypermap) (hB : Bridgeless G) :
