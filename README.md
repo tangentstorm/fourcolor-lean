@@ -7,8 +7,8 @@ Lean 4 port of Georges Gonthier et al.'s formal Four Color Theorem proof, transl
 ```
 Overall port progress
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Core infrastructure    ██████████████████░░  ~90%
-fcardFace_cube         ██████████░░░░░░░░░░  ~50%  helpers ready, partition pending
+Core infrastructure    ███████████████████░  ~93%  step lemmas + projections in place
+fcardFace_cube         ███████████░░░░░░░░░  ~55%  cubeFace/Edge/Node @[simp] lemmas added
 walkupE_euler_compon.  ███░░░░░░░░░░░░░░░░░  ~15%  clean helpers; main theorem stalled
 jordan_walkupE         ██░░░░░░░░░░░░░░░░░░  ~10%  blocked on walkupE_euler_components
 jordan_planar          ██░░░░░░░░░░░░░░░░░░  ~10%
@@ -18,10 +18,10 @@ unavoidability         █░░░░░░░░░░░░░░░░░░
 discretize_to_hypermap █░░░░░░░░░░░░░░░░░░░  ~5%   needs gridmap/matte port
 compactness_extension  █░░░░░░░░░░░░░░░░░░░  ~5%   needs pmap/prefix_coloring
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Lines of Lean          ██████████░░░░░░░░░░  ~8% of Coq's 45k
+Lines of Lean          ██████████░░░░░░░░░░  ~10% of Coq's 45k (~4.7k)
 Sorry count            ████████████████████  12 / 12 still open
 Definitional gaps      ░░░░░░░░░░░░░░░░░░░░  0 / 2 remaining (both fixed ✓)
-Heavy automation       ██████████████░░░░░░  ~70% replaced with explicit tactics
+Heavy automation       ███████████████░░░░░  ~75% replaced with explicit tactics
 ```
 
 ## Approach
