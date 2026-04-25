@@ -188,6 +188,16 @@ theorem walkupE_edge_val_of_ne (h2 : Fintype.card G.Dart ≥ 2)
   rw [walkupE_edge_val]
   exact skipEdge1_of_ne G z hez hex hfex
 
+/-- When `edge z ≠ z` and `face (edge x) = z`,
+    walkupE.edge value is `G.edge z`. -/
+theorem walkupE_edge_val_of_face_eq_z (h2 : Fintype.card G.Dart ≥ 2)
+    (hez : G.edge z ≠ z) (x : (walkupE G z h2).Dart)
+    (hfex : G.face (G.edge x.val) = z) :
+    ((walkupE G z h2).edge x).val = G.edge z := by
+  rw [walkupE_edge_val]
+  unfold skipEdge1
+  rw [if_neg hez, if_pos hfex]
+
 /-- The underlying value of a dart constructed via subtype literal in `walkupE` is itself. -/
 @[simp] theorem walkupE_Dart_mk_val (h2 : Fintype.card G.Dart ≥ 2)
     (x : G.Dart) (hx : x ≠ z) :

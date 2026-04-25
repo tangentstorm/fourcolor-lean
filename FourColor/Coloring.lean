@@ -514,6 +514,11 @@ theorem CcColorable.exists_coloring {G : Hypermap} {cc : Finset G.Dart}
 theorem CcColorable.intro {G : Hypermap} {cc : Finset G.Dart} {k : G.Dart → Color}
     (hk : CcColoring cc k) : CcColorable cc := ⟨k, hk⟩
 
+/-- `FourColorable G` from `FourColorable (mirror G)`. -/
+theorem FourColorable.of_mirror {G : Hypermap}
+    (h : FourColorable (mirror G)) : FourColorable G :=
+  colorable_mirror h
+
 /-! ## Coloring / GraphColoring constructors -/
 
 theorem Coloring.mk' {G : Hypermap} {k : G.Dart → Color}

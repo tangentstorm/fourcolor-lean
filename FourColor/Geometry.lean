@@ -386,6 +386,21 @@ theorem Simple.head_not_fband {x : G.Dart} {p : List G.Dart}
   obtain ⟨y, hy, hcf⟩ := hfb
   exact h.1 y hy hcf
 
+/-- A list is face-simple iff its head doesn't fband the tail and tail is simple. -/
+theorem Simple.cons_iff_fband {x : G.Dart} {p : List G.Dart} :
+    Simple G (x :: p) ↔ ¬ fband G p x ∧ Simple G p := by
+  rw [Simple.cons_iff x p]
+  unfold fband
+  constructor
+  · rintro ⟨h₁, h₂⟩
+    refine ⟨?_, h₂⟩
+    rintro ⟨y, hy, hcf⟩
+    exact h₁ y hy hcf
+  · rintro ⟨h₁, h₂⟩
+    refine ⟨?_, h₂⟩
+    intro y hy hcf
+    exact h₁ ⟨y, hy, hcf⟩
+
 -- Coq: simple_cat / simple_catC in geometry.v
 theorem simple_append (p q : List G.Dart) :
     Simple G (p ++ q) ↔ Simple G p ∧ Simple G q ∧

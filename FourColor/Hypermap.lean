@@ -222,6 +222,16 @@ theorem Connected.gcomp_node {G : Hypermap} (h : Connected G) (x : G.Dart) :
 theorem Connected.gcomp_face {G : Hypermap} (h : Connected G) (x : G.Dart) :
     gcomp G x (G.face x) := h x (G.face x)
 
+/-- The empty hypermap (1 dart) is trivially Connected. -/
+theorem Connected.of_card_one (G : Hypermap) (h1 : Fintype.card G.Dart = 1) :
+    Connected G := by
+  intro x y
+  obtain ⟨a, ha⟩ := Fintype.card_eq_one_iff.mp h1
+  have hx : x = a := ha x
+  have hy : y = a := ha y
+  rw [hx, hy]
+  exact gcomp.refl G a
+
 /-- glink applied via cedge: a single edge step is a glink. -/
 theorem glink_of_cedge_step {G : Hypermap} (x : G.Dart) : glink G x (G.edge x) :=
   glink.edge G x
