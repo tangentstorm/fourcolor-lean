@@ -7,7 +7,7 @@ Lean 4 port of Georges Gonthier et al.'s formal Four Color Theorem proof, transl
 ```
 Overall port progress
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Core infrastructure    ███████████████████░  ~93%  step lemmas + projections in place
+Core infrastructure    ███████████████████░  ~94%  step+iter aliases, card & mirror-eq helpers
 fcardFace_cube         ███████████░░░░░░░░░  ~55%  cubeFace/Edge/Node @[simp] lemmas added
 walkupE_euler_compon.  ███░░░░░░░░░░░░░░░░░  ~15%  clean helpers; main theorem stalled
 jordan_walkupE         ██░░░░░░░░░░░░░░░░░░  ~10%  blocked on walkupE_euler_components
