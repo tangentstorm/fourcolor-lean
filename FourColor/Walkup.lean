@@ -63,6 +63,25 @@ theorem skip1_of_fixed (f : G.Dart → G.Dart) (hf : Function.Injective f)
   have : f x ≠ z := fun h => hx (hf (h.trans hfz.symm))
   rw [if_neg this]
 
+/-- When `f z = z`, `skip1 G z f z = f z`. -/
+theorem skip1_z_eq (f : G.Dart → G.Dart) (h : f z = z) :
+    skip1 G z f z = f z := skip1_of_eq G z f z h
+
+/-- When `f` is injective and fixes `z`, iterating `skip1 G z f` agrees with
+    iterating `f` on darts `≠ z`. -/
+theorem skip1_iter_id_of_fixed (f : G.Dart → G.Dart) (hf : Function.Injective f)
+    (hfz : f z = z) (n : ℕ) (x : G.Dart) (hx : x ≠ z) :
+    (skip1 G z f)^[n] x = f^[n] x := by
+  induction n generalizing x with
+  | zero => rfl
+  | succ n ih =>
+    simp only [Function.iterate_succ, Function.comp]
+    have h1 : skip1 G z f x = f x := skip1_of_fixed G z f hf hfz x hx
+    rw [h1]
+    have hfx_ne : f x ≠ z := by
+      intro heq; exact hx (hf (heq.trans hfz.symm))
+    exact ih (f x) hfx_ne
+
 /-! ## The special skip_edge function -/
 
 /-- The special edge skip function for WalkupE.

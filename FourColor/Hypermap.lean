@@ -73,6 +73,15 @@ theorem face_injective : Function.Injective G.face := by
   intros x y hxy
   rw [← G.faceK x, ← G.faceK y, hxy]
 
+theorem edge_inj_iff (G : Hypermap) {x y : G.Dart} : G.edge x = G.edge y ↔ x = y :=
+  ⟨fun h => G.edge_injective h, fun h => by rw [h]⟩
+
+theorem node_inj_iff (G : Hypermap) {x y : G.Dart} : G.node x = G.node y ↔ x = y :=
+  ⟨fun h => G.node_injective h, fun h => by rw [h]⟩
+
+theorem face_inj_iff (G : Hypermap) {x y : G.Dart} : G.face x = G.face y ↔ x = y :=
+  ⟨fun h => G.face_injective h, fun h => by rw [h]⟩
+
 theorem edge_surjective : Function.Surjective G.edge := by
   intro y; exact ⟨G.node (G.face y), by exact faceK y⟩
 

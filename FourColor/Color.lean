@@ -199,6 +199,9 @@ theorem apply_sub (g : EdgePerm) (a b : Color) :
 -- Coq: color.v:175
 theorem apply_zero (g : EdgePerm) : g.apply Color0 = Color0 := by cases g <;> rfl
 
+/-- The identity permutation `Eperm123` acts as the identity on colors. -/
+theorem apply_id (c : Color) : Eperm123.apply c = c := rfl
+
 end EdgePerm
 
 /-! ## Trace lemmas (Coq: color.v:217-243) -/
@@ -263,6 +266,12 @@ def permt (g : EdgePerm) (s : List Color) : List Color :=
 
 @[simp] theorem permt_cons (g : EdgePerm) (c : Color) (s : List Color) :
     permt g (c :: s) = g.apply c :: permt g s := rfl
+
+/-- Applying the identity permutation `Eperm123` to a list is the identity. -/
+@[simp] theorem permt_id (s : List Color) : permt EdgePerm.Eperm123 s = s := by
+  unfold permt
+  have : EdgePerm.Eperm123.apply = id := funext (fun c => EdgePerm.apply_id c)
+  rw [this, List.map_id]
 
 theorem length_permt (g : EdgePerm) (s : List Color) :
     (permt g s).length = s.length := by simp [permt]
