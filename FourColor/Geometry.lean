@@ -203,12 +203,6 @@ theorem cedge_refl (x : G.Dart) : cedge G x x :=
 theorem cnode_refl (x : G.Dart) : cnode G x x :=
   ⟨0, rfl⟩
 
-@[simp] theorem cface_self (G : Hypermap) (x : G.Dart) : cface G x x := cface_refl x
-
-@[simp] theorem cedge_self (G : Hypermap) (x : G.Dart) : cedge G x x := cedge_refl x
-
-@[simp] theorem cnode_self (G : Hypermap) (x : G.Dart) : cnode G x x := cnode_refl x
-
 /-! ### 3. Transitivity -/
 
 -- Coq: connect_trans (specialized)
