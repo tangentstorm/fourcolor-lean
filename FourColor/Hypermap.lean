@@ -139,6 +139,21 @@ def gcomp (G : Hypermap) (x y : G.Dart) : Prop :=
 def Connected (G : Hypermap) : Prop :=
   ∀ x y : G.Dart, gcomp G x y
 
+/-! ## Dot-syntax projections for Connected and glink -/
+
+theorem Connected.all_gcomp {G : Hypermap} (h : Connected G) (x y : G.Dart) :
+    gcomp G x y :=
+  h x y
+
+theorem glink.edge (G : Hypermap) (x : G.Dart) : glink G x (G.edge x) :=
+  Or.inl rfl
+
+theorem glink.node (G : Hypermap) (x : G.Dart) : glink G x (G.node x) :=
+  Or.inr (Or.inl rfl)
+
+theorem glink.face (G : Hypermap) (x : G.Dart) : glink G x (G.face x) :=
+  Or.inr (Or.inr rfl)
+
 /-! ## Euler formula and genus -/
 
 /-- The equivalence closure of glink, used for counting connected components. -/

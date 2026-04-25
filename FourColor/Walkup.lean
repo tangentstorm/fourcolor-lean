@@ -44,6 +44,18 @@ theorem skip1_ne (f : G.Dart → G.Dart) (hf : Function.Injective f)
     exact hx (hf (hfx.trans hfz.symm))
   · assumption
 
+/-- When `f x ≠ z`, `skip1` returns `f x` directly (the else-branch). -/
+theorem skip1_id_of_not_in (f : G.Dart → G.Dart) (x : G.Dart) (h : f x ≠ z) :
+    skip1 G z f x = f x := by
+  unfold skip1
+  rw [if_neg h]
+
+/-- When `f x = z`, `skip1` returns `f z` (the then-branch). -/
+theorem skip1_of_eq (f : G.Dart → G.Dart) (x : G.Dart) (h : f x = z) :
+    skip1 G z f x = f z := by
+  unfold skip1
+  rw [if_pos h]
+
 /-- When f is injective and f z = z, skip1 G z f agrees with f on darts ≠ z. -/
 theorem skip1_of_fixed (f : G.Dart → G.Dart) (hf : Function.Injective f)
     (hfz : f z = z) (x : G.Dart) (hx : x ≠ z) : skip1 G z f x = f x := by
@@ -126,6 +138,11 @@ noncomputable def walkupE (h2 : Fintype.card G.Dart ≥ 2) : Hypermap where
 
 @[simp] theorem walkupE_face_val (h2 : Fintype.card G.Dart ≥ 2) (x : (walkupE G z h2).Dart) :
     ((walkupE G z h2).face x).val = skip1 G z G.face x.val := rfl
+
+/-- The underlying value of a dart constructed via subtype literal in `walkupE` is itself. -/
+@[simp] theorem walkupE_Dart_mk_val (h2 : Fintype.card G.Dart ≥ 2)
+    (x : G.Dart) (hx : x ≠ z) :
+    (⟨x, hx⟩ : (walkupE G z h2).Dart).val = x := rfl
 
 /-- Every dart of `walkupE G z h2` has underlying value different from `z`. -/
 theorem walkupE_dart_subtype (h2 : Fintype.card G.Dart ≥ 2) (x : (walkupE G z h2).Dart) :

@@ -291,4 +291,9 @@ theorem KempeClosed.empty : KempeClosed (fun _ => False) :=
   | nil => cases lb <;> rfl
   | cons s w' => exact matchg_Color0 lb et s w'
 
+/-- Alias of `matchg_Color0_nil`: matching against a `Color0`-headed trace always fails. -/
+theorem matchg_mono_Color0 (lb : List Bool) (et : List Color) (w : Chromogram) :
+    matchg lb (Color0 :: et) w = false :=
+  matchg_Color0_nil lb et w
+
 end FourColor.Chromogram

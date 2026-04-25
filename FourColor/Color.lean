@@ -374,4 +374,11 @@ theorem proper_trace_cons (c : Color) (s : List Color) :
     permt g s.reverse = (permt g s).reverse := by
   simp [permt, List.map_reverse]
 
+/-! ## Compositional helpers for trace operations -/
+
+theorem ctrace_nil : ctrace ([] : List Color) = [Color0] := by rfl
+
+@[simp] theorem ctrace_length (s : List Color) : (ctrace s).length = s.length + 1 := by
+  unfold ctrace; simp [List.length_append]
+
 end Color
