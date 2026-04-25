@@ -127,6 +127,11 @@ noncomputable def walkupE (h2 : Fintype.card G.Dart ≥ 2) : Hypermap where
 @[simp] theorem walkupE_face_val (h2 : Fintype.card G.Dart ≥ 2) (x : (walkupE G z h2).Dart) :
     ((walkupE G z h2).face x).val = skip1 G z G.face x.val := rfl
 
+/-- Every dart of `walkupE G z h2` has underlying value different from `z`. -/
+theorem walkupE_dart_subtype (h2 : Fintype.card G.Dart ≥ 2) (x : (walkupE G z h2).Dart) :
+    x.val ≠ z :=
+  x.property
+
 /-- WalkupN: remove z, adjusting the node permutation specially. -/
 noncomputable def walkupN (h2 : Fintype.card G.Dart ≥ 2) : Hypermap :=
   walkupE (mirror G) z (by simp [mirror]; exact h2)

@@ -323,6 +323,20 @@ theorem simple_cons (x : G.Dart) (p : List G.Dart) :
     Simple G (x :: p) ↔ (∀ y ∈ p, ¬ cface G x y) ∧ Simple G p := by
   exact List.pairwise_cons
 
+@[simp] theorem Simple.nil : Simple G ([] : List G.Dart) := List.Pairwise.nil
+
+theorem Simple.cons_iff (x : G.Dart) (p : List G.Dart) :
+    Simple G (x :: p) ↔ (∀ y ∈ p, ¬ cface G x y) ∧ Simple G p :=
+  List.pairwise_cons
+
+theorem Simple.tail {x : G.Dart} {p : List G.Dart}
+    (h : Simple G (x :: p)) : Simple G p :=
+  ((Simple.cons_iff x p).mp h).2
+
+theorem Simple.head_not_band {x : G.Dart} {p : List G.Dart}
+    (h : Simple G (x :: p)) (y : G.Dart) (hy : y ∈ p) : ¬ cface G x y :=
+  ((Simple.cons_iff x p).mp h).1 y hy
+
 -- Coq: simple_cat / simple_catC in geometry.v
 theorem simple_append (p q : List G.Dart) :
     Simple G (p ++ q) ↔ Simple G p ∧ Simple G q ∧
