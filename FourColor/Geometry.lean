@@ -1124,4 +1124,43 @@ theorem cnode_one (x : G.Dart) : cnode G x (G.node x) := ⟨1, rfl⟩
 theorem cnode_plain (hP : Plain G) (x : G.Dart) : G.node (G.face x) = G.edge x :=
   edge_injective (by rw [faceK, plain_edge_invol hP])
 
+/-! ## Bridgeless / Loopless projection helpers -/
+
+theorem Bridgeless.iff_forall (G : Hypermap) :
+    Bridgeless G ↔ ∀ x, ¬ cface G x (G.edge x) := Iff.rfl
+
+theorem Bridgeless.intro {G : Hypermap}
+    (h : ∀ x, ¬ cface G x (G.edge x)) : Bridgeless G := h
+
+theorem Loopless.iff_forall (G : Hypermap) :
+    Loopless G ↔ ∀ x, ¬ cnode G x (G.edge x) := Iff.rfl
+
+theorem Loopless.intro {G : Hypermap}
+    (h : ∀ x, ¬ cnode G x (G.edge x)) : Loopless G := h
+
+theorem Bridgeless.at {G : Hypermap} (h : Bridgeless G) (x : G.Dart) :
+    ¬ cface G x (G.edge x) := h x
+
+theorem Loopless.at {G : Hypermap} (h : Loopless G) (x : G.Dart) :
+    ¬ cnode G x (G.edge x) := h x
+
+/-! ## kernel / fband interaction helpers -/
+
+theorem kernel_not_fband (p : List G.Dart) (x : G.Dart) :
+    kernel G p x ↔ ¬ fband G p x := Iff.rfl
+
+theorem mem_kernel_iff_not_fband (p : List G.Dart) (x : G.Dart) :
+    kernel G p x ↔ ¬ fband G p x := Iff.rfl
+
+theorem fband_subset_iff (p q : List G.Dart) :
+    (∀ x, fband G p x → fband G q x) ↔ ∀ y ∈ p, ∃ z ∈ q, cface G y z := by
+  constructor
+  · intro hsub y hy
+    have := hsub y ⟨y, hy, cface_refl y⟩
+    obtain ⟨z, hz_mem, hz_face⟩ := this
+    exact ⟨z, hz_mem, hz_face⟩
+  · intro hsub x ⟨y, hy_mem, hy_face⟩
+    obtain ⟨z, hz_mem, hyz⟩ := hsub y hy_mem
+    exact ⟨z, hz_mem, cface_trans hy_face hyz⟩
+
 end Hypermap

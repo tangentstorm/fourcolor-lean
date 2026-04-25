@@ -578,4 +578,86 @@ theorem List.not_mem2_singleton {α : Type*} (x a b : α) :
   have := h.length_ge_two
   simp at this
 
+/-! ## MoebiusPath cons-shape helpers -/
+
+theorem MoebiusPath.head_not_in_tail {G : Hypermap} {x : G.Dart} {p : List G.Dart}
+    (h : MoebiusPath G (x :: p)) : x ∉ p := by
+  obtain ⟨hnodup, _, _⟩ := h
+  exact (List.nodup_cons.mp hnodup).1
+
+theorem MoebiusPath.cons_ne_nil {G : Hypermap} {x : G.Dart} {p : List G.Dart}
+    (h : MoebiusPath G (x :: p)) : p ≠ [] := by
+  intro hp
+  have hge := MoebiusPath.length_ge_two h
+  rw [hp, List.length_cons, List.length_nil] at hge
+  omega
+
+/-! ## edgePerm / nodePerm / facePerm apply simp lemmas -/
+
+@[simp] theorem edgePerm_apply {G : Hypermap} (x : G.Dart) :
+    G.edgePerm x = G.edge x := rfl
+
+@[simp] theorem nodePerm_apply {G : Hypermap} (x : G.Dart) :
+    G.nodePerm x = G.node x := rfl
+
+@[simp] theorem facePerm_apply {G : Hypermap} (x : G.Dart) :
+    G.facePerm x = G.face x := rfl
+
+theorem edgePerm_symm_apply {G : Hypermap} (x : G.Dart) :
+    G.edgePerm.symm x = G.finvEdge x := rfl
+
+theorem nodePerm_symm_apply {G : Hypermap} (x : G.Dart) :
+    G.nodePerm.symm x = G.finvNode x := rfl
+
+theorem facePerm_symm_apply {G : Hypermap} (x : G.Dart) :
+    G.facePerm.symm x = G.finvFace x := rfl
+
+/-! ## invFun double-negation for bijections -/
+
+theorem invFun_invFun_eq {α : Type*} [Nonempty α] {f : α → α}
+    (hf_inj : Function.Injective f) (hf_surj : Function.Surjective f) (x : α) :
+    Function.invFun (Function.invFun f) x = f x := by
+  obtain ⟨y, rfl⟩ := hf_surj x
+  have h_inv_inv : Function.invFun (Function.invFun f) (Function.invFun f (f (f y)))
+      = f (f y) := by
+    apply Function.leftInverse_invFun
+    exact Function.LeftInverse.injective (Function.rightInverse_invFun hf_surj)
+  rwa [Function.leftInverse_invFun hf_inj] at h_inv_inv
+
+/-! ## dual_dual involutivity -/
+
+theorem dual_dual_edge (G : Hypermap) (x : G.Dart) :
+    (dual (dual G)).edge x = G.edge x := by
+  simp only [dual_edge]
+  exact invFun_invFun_eq edge_injective edge_surjective x
+
+theorem dual_dual_node (G : Hypermap) (x : G.Dart) :
+    (dual (dual G)).node x = G.node x := by
+  simp only [dual_node, dual_face]
+  exact invFun_invFun_eq node_injective node_surjective x
+
+theorem dual_dual_face (G : Hypermap) (x : G.Dart) :
+    (dual (dual G)).face x = G.face x := by
+  simp only [dual_face, dual_node]
+  exact invFun_invFun_eq face_injective face_surjective x
+
+/-! ## mirror_mirror involutivity -/
+
+theorem mirror_mirror_edge (G : Hypermap) (x : G.Dart) :
+    (mirror (mirror G)).edge x = G.edge x := by
+  show Function.invFun G.face (Function.invFun G.node x) = G.edge x
+  rw [← Function.leftInverse_invFun G.face_injective (G.edge x),
+      ← Function.leftInverse_invFun G.node_injective (G.face (G.edge x))]
+  rw [G.edgeK']
+
+theorem mirror_mirror_node (G : Hypermap) (x : G.Dart) :
+    (mirror (mirror G)).node x = G.node x := by
+  simp only [mirror_node]
+  exact invFun_invFun_eq node_injective node_surjective x
+
+theorem mirror_mirror_face (G : Hypermap) (x : G.Dart) :
+    (mirror (mirror G)).face x = G.face x := by
+  simp only [mirror_face]
+  exact invFun_invFun_eq face_injective face_surjective x
+
 end Hypermap
