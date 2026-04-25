@@ -647,4 +647,21 @@ theorem cube_dart_six_times (G : Hypermap) :
     Fintype.card (cube G).Dart / 6 = Fintype.card G.Dart := by
   rw [card_cube_dart, Nat.mul_div_cancel_left _ (by decide : (0:ℕ) < 6)]
 
+/-! ## CubeTag cases / disequalities -/
+
+theorem CubeTag.cases (t : CubeTag) :
+    t = CubeTag.CTn ∨ t = CubeTag.CTen ∨ t = CubeTag.CTf ∨
+    t = CubeTag.CTnf ∨ t = CubeTag.CTe ∨ t = CubeTag.CTfe := by
+  cases t <;> tauto
+
+@[simp] theorem CubeTag.CTn_ne_CTen : CubeTag.CTn ≠ CubeTag.CTen := by decide
+@[simp] theorem CubeTag.CTn_ne_CTf : CubeTag.CTn ≠ CubeTag.CTf := by decide
+@[simp] theorem CubeTag.CTn_ne_CTnf : CubeTag.CTn ≠ CubeTag.CTnf := by decide
+@[simp] theorem CubeTag.CTn_ne_CTe : CubeTag.CTn ≠ CubeTag.CTe := by decide
+@[simp] theorem CubeTag.CTn_ne_CTfe : CubeTag.CTn ≠ CubeTag.CTfe := by decide
+@[simp] theorem CubeTag.CTen_ne_CTf : CubeTag.CTen ≠ CubeTag.CTf := by decide
+@[simp] theorem CubeTag.CTen_ne_CTnf : CubeTag.CTen ≠ CubeTag.CTnf := by decide
+@[simp] theorem CubeTag.CTen_ne_CTe : CubeTag.CTen ≠ CubeTag.CTe := by decide
+@[simp] theorem CubeTag.CTen_ne_CTfe : CubeTag.CTen ≠ CubeTag.CTfe := by decide
+
 end Hypermap

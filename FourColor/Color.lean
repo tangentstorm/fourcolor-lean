@@ -343,4 +343,21 @@ end EdgePerm
 @[simp] theorem ccons_true_false : ccons true false = Color2 := rfl
 @[simp] theorem ccons_true_true : ccons true true = Color3 := rfl
 
+/-! ## proper_trace + permt_append/reverse -/
+
+@[simp] theorem proper_trace_nil : ¬ proper_trace [] := by
+  unfold proper_trace head_color; simp
+
+theorem proper_trace_cons (c : Color) (s : List Color) :
+    proper_trace (c :: s) ↔ c ≠ Color0 := by
+  unfold proper_trace head_color; exact Iff.rfl
+
+@[simp] theorem permt_append (g : EdgePerm) (s t : List Color) :
+    permt g (s ++ t) = permt g s ++ permt g t := by
+  simp [permt, List.map_append]
+
+@[simp] theorem permt_reverse (g : EdgePerm) (s : List Color) :
+    permt g s.reverse = (permt g s).reverse := by
+  simp [permt, List.map_reverse]
+
 end Color

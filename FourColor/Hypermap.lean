@@ -660,4 +660,52 @@ theorem mirror_mirror_face (G : Hypermap) (x : G.Dart) :
   simp only [mirror_face]
   exact invFun_invFun_eq face_injective face_surjective x
 
+/-! ## eulerLhs / eulerRhs / genus / numOrbits unfolders -/
+
+theorem numOrbits_def {G : Hypermap} (σ : Equiv.Perm G.Dart) :
+    numOrbits σ = σ.cycleFactorsFinset.card + (Fintype.card G.Dart - σ.support.card) :=
+  rfl
+
+theorem fcardEdge_def (G : Hypermap) :
+    fcardEdge G = numOrbits G.edgePerm := rfl
+
+theorem fcardNode_def (G : Hypermap) :
+    fcardNode G = numOrbits G.nodePerm := rfl
+
+theorem fcardFace_def (G : Hypermap) :
+    fcardFace G = numOrbits G.facePerm := rfl
+
+theorem eulerLhs_def (G : Hypermap) :
+    eulerLhs G = 2 * nComp G + Fintype.card G.Dart := rfl
+
+theorem eulerRhs_def (G : Hypermap) :
+    eulerRhs G = fcardEdge G + fcardNode G + fcardFace G := rfl
+
+theorem genus_def (G : Hypermap) :
+    genus G = (eulerLhs G - eulerRhs G) / 2 := rfl
+
+/-! ## Connected component count via gcomp -/
+
+theorem gcomp_imp_eqvGen (G : Hypermap) {x y : G.Dart} (h : gcomp G x y) :
+    Relation.EqvGen (glink G) x y := by
+  induction h
+  · exact Relation.EqvGen.refl _
+  · exact Relation.EqvGen.trans _ _ _ ‹_› (Relation.EqvGen.rel _ _ ‹_›)
+
+theorem connected_glinkSetoid_trivial {G : Hypermap} (hc : Connected G)
+    (a b : G.Dart) : (glinkSetoid G).r a b := by
+  apply gcomp_imp_eqvGen; exact hc a b
+
+/-- A connected hypermap has exactly one connected component. -/
+theorem nComp_eq_one_of_connected (G : Hypermap) (hc : Connected G) :
+    nComp G = 1 := by
+  convert Fintype.card_eq_one_iff.mpr _
+  exact ⟨Quotient.mk'' (Classical.arbitrary G.Dart),
+    fun y => by obtain ⟨x⟩ := y
+                exact Quotient.sound (connected_glinkSetoid_trivial hc _ _)⟩
+
+/-- Every connected hypermap has a positive number of connected components. -/
+theorem nComp_pos_of_connected (G : Hypermap) (_h : Connected G) : 0 < nComp G :=
+  Nat.lt_of_lt_of_le Nat.zero_lt_one (nComp_refl G)
+
 end Hypermap
