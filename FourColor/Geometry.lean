@@ -928,9 +928,13 @@ private theorem eqvGen_glink_dual_iff (x y : G.Dart) :
 
 /-- The number of connected components is preserved by the dual construction. -/
 theorem nComp_dual (G : Hypermap) : nComp (dual G) = nComp G := by
-  convert Fintype.card_congr (Quotient.congr (Equiv.refl _) ?_)
+  classical
+  show Fintype.card (Quotient (glinkSetoid (dual G))) =
+       Fintype.card (Quotient (glinkSetoid G))
+  apply Fintype.card_congr
+  refine Quotient.congr (Equiv.refl G.Dart) ?_
   intro x y
-  exact eqvGen_glink_dual_iff x y
+  exact @eqvGen_glink_dual_iff G x y
 
 /-- A single glink step in `mirror G` generates an EqvGen step in `G`. -/
 private theorem glink_mirror_eqvGen (x y : G.Dart) (h : glink (mirror G) x y) :
@@ -982,9 +986,13 @@ private theorem eqvGen_glink_mirror_iff (x y : G.Dart) :
 
 /-- The number of connected components is preserved by the mirror construction. -/
 theorem nComp_mirror (G : Hypermap) : nComp (mirror G) = nComp G := by
-  convert Fintype.card_congr (Quotient.congr (Equiv.refl _) ?_)
+  classical
+  show Fintype.card (Quotient (glinkSetoid (mirror G))) =
+       Fintype.card (Quotient (glinkSetoid G))
+  apply Fintype.card_congr
+  refine Quotient.congr (Equiv.refl G.Dart) ?_
   intro x y
-  exact eqvGen_glink_mirror_iff x y
+  exact @eqvGen_glink_mirror_iff G x y
 
 /-! ## Cubic / Plain / Quasicubic / Pentagonal projections -/
 

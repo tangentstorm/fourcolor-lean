@@ -1,0 +1,16 @@
+{
+  "name": "aristotle-local",
+  "owner": {
+    "name": "local"
+  },
+  "plugins": [
+    {
+      "name": "aristotle-lean",
+      "source": {
+        "source": "github",
+        "repo": "tangentstorm/aristotle-skill"
+      },
+      "description": "Aristotle Lean plugin (fetched from GitHub)."
+    }
+  ]
+}
