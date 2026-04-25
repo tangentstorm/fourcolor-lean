@@ -234,6 +234,19 @@ theorem edge_ne_z_of_node_ne_face_eq (hnz : G.node z ≠ z) (hfz : G.face z = z)
   rw [hez, hfz] at this
   exact hnz this
 
+/-- `node z = z ∧ face z = z` implies `edge z = z`. -/
+theorem all_fixed_at_z (hez : G.edge z = z) (hnz : G.node z = z) :
+    G.face z = z := face_eq_z_of_edge_node G z hez hnz
+
+/-- All three at z fixed: edge, node, face. -/
+theorem all_three_fixed_iff (G : Hypermap) (z : G.Dart) :
+    (G.edge z = z ∧ G.node z = z) ↔ (G.edge z = z ∧ G.node z = z ∧ G.face z = z) := by
+  constructor
+  · rintro ⟨he, hn⟩
+    exact ⟨he, hn, face_eq_z_of_edge_node G z he hn⟩
+  · rintro ⟨he, hn, _⟩
+    exact ⟨he, hn⟩
+
 /-! ## Euler formula changes under WalkupE -/
 
 /-- The Euler formula components change in a controlled way under WalkupE.

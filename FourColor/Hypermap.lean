@@ -348,6 +348,21 @@ theorem finvFace_face (x : G.Dart) : G.finvFace (G.face x) = x :=
 theorem face_finvFace (x : G.Dart) : G.face (G.finvFace x) = x :=
   Equiv.ofBijective_apply_symm_apply G.face face_bijective x
 
+/-- `finvNode` is injective. -/
+theorem finvNode_injective (G : Hypermap) : Function.Injective G.finvNode := by
+  intro x y h
+  rw [← node_finvNode (x := x), ← node_finvNode (x := y), h]
+
+/-- `finvEdge` is injective. -/
+theorem finvEdge_injective (G : Hypermap) : Function.Injective G.finvEdge := by
+  intro x y h
+  rw [← edge_finvEdge (x := x), ← edge_finvEdge (x := y), h]
+
+/-- `finvFace` is injective. -/
+theorem finvFace_injective (G : Hypermap) : Function.Injective G.finvFace := by
+  intro x y h
+  rw [← face_finvFace (x := x), ← face_finvFace (x := y), h]
+
 /-- A Moebius path in a hypermap.
 
     Corresponds to `Moebius_path` in the Coq formalization (hypermap.v:260):

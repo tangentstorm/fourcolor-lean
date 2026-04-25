@@ -424,6 +424,18 @@ theorem proper_trace_cons (c : Color) (s : List Color) :
     permt g s.reverse = (permt g s).reverse := by
   simp [permt, List.map_reverse]
 
+@[simp] theorem permt_inv_apply (g : EdgePerm) (s : List Color) :
+    permt g.inv (permt g s) = s := by
+  induction s with
+  | nil => rfl
+  | cons c rest ih => simp only [permt_cons, EdgePerm.apply_inv, ih]
+
+@[simp] theorem permt_apply_inv (g : EdgePerm) (s : List Color) :
+    permt g (permt g.inv s) = s := by
+  induction s with
+  | nil => rfl
+  | cons c rest ih => simp only [permt_cons, EdgePerm.inv_apply, ih]
+
 /-! ## Compositional helpers for trace operations -/
 
 namespace EdgePerm
