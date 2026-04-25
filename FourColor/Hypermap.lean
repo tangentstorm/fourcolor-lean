@@ -947,4 +947,13 @@ theorem node_iter_add (G : Hypermap) (x : G.Dart) (m n : ℕ) :
     G.node^[m + n] x = G.node^[m] (G.node^[n] x) := by
   rw [Function.iterate_add_apply]
 
+@[simp] theorem dual_dual_edge_eq (G : Hypermap) : (dual (dual G)).edge = G.edge := by
+  funext x; exact dual_dual_edge G x
+
+@[simp] theorem dual_dual_node_eq (G : Hypermap) : (dual (dual G)).node = G.node := by
+  funext x; exact dual_dual_node G x
+
+@[simp] theorem dual_dual_face_eq (G : Hypermap) : (dual (dual G)).face = G.face := by
+  funext x; exact dual_dual_face G x
+
 end Hypermap

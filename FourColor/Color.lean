@@ -268,6 +268,8 @@ def proper_trace (et : List Color) : Prop := head_color et ≠ Color0
 @[simp] theorem head_color_cons (c : Color) (s : List Color) :
     head_color (c :: s) = c := rfl
 
+@[simp] theorem head_color_singleton (c : Color) : head_color [c] = c := rfl
+
 /-! ## Trace permutation (Coq: color.v:234) -/
 
 /-- Apply an edge permutation pointwise to a color sequence. -/
