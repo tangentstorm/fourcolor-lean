@@ -284,4 +284,11 @@ theorem KempeClosed.empty : KempeClosed (fun _ => False) :=
     matchg lb (Color3 :: et) (GramSymbol.Gskip :: w) = false := by
   cases lb <;> rfl
 
+@[simp] theorem matchg_Color0_nil (lb : List Bool) (et : List Color)
+    (w : Chromogram) :
+    matchg lb (Color0 :: et) w = false := by
+  cases w with
+  | nil => cases lb <;> rfl
+  | cons s w' => exact matchg_Color0 lb et s w'
+
 end FourColor.Chromogram

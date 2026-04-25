@@ -267,6 +267,9 @@ def permt (g : EdgePerm) (s : List Color) : List Color :=
 theorem length_permt (g : EdgePerm) (s : List Color) :
     (permt g s).length = s.length := by simp [permt]
 
+@[simp] theorem permt_length (g : EdgePerm) (s : List Color) :
+    (permt g s).length = s.length := length_permt g s
+
 /-! ## Closed trace (Coq: color.v:238) -/
 
 /-- The closed trace: append the sum of the trace to itself. -/
@@ -298,6 +301,9 @@ theorem length_pairmap (f : Color → Color → Color) (a : Color) (s : List Col
 
 theorem length_urtrace (s : List Color) :
     (urtrace s).length = s.length := length_pairmap _ _ _
+
+@[simp] theorem urtrace_length (s : List Color) :
+    (urtrace s).length = s.length := length_urtrace s
 
 /-! ## Clarity helpers -/
 

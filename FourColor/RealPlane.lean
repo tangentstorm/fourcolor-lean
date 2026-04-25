@@ -177,4 +177,46 @@ structure MapColoring (m k : Map) : Prop where
 def ColorableWith (n : ℕ) (m : Map) : Prop :=
   ∃ k, MapColoring m k ∧ AtMostRegions n k
 
+/-! ## Projection helpers and simp lemmas -/
+
+@[simp]
+theorem Interval.contains_iff (s : Interval) (t : ℝ) :
+    s.contains t ↔ s.lo < t ∧ t < s.hi := by
+  rfl
+
+@[simp]
+theorem Rectangle.mem_region_iff (rr : Rectangle) (z : Point) :
+    z ∈ rr.region ↔ rr.hspan.contains z.1 ∧ rr.vspan.contains z.2 := by
+  rfl
+
+theorem MapColoring.not_rel_of_adjacent {m k : Map} (h : MapColoring m k)
+    {z1 z2 : Point} (hadj : Adjacent m z1 z2) : ¬ k z1 z2 :=
+  h.adjacent_distinct z1 z2 hadj
+
+theorem MapColoring.refines {m k : Map} (h : MapColoring m k) :
+    Submap m k :=
+  h.consistent
+
+theorem MapColoring.cover_sub' {m k : Map} (h : MapColoring m k) :
+    cover k ⊆ cover m :=
+  h.cover_sub
+
+theorem Adjacent.not_rel {m : Map} {z1 z2 : Point} (h : Adjacent m z1 z2) :
+    ¬ m z1 z2 :=
+  h.1
+
+theorem Adjacent.border_nonempty {m : Map} {z1 z2 : Point} (h : Adjacent m z1 z2) :
+    Meet (notCorner m) (border m z1 z2) :=
+  h.2
+
+theorem ColorableWith.zero_of_empty {m : Map} (h : ∀ z1 z2, ¬ m z1 z2) :
+    ColorableWith 0 m := by
+  refine ⟨fun _ _ => False, ?_, ?_⟩
+  · constructor
+    · exact ⟨fun _ _ h => h.elim, fun _ _ h => h.elim⟩
+    · intro z hz; simp [cover] at hz
+    · intro z z' hz; exact (h z z' hz).elim
+    · intro _ _ _ hk; exact hk.elim
+  · exact ⟨Fin.elim0, fun z hz => by simp [cover] at hz⟩
+
 end FourColor.RealPlane

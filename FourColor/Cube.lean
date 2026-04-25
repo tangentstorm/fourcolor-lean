@@ -245,6 +245,11 @@ theorem fcardNode_of_cubic (G : Hypermap) (hC : Cubic G) :
   rw [h_node_support_card] at hsum
   rw [← hsum, h_node_cycle_count, Nat.mul_div_cancel_left _ (by decide : (0:ℕ) < 3)]
 
+/-- The dart count of the cube is six times the original dart count. -/
+theorem cube_dart_card_eq_six_mul (G : Hypermap) :
+    Fintype.card (cube G).Dart = 6 * Fintype.card G.Dart :=
+  card_cube_dart G
+
 /-- The number of face orbits in the cube equals the Euler rhs of G.
     Face orbits decompose into three types:
     - {CTn, CTen, CTf, CTnf} orbits correspond to face orbits of G
@@ -380,6 +385,10 @@ theorem genus_cube (G : Hypermap) : genus (cube G) = genus G := by
   rw [ fcardEdge_of_plain _ ( plain_cube G ), fcardNode_of_cubic _ ( cubic_cube G ), fcardFace_cube ];
   rw [ nComp_cube, card_cube_dart ];
   unfold Hypermap.eulerRhs; omega;
+
+/-- The genus is preserved by the cube construction (alias for `genus_cube`). -/
+theorem cube_genus_eq_genus (G : Hypermap) : genus (cube G) = genus G :=
+  genus_cube G
 
 /-- Planarity is preserved by the cube construction. -/
 theorem planar_cube (G : Hypermap) : Planar G ↔ Planar (cube G) := by
