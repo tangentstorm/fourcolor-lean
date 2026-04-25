@@ -448,6 +448,21 @@ in the Coq formalization. -/
 /-- The face of the dual is the inverse of the original node. (hypermap.v) -/
 @[simp] theorem dual_face (G : Hypermap) : (dual G).face = Function.invFun G.node := rfl
 
+/-- Composition of dual edge with original edge yields identity (left-invFun). -/
+theorem dual_edge_apply (G : Hypermap) (x : G.Dart) :
+    G.edge ((dual G).edge x) = x :=
+  Function.rightInverse_invFun G.edge_surjective x
+
+/-- Composition of dual node with original face yields identity. -/
+theorem dual_node_apply (G : Hypermap) (x : G.Dart) :
+    G.face ((dual G).node x) = x :=
+  Function.rightInverse_invFun G.face_surjective x
+
+/-- Composition of dual face with original node yields identity. -/
+theorem dual_face_apply (G : Hypermap) (x : G.Dart) :
+    G.node ((dual G).face x) = x :=
+  Function.rightInverse_invFun G.node_surjective x
+
 /-- The edge of the mirror is `face ∘ node`. (hypermap.v) -/
 @[simp] theorem mirror_edge (G : Hypermap) : (mirror G).edge = G.face ∘ G.node := rfl
 

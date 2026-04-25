@@ -196,6 +196,14 @@ theorem apply_add (g : EdgePerm) (c1 c2 : Color) :
 theorem apply_sub (g : EdgePerm) (a b : Color) :
     g.apply (a + b) = g.apply a + g.apply b := apply_add g a b
 
+@[simp] theorem inv_apply_inv (g : EdgePerm) (c : Color) :
+    g.inv.apply (g.apply c) = c := apply_inv g c
+
+@[simp] theorem apply_inv_apply (g : EdgePerm) (c : Color) :
+    g.apply (g.inv.apply c) = c := inv_apply g c
+
+theorem addc_three (a b c : Color) : a + b + c = a + (b + c) := (addc_assoc a b c).symm
+
 -- Coq: color.v:175
 theorem apply_zero (g : EdgePerm) : g.apply Color0 = Color0 := by cases g <;> rfl
 
