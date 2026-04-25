@@ -514,6 +514,22 @@ theorem CcColorable.exists_coloring {G : Hypermap} {cc : Finset G.Dart}
 theorem CcColorable.intro {G : Hypermap} {cc : Finset G.Dart} {k : G.Dart → Color}
     (hk : CcColoring cc k) : CcColorable cc := ⟨k, hk⟩
 
+/-! ## Coloring / GraphColoring constructors -/
+
+theorem Coloring.mk' {G : Hypermap} {k : G.Dart → Color}
+    (hkE : ∀ x, k (G.edge x) ≠ k x) (hkF : ∀ x, k (G.face x) = k x) : Coloring k :=
+  ⟨hkE, hkF⟩
+
+theorem Coloring.iff_and {G : Hypermap} {k : G.Dart → Color} :
+    Coloring k ↔ (∀ x, k (G.edge x) ≠ k x) ∧ (∀ x, k (G.face x) = k x) := Iff.rfl
+
+theorem GraphColoring.mk' {G : Hypermap} {k : G.Dart → Color}
+    (hkE : ∀ x, k (G.edge x) ≠ k x) (hkN : ∀ x, k (G.node x) = k x) : GraphColoring k :=
+  ⟨hkE, hkN⟩
+
+theorem GraphColoring.iff_and {G : Hypermap} {k : G.Dart → Color} :
+    GraphColoring k ↔ (∀ x, k (G.edge x) ≠ k x) ∧ (∀ x, k (G.node x) = k x) := Iff.rfl
+
 /-! ## GraphColoring orbit invariance -/
 
 /-- A GraphColoring is constant on cnode-orbits. -/
