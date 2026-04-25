@@ -158,6 +158,13 @@ noncomputable def walkupE (h2 : Fintype.card G.Dart ≥ 2) : Hypermap where
 @[simp] theorem walkupE_face_val (h2 : Fintype.card G.Dart ≥ 2) (x : (walkupE G z h2).Dart) :
     ((walkupE G z h2).face x).val = skip1 G z G.face x.val := rfl
 
+/-- When `face z = z`, walkupE.face acts as G.face on x.val (lifted). -/
+theorem walkupE_face_val_of_face_fixed (h2 : Fintype.card G.Dart ≥ 2)
+    (hfz : G.face z = z) (x : (walkupE G z h2).Dart) :
+    ((walkupE G z h2).face x).val = G.face x.val := by
+  rw [walkupE_face_val]
+  exact skip1_of_fixed G z G.face face_injective hfz x.val x.property
+
 /-- The underlying value of a dart constructed via subtype literal in `walkupE` is itself. -/
 @[simp] theorem walkupE_Dart_mk_val (h2 : Fintype.card G.Dart ≥ 2)
     (x : G.Dart) (hx : x ≠ z) :

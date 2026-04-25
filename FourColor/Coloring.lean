@@ -572,6 +572,10 @@ theorem Coloring.face_iter {G : Hypermap} {k : G.Dart → Color}
   | zero => rfl
   | succ n ih => rw [Function.iterate_succ_apply', h.face_eq]; exact ih
 
+theorem Coloring.face_iter_symm {G : Hypermap} {k : G.Dart → Color}
+    (h : Coloring k) (n : ℕ) (x : G.Dart) : k x = k ((G.face^[n]) x) :=
+  (Coloring.face_iter h n x).symm
+
 /-- A `Coloring` value is constant on an entire `cface` orbit (symmetric variant). -/
 theorem Coloring.cface_iff_eq {G : Hypermap} {k : G.Dart → Color}
     (h : Coloring k) {x y : G.Dart} (hc : Hypermap.cface G x y) : k x = k y :=
@@ -582,6 +586,10 @@ theorem GraphColoring.node_iter {G : Hypermap} {k : G.Dart → Color}
   induction n with
   | zero => rfl
   | succ n ih => rw [Function.iterate_succ_apply', h.node_eq]; exact ih
+
+theorem GraphColoring.node_iter_symm {G : Hypermap} {k : G.Dart → Color}
+    (h : GraphColoring k) (n : ℕ) (x : G.Dart) : k x = k ((G.node^[n]) x) :=
+  (GraphColoring.node_iter h n x).symm
 
 /-- Face-invariance projection for CcColoring. -/
 theorem CcColoring.face_eq {G : Hypermap} {cc : Finset G.Dart} {k : G.Dart → Color}

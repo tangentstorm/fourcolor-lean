@@ -357,6 +357,14 @@ theorem Simple.pair {x y : G.Dart}
   unfold Simple
   exact List.pairwise_pair.mpr h
 
+/-- The head of a Simple cons doesn't fband the tail. -/
+theorem Simple.head_not_fband {x : G.Dart} {p : List G.Dart}
+    (h : Simple G (x :: p)) : ¬ fband G p x := by
+  rw [Simple.cons_iff] at h
+  intro hfb
+  obtain ⟨y, hy, hcf⟩ := hfb
+  exact h.1 y hy hcf
+
 -- Coq: simple_cat / simple_catC in geometry.v
 theorem simple_append (p q : List G.Dart) :
     Simple G (p ++ q) ↔ Simple G p ∧ Simple G q ∧

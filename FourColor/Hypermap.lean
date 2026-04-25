@@ -768,6 +768,15 @@ theorem MoebiusPath.cons_ne_nil {G : Hypermap} {x : G.Dart} {p : List G.Dart}
   rw [hp, List.length_cons, List.length_nil] at hge
   omega
 
+/-- A MoebiusPath has length ≥ 2 (alias-style cons form). -/
+theorem MoebiusPath.cons_length_ge_two {G : Hypermap} {x : G.Dart} {p : List G.Dart}
+    (h : MoebiusPath G (x :: p)) : 2 ≤ (x :: p).length :=
+  MoebiusPath.length_ge_two h
+
+/-- The tail of a MoebiusPath is nonempty. -/
+theorem MoebiusPath.tail_ne_nil {G : Hypermap} {x : G.Dart} {p : List G.Dart}
+    (h : MoebiusPath G (x :: p)) : p ≠ [] := MoebiusPath.cons_ne_nil h
+
 /-! ## edgePerm / nodePerm / facePerm apply simp lemmas -/
 
 @[simp] theorem edgePerm_apply {G : Hypermap} (x : G.Dart) :
