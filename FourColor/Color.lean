@@ -340,6 +340,9 @@ def urtrace (s : List Color) : List Color :=
 theorem urtrace_singleton (c : Color) : urtrace [c] = [c + c] := by
   unfold urtrace; rfl
 
+/-- `urtrace` of a 2-element list is the pair sums in cyclic shift. -/
+theorem urtrace_pair (c d : Color) : urtrace [c, d] = [d + c, c + d] := rfl
+
 theorem length_pairmap (f : Color → Color → Color) (a : Color) (s : List Color) :
     (pairmap f a s).length = s.length := by
   induction s generalizing a with

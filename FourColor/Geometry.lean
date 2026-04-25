@@ -357,6 +357,16 @@ theorem Simple.head_not_band {x : G.Dart} {p : List G.Dart}
     (h : Simple G (x :: p)) (y : G.Dart) (hy : y ∈ p) : ¬ cface G x y :=
   ((Simple.cons_iff x p).mp h).1 y hy
 
+/-- Membership in tail of a Simple list. -/
+theorem Simple.mem_tail_imp_not_cface_head {x : G.Dart} {p : List G.Dart}
+    (h : Simple G (x :: p)) {y : G.Dart} (hy : y ∈ p) : ¬ cface G x y :=
+  Simple.head_not_band h y hy
+
+/-- A Simple cons is determined by its head condition and tail. -/
+theorem Simple.cons_split {x : G.Dart} {p : List G.Dart}
+    (h : Simple G (x :: p)) : (∀ y ∈ p, ¬ cface G x y) ∧ Simple G p :=
+  (Simple.cons_iff x p).mp h
+
 /-- Construct a face-simple cons from its components. -/
 theorem Simple.cons {x : G.Dart} {p : List G.Dart}
     (h₁ : ∀ y ∈ p, ¬ cface G x y) (h₂ : Simple G p) : Simple G (x :: p) :=

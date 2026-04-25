@@ -787,6 +787,18 @@ theorem MoebiusPath.head_ne_tail_head {G : Hypermap} {x : G.Dart} {p : List G.Da
   intro hxy
   exact MoebiusPath.head_not_in_tail h (hxy ▸ hy)
 
+/-- The path of a MoebiusPath has at least 2 elements (length ≥ 2 form). -/
+theorem MoebiusPath.length_pos {G : Hypermap} {q : List G.Dart}
+    (h : MoebiusPath G q) : 0 < q.length := by
+  have h2 := MoebiusPath.length_ge_two h
+  omega
+
+/-- A MoebiusPath, viewed as a List, has positive length. -/
+theorem MoebiusPath.exists_head {G : Hypermap} {q : List G.Dart}
+    (h : MoebiusPath G q) : ∃ x p, q = x :: p := by
+  match q, h with
+  | x :: p, _ => exact ⟨x, p, rfl⟩
+
 /-! ## edgePerm / nodePerm / facePerm apply simp lemmas -/
 
 @[simp] theorem edgePerm_apply {G : Hypermap} (x : G.Dart) :
