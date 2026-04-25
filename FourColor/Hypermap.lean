@@ -676,6 +676,16 @@ theorem mirror_mirror_face (G : Hypermap) (x : G.Dart) :
   simp only [mirror_face]
   exact invFun_invFun_eq face_injective face_surjective x
 
+@[simp] theorem mirror_mirror_node_eq (G : Hypermap) : (mirror (mirror G)).node = G.node :=
+  funext (mirror_mirror_node G)
+
+@[simp] theorem mirror_mirror_face_eq (G : Hypermap) : (mirror (mirror G)).face = G.face :=
+  funext (mirror_mirror_face G)
+
+@[simp] theorem dual_mirror_dart_eq (G : Hypermap) : (dual (mirror G)).Dart = G.Dart := rfl
+
+@[simp] theorem mirror_dual_dart_eq (G : Hypermap) : (mirror (dual G)).Dart = G.Dart := rfl
+
 /-! ## eulerLhs / eulerRhs / genus / numOrbits unfolders -/
 
 theorem numOrbits_def {G : Hypermap} (σ : Equiv.Perm G.Dart) :
@@ -750,5 +760,19 @@ theorem gcomp_equivalence (G : Hypermap) : Equivalence (gcomp G) :=
 theorem dual_swaps_node_face (G : Hypermap) :
     (dual G).node = Function.invFun G.face ∧ (dual G).face = Function.invFun G.node :=
   ⟨rfl, rfl⟩
+
+/-! ## Dart-cardinality helpers -/
+
+/-- The number of darts in a hypermap is positive when `Dart` is nonempty. -/
+theorem card_Dart_pos (G : Hypermap) [Nonempty G.Dart] : 0 < Fintype.card G.Dart :=
+  Fintype.card_pos
+
+/-- The dual hypermap has the same number of darts. -/
+theorem card_dual_dart (G : Hypermap) : Fintype.card (dual G).Dart = Fintype.card G.Dart :=
+  rfl
+
+/-- The mirror hypermap has the same number of darts. -/
+theorem card_mirror_dart (G : Hypermap) : Fintype.card (mirror G).Dart = Fintype.card G.Dart :=
+  rfl
 
 end Hypermap

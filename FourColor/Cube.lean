@@ -201,10 +201,10 @@ theorem fcardEdge_of_plain (G : Hypermap) (hP : Plain G) :
       convert Equiv.Perm.sum_cycleType G.edgePerm using 1;
       -- edgePerm.support = univ, so it equals the universal set.
       refine congr_arg Finset.card ?_
-      ext x; simp [hP]; exact (hP x).2;
+      ext x; simp; exact (hP x).2;
     rw [ ← h_total_darts, Finset.sum_congr rfl h_cycle_length, Finset.sum_const, smul_eq_mul, mul_comm ];
   have h_support : (edgePerm G).support = Finset.univ := by
-    ext x; simp [hP];
+    ext x; simp
     exact hP x |>.2;
   -- fcardEdge G = |cycleFactorsFinset| + (|Dart| - |support|).
   -- |support| = |univ| = |Dart|, so the fixed-point count is 0, and
@@ -236,7 +236,7 @@ theorem fcardNode_of_cubic (G : Hypermap) (hC : Cubic G) :
     rw [ Equiv.Perm.cycleType_def ];
     simp +decide [ Function.comp ];
   have h_node_support_card : G.nodePerm.support.card = Fintype.card G.Dart := by
-    refine' Finset.card_bij ( fun x hx => x ) _ _ _ <;> simp +decide [ hC ];
+    refine' Finset.card_bij ( fun x hx => x ) _ _ _ <;> simp +decide;
     exact fun x => by simpa [ Hypermap.nodePerm ] using hC x |>.2.1;
   -- support.card = |Dart| (no fixed points), and cycleType.sum = 3 * |cycleFactorsFinset|,
   -- so |cycleFactorsFinset| = |Dart| / 3.
@@ -261,7 +261,7 @@ Every dart (t, x) in cube G is glink-connected to (CTnf, x).
 theorem cube_glink_to_CTnf (G : Hypermap) (t : CubeTag) (x : G.Dart) :
     Relation.EqvGen (glink (cube G)) (t, x) (CubeTag.CTnf, x) := by
   cases t;
-  all_goals unfold Hypermap.cube; simp +decide [ Hypermap.glink ];
+  all_goals unfold Hypermap.cube; simp +decide;
   exact Relation.EqvGen.trans _ _ _ ( Relation.EqvGen.rel _ _ ( Or.inr ( Or.inr rfl ) ) ) ( Relation.EqvGen.trans _ _ _ ( Relation.EqvGen.rel _ _ ( Or.inr ( Or.inr rfl ) ) ) ( Relation.EqvGen.rel _ _ ( Or.inr ( Or.inr rfl ) ) ) );
   · exact Relation.EqvGen.trans _ _ _ ( Relation.EqvGen.rel _ _ ( Or.inr ( Or.inr rfl ) ) ) ( Relation.EqvGen.rel _ _ ( Or.inr ( Or.inr rfl ) ) );
   · apply Relation.EqvGen.rel; simp [Hypermap.glink];

@@ -1150,6 +1150,19 @@ theorem cnode_zero (x : G.Dart) : cnode G x x := ⟨0, rfl⟩
 theorem cedge_one (x : G.Dart) : cedge G x (G.edge x) := ⟨1, rfl⟩
 theorem cnode_one (x : G.Dart) : cnode G x (G.node x) := ⟨1, rfl⟩
 
+/-! ## Step / iter aliases for cface / cedge / cnode -/
+
+theorem cface_step (G : Hypermap) (x : G.Dart) : cface G x (G.face x) := ⟨1, rfl⟩
+theorem cedge_step (G : Hypermap) (x : G.Dart) : cedge G x (G.edge x) := ⟨1, rfl⟩
+theorem cnode_step (G : Hypermap) (x : G.Dart) : cnode G x (G.node x) := ⟨1, rfl⟩
+
+theorem cface_face_sym (G : Hypermap) (x : G.Dart) : cface G (G.face x) x :=
+  cface_sym (cface_step G x)
+
+theorem cface_iter (G : Hypermap) (x : G.Dart) (n : ℕ) : cface G x (G.face^[n] x) := ⟨n, rfl⟩
+theorem cedge_iter (G : Hypermap) (x : G.Dart) (n : ℕ) : cedge G x (G.edge^[n] x) := ⟨n, rfl⟩
+theorem cnode_iter (G : Hypermap) (x : G.Dart) (n : ℕ) : cnode G x (G.node^[n] x) := ⟨n, rfl⟩
+
 /-- In a plain hypermap, `node ∘ face = edge` (from `faceK` and edge involution). -/
 theorem cnode_plain (hP : Plain G) (x : G.Dart) : G.node (G.face x) = G.edge x :=
   edge_injective (by rw [faceK, plain_edge_invol hP])
