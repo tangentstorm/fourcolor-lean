@@ -576,6 +576,10 @@ theorem Coloring.face_iter_symm {G : Hypermap} {k : G.Dart → Color}
     (h : Coloring k) (n : ℕ) (x : G.Dart) : k x = k ((G.face^[n]) x) :=
   (Coloring.face_iter h n x).symm
 
+/-- `Coloring.face_iter` at n=1 reduces to `Coloring.face_eq`. -/
+theorem Coloring.face_iter_one {G : Hypermap} {k : G.Dart → Color}
+    (h : Coloring k) (x : G.Dart) : k ((G.face^[1]) x) = k x := h.face_iter 1 x
+
 /-- A `Coloring` value is constant on an entire `cface` orbit (symmetric variant). -/
 theorem Coloring.cface_iff_eq {G : Hypermap} {k : G.Dart → Color}
     (h : Coloring k) {x y : G.Dart} (hc : Hypermap.cface G x y) : k x = k y :=
@@ -590,6 +594,10 @@ theorem GraphColoring.node_iter {G : Hypermap} {k : G.Dart → Color}
 theorem GraphColoring.node_iter_symm {G : Hypermap} {k : G.Dart → Color}
     (h : GraphColoring k) (n : ℕ) (x : G.Dart) : k x = k ((G.node^[n]) x) :=
   (GraphColoring.node_iter h n x).symm
+
+/-- `GraphColoring.node_iter` at n=1 reduces to `GraphColoring.node_eq`. -/
+theorem GraphColoring.node_iter_one {G : Hypermap} {k : G.Dart → Color}
+    (h : GraphColoring k) (x : G.Dart) : k ((G.node^[1]) x) = k x := h.node_iter 1 x
 
 /-- A `Coloring` value at face^[n] x equals value at face^[m] x for any m,n. -/
 theorem Coloring.face_iter_eq_iter {G : Hypermap} {k : G.Dart → Color}

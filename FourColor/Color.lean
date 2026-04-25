@@ -454,6 +454,18 @@ end EdgePerm
 
 theorem permt_singleton (g : EdgePerm) (c : Color) : permt g [c] = [g.apply c] := rfl
 
+/-- `permt g [c1, c2]` distributes via `permt_cons`. -/
+theorem permt_pair (g : EdgePerm) (c1 c2 : Color) :
+    permt g [c1, c2] = [g.apply c1, g.apply c2] := by
+  rw [permt_cons, permt_cons, permt_nil]
+
+/-- `permt` preserves nonemptiness. -/
+theorem permt_ne_nil_iff (g : EdgePerm) (s : List Color) :
+    permt g s ≠ [] ↔ s ≠ [] := by
+  cases s with
+  | nil => simp [permt_nil]
+  | cons c rest => simp [permt_cons]
+
 theorem sumt_permt (g : EdgePerm) (s : List Color) :
     sumt (permt g s) = g.apply (sumt s) := by
   induction s with

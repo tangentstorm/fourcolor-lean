@@ -191,6 +191,17 @@ theorem mem_insertE_edge (p : List G.Dart) {x : G.Dart}
     · exact List.mem_cons.mpr (Or.inr (List.mem_cons.mpr (Or.inl rfl)))
     · exact List.mem_cons.mpr (Or.inr (List.mem_cons.mpr (Or.inr (ih h'))))
 
+/-! ### Unfolding aliases for `cface` / `cedge` / `cnode` -/
+
+theorem cface_iff_exists (G : Hypermap) (x y : G.Dart) :
+    cface G x y ↔ ∃ n : ℕ, G.face^[n] x = y := Iff.rfl
+
+theorem cedge_iff_exists (G : Hypermap) (x y : G.Dart) :
+    cedge G x y ↔ ∃ n : ℕ, G.edge^[n] x = y := Iff.rfl
+
+theorem cnode_iff_exists (G : Hypermap) (x y : G.Dart) :
+    cnode G x y ↔ ∃ n : ℕ, G.node^[n] x = y := Iff.rfl
+
 /-! ### 2. `cface` / `cedge` / `cnode` reflexivity (geometry.v:~145) -/
 
 -- Coq: connect0 (specialized)
