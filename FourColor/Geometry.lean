@@ -236,6 +236,15 @@ theorem cedge_sym {x y : G.Dart} (h : cedge G x y) : cedge G y x :=
 theorem cnode_sym {x y : G.Dart} (h : cnode G x y) : cnode G y x :=
   iterate_sym node_injective h
 
+@[simp] theorem cface_comm (G : Hypermap) (x y : G.Dart) : cface G x y ↔ cface G y x :=
+  ⟨cface_sym, cface_sym⟩
+
+@[simp] theorem cedge_comm (G : Hypermap) (x y : G.Dart) : cedge G x y ↔ cedge G y x :=
+  ⟨cedge_sym, cedge_sym⟩
+
+@[simp] theorem cnode_comm (G : Hypermap) (x y : G.Dart) : cnode G x y ↔ cnode G y x :=
+  ⟨cnode_sym, cnode_sym⟩
+
 /-! ### 5. Arity lemmas (geometry.v:145–161) -/
 
 private theorem minimalPeriod_iterate {α : Type*} [Finite α] {f : α → α}

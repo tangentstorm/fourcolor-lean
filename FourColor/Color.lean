@@ -413,6 +413,9 @@ theorem proper_trace_cons (c : Color) (s : List Color) :
     proper_trace (c :: s) ↔ c ≠ Color0 := by
   unfold proper_trace head_color; exact Iff.rfl
 
+@[simp] theorem proper_trace_singleton (c : Color) : proper_trace [c] ↔ c ≠ Color0 :=
+  proper_trace_cons c []
+
 @[simp] theorem permt_append (g : EdgePerm) (s t : List Color) :
     permt g (s ++ t) = permt g s ++ permt g t := by
   simp [permt, List.map_append]

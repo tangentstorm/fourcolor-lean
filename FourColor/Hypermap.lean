@@ -222,6 +222,21 @@ theorem glink_of_cnode_step {G : Hypermap} (x : G.Dart) : glink G x (G.node x) :
 theorem glink_of_cface_step {G : Hypermap} (x : G.Dart) : glink G x (G.face x) :=
   glink.face G x
 
+/-- An iterated edge step is a gcomp. -/
+theorem gcomp_iter_edge (G : Hypermap) (n : ℕ) (x : G.Dart) :
+    gcomp G x (G.edge^[n] x) :=
+  cedge_imp_gcomp ⟨n, rfl⟩
+
+/-- An iterated node step is a gcomp. -/
+theorem gcomp_iter_node (G : Hypermap) (n : ℕ) (x : G.Dart) :
+    gcomp G x (G.node^[n] x) :=
+  cnode_imp_gcomp ⟨n, rfl⟩
+
+/-- An iterated face step is a gcomp. -/
+theorem gcomp_iter_face (G : Hypermap) (n : ℕ) (x : G.Dart) :
+    gcomp G x (G.face^[n] x) :=
+  cface_imp_gcomp ⟨n, rfl⟩
+
 /-! ## Euler formula and genus -/
 
 /-- The equivalence closure of glink, used for counting connected components. -/
