@@ -555,6 +555,17 @@ theorem GraphColoring.proper_edge {G : Hypermap} {k : G.Dart → Color}
 theorem GraphColoring.node_eq {G : Hypermap} {k : G.Dart → Color}
     (h : GraphColoring k) (x : G.Dart) : k (G.node x) = k x := h.2 x
 
+/-- A `GraphColoring` differs across a single edge step. -/
+theorem GraphColoring.edge_ne {G : Hypermap} {k : G.Dart → Color}
+    (h : GraphColoring k) (x : G.Dart) : k (G.edge x) ≠ k x :=
+  h.proper_edge x
+
+/-- If two darts have the same color, they are not related by edge in a GraphColoring. -/
+theorem GraphColoring.eq_imp_not_edge {G : Hypermap} {k : G.Dart → Color}
+    (h : GraphColoring k) {x y : G.Dart} (hk : k x = k y) : G.edge x ≠ y := by
+  intro he
+  exact h.proper_edge x (he ▸ hk).symm
+
 theorem Coloring.face_iter {G : Hypermap} {k : G.Dart → Color}
     (h : Coloring k) (n : ℕ) (x : G.Dart) : k ((G.face^[n]) x) = k x := by
   induction n with

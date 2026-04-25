@@ -308,4 +308,15 @@ theorem matchg_mono_Color0 (lb : List Bool) (et : List Color) (w : Chromogram) :
     matchg lb (Color0 :: et) w = false :=
   matchg_Color0_nil lb et w
 
+/-! ## Append helpers -/
+
+theorem Chromogram.length_append (w w' : Chromogram) :
+    (w ++ w').length = w.length + w'.length := List.length_append
+
+@[simp] theorem gramBalanced_singleton_Gpop0_zero (b0 : Bool) :
+    gramBalanced 0 b0 [GramSymbol.Gpop0] = false := rfl
+
+@[simp] theorem gramBalanced_singleton_Gpop1_zero (b0 : Bool) :
+    gramBalanced 0 b0 [GramSymbol.Gpop1] = false := rfl
+
 end FourColor.Chromogram

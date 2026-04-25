@@ -1272,4 +1272,10 @@ theorem fband_subset_iff (p q : List G.Dart) :
     obtain ⟨z, hz_mem, hyz⟩ := hsub y hy_mem
     exact ⟨z, hz_mem, cface_trans hy_face hyz⟩
 
+theorem kernel_append (G : Hypermap) (p q : List G.Dart) (x : G.Dart) :
+    kernel G (p ++ q) x ↔ kernel G p x ∧ kernel G q x := by
+  unfold kernel
+  rw [fband_append]
+  exact not_or
+
 end Hypermap

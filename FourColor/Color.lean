@@ -71,6 +71,22 @@ theorem addc_left_comm (a b c : Color) : a + (b + c) = b + (a + c) := by
 theorem addc_right_comm (a b c : Color) : (a + b) + c = (a + c) + b := by
   cases a <;> cases b <;> cases c <;> rfl
 
+@[simp] theorem add_eq_self_left (c d : Color) : c + d = c ↔ d = Color0 := by
+  constructor
+  · intro h
+    have : c + d = c + Color0 := by rw [h, add_Color0_right]
+    exact addc_left_cancel c this
+  · rintro rfl
+    exact add_Color0_right c
+
+@[simp] theorem add_eq_self_right (c d : Color) : d + c = c ↔ d = Color0 := by
+  constructor
+  · intro h
+    have : d + c = Color0 + c := by rw [h, add_Color0_left]
+    exact addc_right_cancel c this
+  · rintro rfl
+    exact add_Color0_left c
+
 /-! ## Color bits -/
 
 /-- The lower bit of a color. -/

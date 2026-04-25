@@ -612,6 +612,16 @@ theorem cconnect_cons (G : Hypermap) {x y z : G.Dart}
     (h : clink G x y) (hr : cconnect G y z) : cconnect G x z :=
   Relation.ReflTransGen.head h hr
 
+/-- A single clink step is a cconnect path. -/
+theorem cconnect_of_clink {G : Hypermap} {x y : G.Dart}
+    (h : clink G x y) : cconnect G x y :=
+  Relation.ReflTransGen.single h
+
+/-- Append a clink step on the right of a cconnect path. -/
+theorem cconnect_snoc {G : Hypermap} {x y z : G.Dart}
+    (hr : cconnect G x y) (h : clink G y z) : cconnect G x z :=
+  Relation.ReflTransGen.tail hr h
+
 -- TODO: cconnect_symm — reversing a single clink step requires iterating
 -- around finite permutation orbits (face-forward or node-backward), which
 -- needs the order-of-permutation machinery. Left for a future PR.
