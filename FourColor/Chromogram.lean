@@ -99,6 +99,14 @@ def KempeCoclosure (P : List Color → Prop) (et : List Color) : Prop :=
 -- Coq: chromogram.v:78
 @[simp] theorem gramBalanced_nil : gramBalanced 0 false [] = true := by rfl
 
+@[simp] theorem gramBalanced_nil_general (d : Nat) (b0 : Bool) :
+    gramBalanced d b0 [] = (decide (d = 0) && !b0) := rfl
+
+@[simp] theorem gramBalanced_zero_true_nil : gramBalanced 0 true [] = false := rfl
+
+@[simp] theorem gramBalanced_succ_nil (d : Nat) (b0 : Bool) :
+    gramBalanced (d + 1) b0 [] = false := rfl
+
 /-
 Coq: chromogram.v:114
 

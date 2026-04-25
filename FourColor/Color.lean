@@ -192,6 +192,10 @@ theorem apply_add (g : EdgePerm) (c1 c2 : Color) :
     g.apply (c1 + c2) = g.apply c1 + g.apply c2 := by
   cases g <;> cases c1 <;> cases c2 <;> rfl
 
+-- Alias: in a group where addition is XOR, subtraction equals addition.
+theorem apply_sub (g : EdgePerm) (a b : Color) :
+    g.apply (a + b) = g.apply a + g.apply b := apply_add g a b
+
 -- Coq: color.v:175
 theorem apply_zero (g : EdgePerm) : g.apply Color0 = Color0 := by cases g <;> rfl
 

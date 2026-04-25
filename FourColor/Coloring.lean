@@ -530,6 +530,41 @@ theorem GraphColoring.mk' {G : Hypermap} {k : G.Dart → Color}
 theorem GraphColoring.iff_and {G : Hypermap} {k : G.Dart → Color} :
     GraphColoring k ↔ (∀ x, k (G.edge x) ≠ k x) ∧ (∀ x, k (G.node x) = k x) := Iff.rfl
 
+/-! ## Convenience projection aliases -/
+
+theorem Coloring.proper_edge {G : Hypermap} {k : G.Dart → Color}
+    (h : Coloring k) (x : G.Dart) : k (G.edge x) ≠ k x := h.1 x
+
+theorem Coloring.face_eq {G : Hypermap} {k : G.Dart → Color}
+    (h : Coloring k) (x : G.Dart) : k (G.face x) = k x := h.2 x
+
+theorem GraphColoring.proper_edge {G : Hypermap} {k : G.Dart → Color}
+    (h : GraphColoring k) (x : G.Dart) : k (G.edge x) ≠ k x := h.1 x
+
+theorem GraphColoring.node_eq {G : Hypermap} {k : G.Dart → Color}
+    (h : GraphColoring k) (x : G.Dart) : k (G.node x) = k x := h.2 x
+
+theorem Coloring.face_iter {G : Hypermap} {k : G.Dart → Color}
+    (h : Coloring k) (n : ℕ) (x : G.Dart) : k ((G.face^[n]) x) = k x := by
+  induction n with
+  | zero => rfl
+  | succ n ih => rw [Function.iterate_succ_apply', h.face_eq]; exact ih
+
+theorem GraphColoring.node_iter {G : Hypermap} {k : G.Dart → Color}
+    (h : GraphColoring k) (n : ℕ) (x : G.Dart) : k ((G.node^[n]) x) = k x := by
+  induction n with
+  | zero => rfl
+  | succ n ih => rw [Function.iterate_succ_apply', h.node_eq]; exact ih
+
+/-- Face-invariance projection for CcColoring. -/
+theorem CcColoring.face_eq {G : Hypermap} {cc : Finset G.Dart} {k : G.Dart → Color}
+    (h : CcColoring cc k) (x : G.Dart) : k (G.face x) = k x :=
+  h.face_invariant x
+
+/-- A `GraphColoring` on `G` gives a `Coloring` on `dual G`. -/
+theorem Coloring.of_GraphColoring_dual {G : Hypermap} {k : G.Dart → Color}
+    (h : GraphColoring k) : @Coloring (dual G) k := coloring_dual.mpr h
+
 /-! ## GraphColoring orbit invariance -/
 
 /-- A GraphColoring is constant on cnode-orbits. -/

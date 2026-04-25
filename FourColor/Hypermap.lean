@@ -775,4 +775,44 @@ theorem card_dual_dart (G : Hypermap) : Fintype.card (dual G).Dart = Fintype.car
 theorem card_mirror_dart (G : Hypermap) : Fintype.card (mirror G).Dart = Fintype.card G.Dart :=
   rfl
 
+theorem card_dual_dart_eq (G : Hypermap) : Fintype.card (dual G).Dart = Fintype.card G.Dart := rfl
+
+theorem card_mirror_dual_dart (G : Hypermap) :
+    Fintype.card (mirror (dual G)).Dart = Fintype.card G.Dart := rfl
+
+theorem card_dual_mirror_dart (G : Hypermap) :
+    Fintype.card (dual (mirror G)).Dart = Fintype.card G.Dart := rfl
+
+theorem card_dual_dual_dart (G : Hypermap) :
+    Fintype.card (dual (dual G)).Dart = Fintype.card G.Dart := rfl
+
+theorem card_mirror_mirror_dart (G : Hypermap) :
+    Fintype.card (mirror (mirror G)).Dart = Fintype.card G.Dart := rfl
+
+/-! ## Permutation invFun cancellation and iterate base cases -/
+
+theorem face_invFun_face (G : Hypermap) (x : G.Dart) :
+    Function.invFun G.face (G.face x) = x :=
+  Function.leftInverse_invFun G.face_injective x
+
+theorem edge_invFun_edge (G : Hypermap) (x : G.Dart) :
+    Function.invFun G.edge (G.edge x) = x :=
+  Function.leftInverse_invFun G.edge_injective x
+
+theorem node_invFun_node (G : Hypermap) (x : G.Dart) :
+    Function.invFun G.node (G.node x) = x :=
+  Function.leftInverse_invFun G.node_injective x
+
+@[simp] theorem face_iter_zero (G : Hypermap) (x : G.Dart) : G.face^[0] x = x := rfl
+
+@[simp] theorem edge_iter_zero (G : Hypermap) (x : G.Dart) : G.edge^[0] x = x := rfl
+
+@[simp] theorem node_iter_zero (G : Hypermap) (x : G.Dart) : G.node^[0] x = x := rfl
+
+theorem face_iter_one (G : Hypermap) (x : G.Dart) : G.face^[1] x = G.face x := rfl
+
+theorem edge_iter_one (G : Hypermap) (x : G.Dart) : G.edge^[1] x = G.edge x := rfl
+
+theorem node_iter_one (G : Hypermap) (x : G.Dart) : G.node^[1] x = G.node x := rfl
+
 end Hypermap
