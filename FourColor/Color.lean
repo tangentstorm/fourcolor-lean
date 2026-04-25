@@ -369,6 +369,14 @@ theorem length_urtrace (s : List Color) :
     · intro h
       exact absurd h (List.cons_ne_nil c rest)
 
+@[simp] theorem urtrace_length_pos (s : List Color) :
+    0 < (urtrace s).length ↔ s ≠ [] := by
+  rw [urtrace_length, List.length_pos_iff_ne_nil]
+
+@[simp] theorem urtrace_ne_nil_iff (s : List Color) :
+    urtrace s ≠ [] ↔ s ≠ [] := by
+  simp [urtrace_eq_nil_iff]
+
 /-! ## Clarity helpers -/
 
 @[simp] theorem addc_zero_iff (c : Color) : c + Color0 = Color0 ↔ c = Color0 := by

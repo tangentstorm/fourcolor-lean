@@ -1349,4 +1349,13 @@ theorem kernel_append (G : Hypermap) (p q : List G.Dart) (x : G.Dart) :
   rw [fband_append]
   exact not_or
 
+/-- The kernel decomposes over append (negation form of fband_append). -/
+theorem kernel_append_iff (G : Hypermap) (p q : List G.Dart) (x : G.Dart) :
+    kernel G (p ++ q) x ↔ kernel G p x ∧ kernel G q x :=
+  kernel_append G p q x
+
+/-- Membership in fband is symmetric in band-orbit (cface-orbit). -/
+theorem fband_iff_exists_mem (G : Hypermap) (p : List G.Dart) (x : G.Dart) :
+    fband G p x ↔ ∃ y ∈ p, cface G x y := Iff.rfl
+
 end Hypermap

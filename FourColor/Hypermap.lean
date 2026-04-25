@@ -1049,4 +1049,26 @@ theorem node_iter_add (G : Hypermap) (x : G.Dart) (m n : ℕ) :
 @[simp] theorem dual_dual_face_eq (G : Hypermap) : (dual (dual G)).face = G.face := by
   funext x; exact dual_dual_face G x
 
+/-- `glink (dual G) x y` is equivalent to `glink G y x`: the dual reverses
+    the direction of every graph link. -/
+theorem glink_dual_iff (G : Hypermap) (x y : G.Dart) :
+    glink (dual G) x y ↔ Function.swap (glink G) x y :=
+  ⟨fun h => h.elim
+    (fun he => Or.inl (he ▸ Function.rightInverse_invFun edge_surjective x))
+    (fun h => h.elim
+      (fun hn => Or.inr (Or.inr (hn ▸ Function.rightInverse_invFun face_surjective x)))
+      (fun hf => Or.inr (Or.inl (hf ▸ Function.rightInverse_invFun node_surjective x)))),
+   fun h => h.elim
+    (fun he => Or.inl (he ▸ Function.leftInverse_invFun edge_injective y))
+    (fun h => h.elim
+      (fun hn => Or.inr (Or.inr (hn ▸ Function.leftInverse_invFun node_injective y)))
+      (fun hf => Or.inr (Or.inl (hf ▸ Function.leftInverse_invFun face_injective y))))⟩
+
+/-- Connectivity is preserved by dual. -/
+theorem Connected.dual {G : Hypermap} (h : Connected G) : Connected (dual G) :=
+  fun x y =>
+    Relation.ReflTransGen.mono
+      (fun a b hab => (glink_dual_iff G a b).mpr hab)
+      (Relation.ReflTransGen.swap (h y x))
+
 end Hypermap

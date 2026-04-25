@@ -519,6 +519,27 @@ theorem FourColorable.of_mirror {G : Hypermap}
     (h : FourColorable (mirror G)) : FourColorable G :=
   colorable_mirror h
 
+/-- `FourColorable (mirror G)` from `FourColorable G`.
+    Uses the fact that `mirror` is involutive: a coloring of `G` gives a
+    coloring of `mirror (mirror G)` (whose edge/face agree with `G`),
+    and then `coloring_mirror` converts that to a coloring of `mirror G`. -/
+theorem FourColorable.mirror_of {G : Hypermap}
+    (h : FourColorable G) : FourColorable (mirror G) := by
+  obtain ⟨k, hkE, hkF⟩ := h
+  refine ⟨k, coloring_mirror ?_⟩
+  constructor
+  · intro x
+    rw [mirror_mirror_edge]
+    exact hkE x
+  · intro x
+    rw [mirror_mirror_face]
+    exact hkF x
+
+/-- Equivalent reformulation: FourColorable G ↔ FourColorable (mirror G). -/
+theorem FourColorable.iff_mirror {G : Hypermap} :
+    FourColorable G ↔ FourColorable (mirror G) :=
+  ⟨FourColorable.mirror_of, FourColorable.of_mirror⟩
+
 /-! ## Coloring / GraphColoring constructors -/
 
 theorem Coloring.mk' {G : Hypermap} {k : G.Dart → Color}
