@@ -345,6 +345,10 @@ theorem simple_cons (x : G.Dart) (p : List G.Dart) :
 
 @[simp] theorem Simple.nil : Simple G ([] : List G.Dart) := List.Pairwise.nil
 
+/-- `Simple G []` is trivially true (vacuous). -/
+@[simp] theorem Simple.nil_iff (G : Hypermap) : Simple G ([] : List G.Dart) ↔ True :=
+  iff_true_intro Simple.nil
+
 theorem Simple.cons_iff (x : G.Dart) (p : List G.Dart) :
     Simple G (x :: p) ↔ (∀ y ∈ p, ¬ cface G x y) ∧ Simple G p :=
   List.pairwise_cons

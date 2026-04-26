@@ -1064,6 +1064,17 @@ theorem glink_dual_iff (G : Hypermap) (x y : G.Dart) :
       (fun hn => Or.inr (Or.inr (hn ▸ Function.leftInverse_invFun node_injective y)))
       (fun hf => Or.inr (Or.inl (hf ▸ Function.leftInverse_invFun face_injective y))))⟩
 
+/-- `gcomp` commutes with `dual` by swapping arguments. -/
+theorem gcomp_dual (G : Hypermap) (x y : G.Dart) :
+    gcomp (dual G) x y ↔ gcomp G y x :=
+  ⟨fun h =>
+    Relation.ReflTransGen.mono (fun _ _ h => h)
+      (Relation.ReflTransGen.swap
+        (Relation.ReflTransGen.mono (fun a b hab => (glink_dual_iff G a b).mp hab) h)),
+   fun h =>
+    Relation.ReflTransGen.mono (fun a b hab => (glink_dual_iff G a b).mpr hab)
+      (Relation.ReflTransGen.swap h)⟩
+
 /-- Connectivity is preserved by dual. -/
 theorem Connected.dual {G : Hypermap} (h : Connected G) : Connected (dual G) :=
   fun x y =>
