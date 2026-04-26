@@ -546,6 +546,12 @@ theorem sumt_ctrace (et : List Color) : sumt (ctrace et) = Color0 := by
 @[simp] theorem ctrace_length (s : List Color) : (ctrace s).length = s.length + 1 := by
   unfold ctrace; simp [List.length_append]
 
+@[simp] theorem ctrace_ne_nil (et : List Color) : ctrace et ≠ [] := by
+  intro h
+  have hlen := ctrace_length et
+  rw [h, List.length_nil] at hlen
+  omega
+
 @[simp] theorem sumt_reverse (s : List Color) : sumt s.reverse = sumt s := by
   induction s with
   | nil => rfl
