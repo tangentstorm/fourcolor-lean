@@ -270,6 +270,20 @@ theorem card_walkupE_add_one (h2 : Fintype.card G.Dart ≥ 2) :
     Fintype.card (walkupE G z h2).Dart + 1 = Fintype.card G.Dart := by
   rw [card_walkupE]; omega
 
+/-- The cardinality of WalkupN equals card G - 1. -/
+theorem card_walkupN (h2 : Fintype.card G.Dart ≥ 2) :
+    Fintype.card (walkupN G z h2).Dart = Fintype.card G.Dart - 1 := by
+  unfold walkupN
+  rw [card_walkupE]
+  rfl
+
+/-- The cardinality of WalkupF equals card G - 1. -/
+theorem card_walkupF (h2 : Fintype.card G.Dart ≥ 2) :
+    Fintype.card (walkupF G z h2).Dart = Fintype.card G.Dart - 1 := by
+  unfold walkupF
+  rw [card_walkupE]
+  rfl
+
 /-! ## Triangular identity consequences at z
 
 These four lemmas describe how the three fixed-point conditions
