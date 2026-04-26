@@ -887,6 +887,8 @@ theorem mirror_mirror_face (G : Hypermap) (x : G.Dart) :
 
 @[simp] theorem mirror_dual_dart_eq (G : Hypermap) : (mirror (dual G)).Dart = G.Dart := rfl
 
+@[simp] theorem mirror_mirror_dart_eq (G : Hypermap) : (mirror (mirror G)).Dart = G.Dart := rfl
+
 /-! ## eulerLhs / eulerRhs / genus / numOrbits unfolders -/
 
 theorem numOrbits_def {G : Hypermap} (σ : Equiv.Perm G.Dart) :
