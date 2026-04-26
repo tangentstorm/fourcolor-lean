@@ -716,4 +716,9 @@ theorem Coloring.iff_mirror {G : Hypermap} {k : G.Dart → Color} :
      fun x => Eq.mpr (congrArg (fun z => k z = k x) (mirror_mirror_face G x)) (hkF x)⟩,
    fun h => coloring_mirror h⟩
 
+/-- A `Coloring` of `mirror (mirror G)` is a Coloring of `G` (mirror is involutive). -/
+theorem Coloring.of_mirror_mirror {G : Hypermap} {k : G.Dart → Color}
+    (h : @Coloring (mirror (mirror G)) k) : Coloring k :=
+  mirror_Coloring G (mirror_Coloring (mirror G) h)
+
 end Hypermap

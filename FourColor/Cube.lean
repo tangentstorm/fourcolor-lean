@@ -110,6 +110,14 @@ theorem cubeFace_CTfe_fst (G : Hypermap) (x : G.Dart) :
 @[simp] theorem cubeFace_iter_four_CTnf (G : Hypermap) (x : G.Dart) :
     (cubeFace G)^[4] (CubeTag.CTnf, x) = (CubeTag.CTnf, G.face x) := rfl
 
+@[simp] theorem cubeFace_iter_four_n_CTn (G : Hypermap) (x : G.Dart) (n : ℕ) :
+    (cubeFace G)^[4 * n] (CubeTag.CTn, x) = (CubeTag.CTn, G.face^[n] x) := by
+  induction n generalizing x with
+  | zero => rfl
+  | succ k ih =>
+    rw [Nat.mul_succ, Function.iterate_add_apply, cubeFace_iter_four_CTn, ih,
+        Function.iterate_succ_apply]
+
 @[simp] theorem cubeEdge_CTn (G : Hypermap) (x : G.Dart) :
     cubeEdge G (CubeTag.CTn, x) = (CubeTag.CTfe, x) := rfl
 

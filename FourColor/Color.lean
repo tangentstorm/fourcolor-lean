@@ -532,6 +532,17 @@ theorem sumt_permt (g : EdgePerm) (s : List Color) :
 
 theorem ctrace_nil : ctrace ([] : List Color) = [Color0] := by rfl
 
+/-- The compact trace of a singleton: `[c, c]`. -/
+theorem ctrace_singleton (c : Color) : ctrace [c] = [c, c] := by
+  unfold ctrace
+  rw [sumt_singleton]
+  rfl
+
+/-- The sum of `ctrace et` is `Color0`: a closed trace has zero net rotation. -/
+theorem sumt_ctrace (et : List Color) : sumt (ctrace et) = Color0 := by
+  unfold ctrace
+  rw [sumt_append, sumt_singleton, addc_self]
+
 @[simp] theorem ctrace_length (s : List Color) : (ctrace s).length = s.length + 1 := by
   unfold ctrace; simp [List.length_append]
 

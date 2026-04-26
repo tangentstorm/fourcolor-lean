@@ -1114,4 +1114,9 @@ theorem glink_dual_dual_eq (G : Hypermap) :
   unfold gcomp
   rw [glink_dual_dual_eq]
 
+/-- glink (dual (dual G)) and glink G induce the same equivalence relation. -/
+theorem EqvGen_glink_dual_dual (G : Hypermap) :
+    Relation.EqvGen (glink (dual (dual G))) = Relation.EqvGen (glink G) := by
+  rw [glink_dual_dual_eq]
+
 end Hypermap
