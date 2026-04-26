@@ -382,6 +382,11 @@ theorem Simple.pair {x y : G.Dart}
   unfold Simple
   exact List.pairwise_pair.mpr h
 
+/-- A two-element list is face-simple iff the elements are not coface. -/
+theorem Simple.pair_iff (x y : G.Dart) : Simple G [x, y] ↔ ¬ cface G x y := by
+  unfold Simple
+  exact List.pairwise_pair
+
 /-- The head of a Simple cons doesn't fband the tail. -/
 theorem Simple.head_not_fband {x : G.Dart} {p : List G.Dart}
     (h : Simple G (x :: p)) : ¬ fband G p x := by
