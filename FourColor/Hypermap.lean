@@ -1097,6 +1097,10 @@ theorem Connected_iff_dual (G : Hypermap) : Connected G ↔ Connected (dual G) :
 theorem Connected.dual_dual {G : Hypermap} (h : Connected G) : Connected (Hypermap.dual (Hypermap.dual G)) :=
   Connected.dual (Connected.dual h)
 
+/-- A trivially connected hypermap (single dart). -/
+theorem Connected.trivial (G : Hypermap) (h : Fintype.card G.Dart = 1) :
+    Connected G := Connected.of_card_one G h
+
 /-- glink is invariant under double dual (since dual is involutive). -/
 theorem glink_dual_dual_eq (G : Hypermap) :
     glink (dual (dual G)) = glink G := by

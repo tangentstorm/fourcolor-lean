@@ -96,6 +96,20 @@ theorem cubeFace_CTe_fst (G : Hypermap) (x : G.Dart) :
 theorem cubeFace_CTfe_fst (G : Hypermap) (x : G.Dart) :
     (cubeFace G (CubeTag.CTfe, x)).1 = CubeTag.CTfe := rfl
 
+/-- The cubeFace orbit visits 4 distinct tags in sequence: CTn → CTen → CTf → CTnf,
+    then advances `G.face` and repeats. This gives the 4-step periodicity for each tag. -/
+@[simp] theorem cubeFace_iter_four_CTn (G : Hypermap) (x : G.Dart) :
+    (cubeFace G)^[4] (CubeTag.CTn, x) = (CubeTag.CTn, G.face x) := rfl
+
+@[simp] theorem cubeFace_iter_four_CTen (G : Hypermap) (x : G.Dart) :
+    (cubeFace G)^[4] (CubeTag.CTen, x) = (CubeTag.CTen, G.face x) := rfl
+
+@[simp] theorem cubeFace_iter_four_CTf (G : Hypermap) (x : G.Dart) :
+    (cubeFace G)^[4] (CubeTag.CTf, x) = (CubeTag.CTf, G.face x) := rfl
+
+@[simp] theorem cubeFace_iter_four_CTnf (G : Hypermap) (x : G.Dart) :
+    (cubeFace G)^[4] (CubeTag.CTnf, x) = (CubeTag.CTnf, G.face x) := rfl
+
 @[simp] theorem cubeEdge_CTn (G : Hypermap) (x : G.Dart) :
     cubeEdge G (CubeTag.CTn, x) = (CubeTag.CTfe, x) := rfl
 

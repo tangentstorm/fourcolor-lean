@@ -417,6 +417,19 @@ theorem Simple.append (p q : List G.Dart)
     (hpq : ∀ x ∈ p, ∀ y ∈ q, ¬ cface G x y) : Simple G (p ++ q) :=
   (simple_append p q).mpr ⟨hp, hq, hpq⟩
 
+/-- The left part of a face-simple append is face-simple. -/
+theorem Simple.append_left {p q : List G.Dart} (h : Simple G (p ++ q)) : Simple G p :=
+  ((simple_append p q).mp h).1
+
+/-- The right part of a face-simple append is face-simple. -/
+theorem Simple.append_right {p q : List G.Dart} (h : Simple G (p ++ q)) : Simple G q :=
+  ((simple_append p q).mp h).2.1
+
+/-- The pairwise no-cface condition for `Simple.append`. -/
+theorem Simple.append_disjoint {p q : List G.Dart} (h : Simple G (p ++ q)) :
+    ∀ x ∈ p, ∀ y ∈ q, ¬ cface G x y :=
+  ((simple_append p q).mp h).2.2
+
 /-! ### 9. Additional connectivity lemmas -/
 
 -- Coq: cface1 in geometry.v – one-step connectivity

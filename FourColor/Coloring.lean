@@ -550,6 +550,11 @@ theorem FourColorable.iff_mirror_mirror {G : Hypermap} :
     FourColorable G ↔ FourColorable (mirror (mirror G)) :=
   Iff.trans FourColorable.iff_mirror FourColorable.iff_mirror
 
+/-- mirror of mirror is FourColorable iff G is. -/
+theorem FourColorable.mirror_mirror_iff {G : Hypermap} :
+    FourColorable (mirror (mirror G)) ↔ FourColorable G :=
+  FourColorable.iff_mirror_mirror.symm
+
 /-! ## Coloring / GraphColoring constructors -/
 
 theorem Coloring.mk' {G : Hypermap} {k : G.Dart → Color}
