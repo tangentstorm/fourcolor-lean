@@ -1435,8 +1435,4 @@ theorem fband_of_mem (G : Hypermap) {p : List G.Dart} {x : G.Dart} (hx : x ∈ p
     fband G p x :=
   ⟨x, hx, cface_refl x⟩
 
-/-- A kernel dart is not in `p`. -/
-theorem kernel_not_mem (G : Hypermap) {p : List G.Dart} {x : G.Dart}
-    (h : kernel G p x) : x ∉ p := fun hx => h (fband_of_mem G hx)
-
 end Hypermap
