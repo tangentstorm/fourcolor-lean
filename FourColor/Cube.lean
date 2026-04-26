@@ -473,6 +473,11 @@ theorem cubeFace_iter_CTfe_eq_iff (G : Hypermap) (x : G.Dart) (n : ℕ) :
   ⟨fun h => congrArg Prod.snd ((cubeFace_CTfe_iter G x n).symm.trans h),
    fun h => (cubeFace_CTfe_iter G x n).trans (congrArg (Prod.mk CubeTag.CTfe) h)⟩
 
+/-- Edge orbits in G have a corresponding CTe-orbit in cube G of equal length. -/
+theorem cubeFace_CTe_arity_eq (G : Hypermap) (x : G.Dart) :
+    Function.minimalPeriod (cubeFace G) (CubeTag.CTe, x) = Function.minimalPeriod G.edge x :=
+  Function.minimalPeriod_eq_minimalPeriod_iff.mpr (cubeFace_iter_CTe_eq_iff G x)
+
 /-
 Face iteration on CTfe stays in CTfe.
 -/

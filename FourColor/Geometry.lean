@@ -1015,6 +1015,11 @@ theorem cnode_iter_node_left (x : G.Dart) (n : ℕ) {y : G.Dart}
   obtain ⟨m, rfl⟩ := h
   exact ⟨m + n, by rw [← Function.iterate_add_apply, Nat.add_comm]⟩
 
+/-- Two face iterates from the same dart are in the same face orbit. -/
+theorem cface_iter_iter_face (n m : ℕ) (x : G.Dart) :
+    cface G (G.face^[n] x) (G.face^[m] x) :=
+  cface_trans (cface_sym (cface_iter_face n x)) (cface_iter_face m x)
+
 /-! ## Convenience lemmas: fband, Simple, kernel -/
 
 /-- The face band is invariant under list reversal. -/

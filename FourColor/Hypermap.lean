@@ -1092,4 +1092,11 @@ theorem Connected_iff_dual (G : Hypermap) : Connected G ↔ Connected (dual G) :
 theorem Connected.dual_dual {G : Hypermap} (h : Connected G) : Connected (Hypermap.dual (Hypermap.dual G)) :=
   Connected.dual (Connected.dual h)
 
+/-- glink is invariant under double dual (since dual is involutive). -/
+theorem glink_dual_dual_eq (G : Hypermap) :
+    glink (dual (dual G)) = glink G := by
+  funext x y
+  unfold glink
+  rw [dual_dual_edge_eq, dual_dual_node_eq, dual_dual_face_eq]
+
 end Hypermap

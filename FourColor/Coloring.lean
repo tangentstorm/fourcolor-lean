@@ -540,6 +540,16 @@ theorem FourColorable.iff_mirror {G : Hypermap} :
     FourColorable G ↔ FourColorable (mirror G) :=
   ⟨FourColorable.mirror_of, FourColorable.of_mirror⟩
 
+/-- Mirror is involutive on FourColorable (composition form). -/
+theorem FourColorable.mirror_mirror {G : Hypermap}
+    (h : FourColorable (mirror (mirror G))) : FourColorable G :=
+  FourColorable.of_mirror (FourColorable.of_mirror h)
+
+/-- A FourColorable hypermap and its dual mirror are colorable in lockstep. -/
+theorem FourColorable.iff_mirror_mirror {G : Hypermap} :
+    FourColorable G ↔ FourColorable (mirror (mirror G)) :=
+  Iff.trans FourColorable.iff_mirror FourColorable.iff_mirror
+
 /-! ## Coloring / GraphColoring constructors -/
 
 theorem Coloring.mk' {G : Hypermap} {k : G.Dart → Color}

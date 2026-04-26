@@ -548,4 +548,17 @@ theorem sumt_eq_foldr (cs : List Color) :
   | nil => rfl
   | cons c cs ih => rw [sumt_cons, List.foldr_cons, ih]
 
+/-! ## addc / head_color interaction helpers -/
+
+/-- The `head_color` of `c :: s` is `c` regardless of `s`. -/
+theorem head_color_cons_apply (g : EdgePerm) (c : Color) (s : List Color) :
+    head_color (g.apply c :: permt g s) = g.apply c := head_color_cons _ _
+
+/-- `head_color` commutes with `permt`. -/
+theorem head_color_permt (g : EdgePerm) (s : List Color) :
+    head_color (permt g s) = g.apply (head_color s) :=
+  match s with
+  | [] => (EdgePerm.apply_zero g).symm
+  | _ :: _ => rfl
+
 end Color
