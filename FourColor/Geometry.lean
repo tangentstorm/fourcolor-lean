@@ -1430,4 +1430,13 @@ theorem kernel_append_iff (G : Hypermap) (p q : List G.Dart) (x : G.Dart) :
 theorem fband_iff_exists_mem (G : Hypermap) (p : List G.Dart) (x : G.Dart) :
     fband G p x ↔ ∃ y ∈ p, cface G x y := Iff.rfl
 
+/-- A dart in `p` is automatically in the fband of `p`. -/
+theorem fband_of_mem (G : Hypermap) {p : List G.Dart} {x : G.Dart} (hx : x ∈ p) :
+    fband G p x :=
+  ⟨x, hx, cface_refl x⟩
+
+/-- A kernel dart is not in `p`. -/
+theorem kernel_not_mem (G : Hypermap) {p : List G.Dart} {x : G.Dart}
+    (h : kernel G p x) : x ∉ p := fun hx => h (fband_of_mem G hx)
+
 end Hypermap
