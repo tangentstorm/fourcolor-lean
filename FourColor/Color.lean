@@ -80,6 +80,10 @@ theorem addc_left_comm (a b c : Color) : a + (b + c) = b + (a + c) := by
 theorem addc_right_comm (a b c : Color) : (a + b) + c = (a + c) + b := by
   cases a <;> cases b <;> cases c <;> rfl
 
+/-- Pair sum: `(a+b) + (c+b) = a + c`. -/
+theorem addc_pair_right (a b c : Color) : (a + b) + (c + b) = a + c := by
+  rw [addc_right_comm, addc_assoc, ← addc_assoc (a + c), addc_self, add_Color0_right]
+
 @[simp] theorem add_eq_self_left (c d : Color) : c + d = c ↔ d = Color0 := by
   constructor
   · intro h

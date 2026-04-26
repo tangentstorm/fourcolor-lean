@@ -1088,4 +1088,8 @@ theorem Connected_iff_dual (G : Hypermap) : Connected G ↔ Connected (dual G) :
   intro x y
   exact gcomp_symm ((gcomp_dual G x y).mp (h x y))
 
+/-- Connectivity is preserved by `dual ∘ dual` (which equals identity on most fields). -/
+theorem Connected.dual_dual {G : Hypermap} (h : Connected G) : Connected (Hypermap.dual (Hypermap.dual G)) :=
+  Connected.dual (Connected.dual h)
+
 end Hypermap

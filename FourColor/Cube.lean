@@ -461,6 +461,18 @@ theorem cubeFace_snd_CTfe (G : Hypermap) (x : G.Dart) (n : ℕ) :
     ((cubeFace G)^[n] (CubeTag.CTfe, x)).2 = G.node^[n] x := by
   rw [cubeFace_CTfe_iter]
 
+/-- The cubeFace orbit of (CTe, x) returns to (CTe, x) iff the edge orbit of x returns to x. -/
+theorem cubeFace_iter_CTe_eq_iff (G : Hypermap) (x : G.Dart) (n : ℕ) :
+    (cubeFace G)^[n] (CubeTag.CTe, x) = (CubeTag.CTe, x) ↔ G.edge^[n] x = x :=
+  ⟨fun h => congrArg Prod.snd ((cubeFace_CTe_iter G x n).symm.trans h),
+   fun h => (cubeFace_CTe_iter G x n).trans (congrArg (Prod.mk CubeTag.CTe) h)⟩
+
+/-- The cubeFace orbit of (CTfe, x) returns to (CTfe, x) iff the node orbit of x returns to x. -/
+theorem cubeFace_iter_CTfe_eq_iff (G : Hypermap) (x : G.Dart) (n : ℕ) :
+    (cubeFace G)^[n] (CubeTag.CTfe, x) = (CubeTag.CTfe, x) ↔ G.node^[n] x = x :=
+  ⟨fun h => congrArg Prod.snd ((cubeFace_CTfe_iter G x n).symm.trans h),
+   fun h => (cubeFace_CTfe_iter G x n).trans (congrArg (Prod.mk CubeTag.CTfe) h)⟩
+
 /-
 Face iteration on CTfe stays in CTfe.
 -/

@@ -1305,6 +1305,14 @@ theorem arity_face_iter (G : Hypermap) (n : ℕ) (x : G.Dart) :
   · intro h
     exact h.elim
 
+/-- arity is constant along a cface orbit (alias of `arity_eq_of_cface`). -/
+theorem arity_const_of_cface (G : Hypermap) {x y : G.Dart}
+    (h : cface G x y) : arity G x = arity G y :=
+  arity_eq_of_cface h
+
+/-- The arity is at least 1. -/
+theorem one_le_arity (G : Hypermap) (x : G.Dart) : 1 ≤ arity G x := arity_pos x
+
 /-! ## cnode/cedge zero & one helpers (counterparts to cface_zero/one) -/
 
 theorem cedge_zero (x : G.Dart) : cedge G x x := ⟨0, rfl⟩
