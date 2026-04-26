@@ -721,4 +721,9 @@ theorem Coloring.of_mirror_mirror {G : Hypermap} {k : G.Dart → Color}
     (h : @Coloring (mirror (mirror G)) k) : Coloring k :=
   mirror_Coloring G (mirror_Coloring (mirror G) h)
 
+/-- A `Coloring` of `mirror (mirror G)` is the same as a `Coloring` of `G`. -/
+theorem Coloring.iff_mirror_mirror {G : Hypermap} {k : G.Dart → Color} :
+    @Coloring (mirror (mirror G)) k ↔ Coloring k :=
+  ⟨Coloring.of_mirror_mirror, fun h => Coloring.iff_mirror.mp (Coloring.iff_mirror.mp h)⟩
+
 end Hypermap
