@@ -172,6 +172,13 @@ theorem walkupE_node_val_of_node_eq_z (h2 : Fintype.card G.Dart ≥ 2)
     ((walkupE G z h2).node x).val = G.node z :=
   skip1_of_eq G z G.node x.val hnx
 
+/-- When `G.face x.val = z`, the walkupE face map yields `G.face z`
+    (the skip1 then-branch). -/
+theorem walkupE_face_val_of_face_eq_z (h2 : Fintype.card G.Dart ≥ 2)
+    (x : (walkupE G z h2).Dart) (hfx : G.face x.val = z) :
+    ((walkupE G z h2).face x).val = G.face z :=
+  skip1_of_eq G z G.face x.val hfx
+
 /-- When `node z = z`, walkupE.node acts as G.node on x.val (lifted). -/
 theorem walkupE_node_val_of_node_fixed (h2 : Fintype.card G.Dart ≥ 2)
     (hnz : G.node z = z) (x : (walkupE G z h2).Dart) :

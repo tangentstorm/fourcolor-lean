@@ -1082,4 +1082,10 @@ theorem Connected.dual {G : Hypermap} (h : Connected G) : Connected (dual G) :=
       (fun a b hab => (glink_dual_iff G a b).mpr hab)
       (Relation.ReflTransGen.swap (h y x))
 
+/-- Connectivity is invariant under dual (iff form). -/
+theorem Connected_iff_dual (G : Hypermap) : Connected G ↔ Connected (dual G) := by
+  refine ⟨Connected.dual, fun h => ?_⟩
+  intro x y
+  exact gcomp_symm ((gcomp_dual G x y).mp (h x y))
+
 end Hypermap

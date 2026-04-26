@@ -55,6 +55,15 @@ theorem addc_assoc (c1 c2 c3 : Color) : c1 + (c2 + c3) = (c1 + c2) + c3 := by
 
 @[simp] theorem addc_self (c : Color) : c + c = Color0 := by cases c <;> rfl
 
+theorem addc_double (c : Color) : c + c + c = c := by
+  rw [addc_self, add_Color0_left]
+
+theorem addc_self_add (a b : Color) : a + a + b = b := by
+  rw [addc_self, add_Color0_left]
+
+theorem add_addc_self (a b : Color) : a + (b + b) = a := by
+  rw [addc_self, add_Color0_right]
+
 theorem addc_left_cancel (c : Color) : Function.Injective (c + ·) := by
   intro a b h
   cases c <;> cases a <;> cases b <;> first | rfl | exact absurd h (by decide)

@@ -461,6 +461,27 @@ theorem cnode_iter_step (G : Hypermap) (n : ℕ) (x y : G.Dart)
   refine ⟨m, ?_⟩
   rw [← Function.iterate_add_apply, ← Function.iterate_add_apply, Nat.add_comm]
 
+/-- Append `face^[k]` to a cface chain. -/
+theorem cface_iter_extend (G : Hypermap) (x y : G.Dart) (k : ℕ)
+    (h : cface G x y) : cface G x (G.face^[k] y) := by
+  induction k with
+  | zero => exact h
+  | succ k ih => exact Function.iterate_succ_apply' G.face k y ▸ cface_step_left x (G.face^[k] y) ih
+
+/-- Append `edge^[k]` to a cedge chain. -/
+theorem cedge_iter_extend (G : Hypermap) (x y : G.Dart) (k : ℕ)
+    (h : cedge G x y) : cedge G x (G.edge^[k] y) := by
+  induction k with
+  | zero => exact h
+  | succ k ih => exact Function.iterate_succ_apply' G.edge k y ▸ cedge_step_left x (G.edge^[k] y) ih
+
+/-- Append `node^[k]` to a cnode chain. -/
+theorem cnode_iter_extend (G : Hypermap) (x y : G.Dart) (k : ℕ)
+    (h : cnode G x y) : cnode G x (G.node^[k] y) := by
+  induction k with
+  | zero => exact h
+  | succ k ih => exact Function.iterate_succ_apply' G.node k y ▸ cnode_step_left x (G.node^[k] y) ih
+
 /-! ================================================================
     Batch 2: Additional supporting lemmas from `geometry.v`.
     ================================================================ -/
