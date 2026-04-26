@@ -478,6 +478,11 @@ theorem cubeFace_CTe_arity_eq (G : Hypermap) (x : G.Dart) :
     Function.minimalPeriod (cubeFace G) (CubeTag.CTe, x) = Function.minimalPeriod G.edge x :=
   Function.minimalPeriod_eq_minimalPeriod_iff.mpr (cubeFace_iter_CTe_eq_iff G x)
 
+/-- Node orbits in G have a corresponding CTfe-orbit in cube G of equal length. -/
+theorem cubeFace_CTfe_arity_eq (G : Hypermap) (x : G.Dart) :
+    Function.minimalPeriod (cubeFace G) (CubeTag.CTfe, x) = Function.minimalPeriod G.node x :=
+  Function.minimalPeriod_eq_minimalPeriod_iff.mpr (cubeFace_iter_CTfe_eq_iff G x)
+
 /-
 Face iteration on CTfe stays in CTfe.
 -/

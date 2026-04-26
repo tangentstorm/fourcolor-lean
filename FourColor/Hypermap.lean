@@ -1099,4 +1099,10 @@ theorem glink_dual_dual_eq (G : Hypermap) :
   unfold glink
   rw [dual_dual_edge_eq, dual_dual_node_eq, dual_dual_face_eq]
 
+/-- gcomp is invariant under double dual. -/
+@[simp] theorem gcomp_dual_dual_iff (G : Hypermap) (x y : G.Dart) :
+    gcomp (dual (dual G)) x y ↔ gcomp G x y := by
+  unfold gcomp
+  rw [glink_dual_dual_eq]
+
 end Hypermap

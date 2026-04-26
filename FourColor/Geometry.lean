@@ -1020,6 +1020,16 @@ theorem cface_iter_iter_face (n m : ℕ) (x : G.Dart) :
     cface G (G.face^[n] x) (G.face^[m] x) :=
   cface_trans (cface_sym (cface_iter_face n x)) (cface_iter_face m x)
 
+/-- Two edge iterates from the same dart are in the same edge orbit. -/
+theorem cedge_iter_iter_edge (n m : ℕ) (x : G.Dart) :
+    cedge G (G.edge^[n] x) (G.edge^[m] x) :=
+  cedge_trans (cedge_sym (cedge_iter_edge n x)) (cedge_iter_edge m x)
+
+/-- Two node iterates from the same dart are in the same node orbit. -/
+theorem cnode_iter_iter_node (n m : ℕ) (x : G.Dart) :
+    cnode G (G.node^[n] x) (G.node^[m] x) :=
+  cnode_trans (cnode_sym (cnode_iter_node n x)) (cnode_iter_node m x)
+
 /-! ## Convenience lemmas: fband, Simple, kernel -/
 
 /-- The face band is invariant under list reversal. -/

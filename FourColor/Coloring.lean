@@ -703,4 +703,12 @@ theorem FourColorable.of_GraphFourColorable_dual {G : Hypermap}
 theorem mirror_Coloring (G : Hypermap) {k : G.Dart → Color}
     (h : @Coloring (mirror G) k) : Coloring k := coloring_mirror h
 
+/-- Coloring is preserved under mirror in both directions. -/
+theorem Coloring.iff_mirror {G : Hypermap} {k : G.Dart → Color} :
+    Coloring k ↔ @Coloring (mirror G) k :=
+  ⟨fun ⟨hkE, hkF⟩ => @coloring_mirror (mirror G) k
+    ⟨fun x => Eq.mpr (congrArg (fun z => k z ≠ k x) (mirror_mirror_edge G x)) (hkE x),
+     fun x => Eq.mpr (congrArg (fun z => k z = k x) (mirror_mirror_face G x)) (hkF x)⟩,
+   fun h => coloring_mirror h⟩
+
 end Hypermap

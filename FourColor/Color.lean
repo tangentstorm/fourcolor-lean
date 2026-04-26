@@ -561,4 +561,16 @@ theorem head_color_permt (g : EdgePerm) (s : List Color) :
   | [] => (EdgePerm.apply_zero g).symm
   | _ :: _ => rfl
 
+/-- `head_color` of `permt g s` is nonzero iff `head_color s` is nonzero (since permutations preserve nonzero). -/
+theorem head_color_permt_ne_zero_iff (g : EdgePerm) (s : List Color) :
+    head_color (permt g s) ≠ Color0 ↔ head_color s ≠ Color0 := by
+  rw [head_color_permt]
+  constructor
+  · intro h1 h2
+    rw [h2, EdgePerm.apply_zero] at h1
+    exact h1 rfl
+  · intro h1 h2
+    have := g.apply_injective (by rw [h2, EdgePerm.apply_zero] : g.apply (head_color s) = g.apply Color0)
+    exact h1 this
+
 end Color
