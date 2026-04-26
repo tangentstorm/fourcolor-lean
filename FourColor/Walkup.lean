@@ -284,6 +284,16 @@ theorem card_walkupF (h2 : Fintype.card G.Dart ≥ 2) :
   rw [card_walkupE]
   rfl
 
+/-- Cardinality of WalkupN is strictly less than G's. -/
+theorem card_walkupN_lt (h2 : Fintype.card G.Dart ≥ 2) :
+    Fintype.card (walkupN G z h2).Dart < Fintype.card G.Dart := by
+  rw [card_walkupN]; omega
+
+/-- Cardinality of WalkupF is strictly less than G's. -/
+theorem card_walkupF_lt (h2 : Fintype.card G.Dart ≥ 2) :
+    Fintype.card (walkupF G z h2).Dart < Fintype.card G.Dart := by
+  rw [card_walkupF]; omega
+
 /-! ## Triangular identity consequences at z
 
 These four lemmas describe how the three fixed-point conditions
