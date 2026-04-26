@@ -512,6 +512,12 @@ theorem permt_ne_nil_iff (g : EdgePerm) (s : List Color) :
   | nil => simp [permt_nil]
   | cons c rest => simp [permt_cons]
 
+@[simp] theorem permt_eq_nil_iff (g : EdgePerm) (s : List Color) :
+    permt g s = [] ↔ s = [] := by
+  cases s with
+  | nil => simp [permt_nil]
+  | cons c rest => simp [permt_cons]
+
 theorem sumt_permt (g : EdgePerm) (s : List Color) :
     sumt (permt g s) = g.apply (sumt s) := by
   induction s with

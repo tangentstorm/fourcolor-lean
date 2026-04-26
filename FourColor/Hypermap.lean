@@ -1049,6 +1049,11 @@ theorem node_iter_add (G : Hypermap) (x : G.Dart) (m n : ℕ) :
 @[simp] theorem dual_dual_face_eq (G : Hypermap) : (dual (dual G)).face = G.face := by
   funext x; exact dual_dual_face G x
 
+@[simp] theorem dual_dual_Dart (G : Hypermap) : (dual (dual G)).Dart = G.Dart := rfl
+
+theorem card_dual_dual (G : Hypermap) :
+    Fintype.card (dual (dual G)).Dart = Fintype.card G.Dart := rfl
+
 /-- `glink (dual G) x y` is equivalent to `glink G y x`: the dual reverses
     the direction of every graph link. -/
 theorem glink_dual_iff (G : Hypermap) (x y : G.Dart) :

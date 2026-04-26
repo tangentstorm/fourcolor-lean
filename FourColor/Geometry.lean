@@ -411,6 +411,12 @@ theorem simple_append (p q : List G.Dart) :
       (∀ x ∈ p, ∀ y ∈ q, ¬ cface G x y) := by
   exact List.pairwise_append
 
+/-- Construct a face-simple list from two simple lists with no cross-face overlap. -/
+theorem Simple.append (p q : List G.Dart)
+    (hp : Simple G p) (hq : Simple G q)
+    (hpq : ∀ x ∈ p, ∀ y ∈ q, ¬ cface G x y) : Simple G (p ++ q) :=
+  (simple_append p q).mpr ⟨hp, hq, hpq⟩
+
 /-! ### 9. Additional connectivity lemmas -/
 
 -- Coq: cface1 in geometry.v – one-step connectivity

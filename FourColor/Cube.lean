@@ -88,6 +88,14 @@ def cubeFace (G : Hypermap) : CubeTag × G.Dart → CubeTag × G.Dart
 @[simp] theorem cubeFace_CTfe (G : Hypermap) (x : G.Dart) :
     cubeFace G (CubeTag.CTfe, x) = (CubeTag.CTfe, G.node x) := rfl
 
+/-- Direct simp form for `cubeFace G (CTe, x).1 = CTe`. -/
+theorem cubeFace_CTe_fst (G : Hypermap) (x : G.Dart) :
+    (cubeFace G (CubeTag.CTe, x)).1 = CubeTag.CTe := rfl
+
+/-- Direct simp form for `cubeFace G (CTfe, x).1 = CTfe`. -/
+theorem cubeFace_CTfe_fst (G : Hypermap) (x : G.Dart) :
+    (cubeFace G (CubeTag.CTfe, x)).1 = CubeTag.CTfe := rfl
+
 @[simp] theorem cubeEdge_CTn (G : Hypermap) (x : G.Dart) :
     cubeEdge G (CubeTag.CTn, x) = (CubeTag.CTfe, x) := rfl
 
