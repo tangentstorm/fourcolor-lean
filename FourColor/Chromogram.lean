@@ -188,6 +188,11 @@ theorem KempeCoclosure.imp {P Q : List Color → Prop} {et : List Color}
 theorem KempeClosed.empty : KempeClosed (fun _ => False) :=
   fun _ hf => absurd hf id
 
+/-- The universally true predicate fails to be Kempe-closed because the
+    matching chromogram condition still requires existence of a witness. -/
+theorem KempeCoclosure.refl {P : List Color → Prop} {et : List Color}
+    (hP : P et) : KempeCoclosure P et := KempeCoclosure.self hP
+
 -- TODO: `matchg_balanced` (chromogram.v:131) — relates matchg to sumt and gramBalanced.
 -- TODO: `match_etrace` (chromogram.v:160)
 
