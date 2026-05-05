@@ -1,161 +1,369 @@
-% Main blueprint content. Each \begin{theorem}/\begin{definition} block names
-% one or more Lean declarations via \lean{...} and may declare dependencies
-% via \uses{...}. Mark fully-formalized statements/proofs with \leanok.
+% Blueprint content for the Lean 4 port of the Four Color Theorem.
+%
+% Each chapter corresponds to one module of the FourColor library and the
+% Rocq file(s) it ports. Statements are kept short on purpose; the goal of
+% this blueprint is to track the dependency structure and formalization
+% status of the major nodes, not to reproduce the proofs.
+%
+% Conventions:
+%   - \leanok inside a \begin{theorem}/\begin{definition}: the statement is
+%     declared in Lean (the type-checks).
+%   - \leanok inside a \begin{proof}: the proof is closed (no sorry below).
+%   - Statements without \leanok in their proof are open or have sorries
+%     transitively in their proof chain.
 
-\chapter{The Four Color Theorem}
+\chapter{Color arithmetic}
 
-\section{Top-level statement}
+\sources{color.v}{Color.lean}
 
-\begin{definition}[Simple map]
-  \label{def:simple-map}
-  \lean{FourColor.RealPlane.SimpleMap}
+\begin{definition}[Four colors]
+  \label{def:Color}
+  \lean{Color}
   \leanok
-  A \emph{simple map} of the real plane is a partial equivalence relation on
-  $\R^2$ whose classes (the regions) are open and connected.
+  The type of four colors with $XOR$-style addition.
 \end{definition}
 
-\begin{definition}[$n$-colorable]
-  \label{def:colorable-with}
-  \lean{FourColor.RealPlane.ColorableWith}
+\begin{theorem}[XOR group laws]
+  \label{thm:Color-addc}
+  \lean{Color.addc_comm, Color.addc_assoc, Color.addc_double}
   \leanok
-  \uses{def:simple-map}
-  A map $m$ is $n$-\emph{colorable} if there is a coloring of its regions by
-  one of $n$ colors such that adjacent regions receive different colors.
+  \uses{def:Color}
+  Color addition is commutative, associative and self-inverse: $c + c + c = c$.
+\end{theorem}
+\begin{proof}\leanok\end{proof}
+
+\chapter{Hypermaps}
+
+\sources{hypermap.v}{Hypermap.lean}
+
+\begin{definition}[Hypermap]
+  \label{def:Hypermap}
+  \lean{Hypermap}
+  \leanok
+  A finite type with three permutations $e, n, f$ satisfying the triangular
+  identity $n \circ f \circ e = \mathrm{id}$.
 \end{definition}
 
-\begin{theorem}[Four Color Theorem]
-  \label{thm:four-color}
-  \lean{FourColor.four_color}
-  \uses{def:simple-map, def:colorable-with, thm:four-color-finite,
-        thm:compactness-extension}
-  Every simple map of the real plane is $4$-colorable.
+\begin{theorem}[Triangular cancellation]
+  \label{thm:Hypermap-cancel3}
+  \lean{Hypermap.edgeK, Hypermap.faceK, Hypermap.nodeK}
+  \leanok
+  \uses{def:Hypermap}
+  $n(f(e\,x)) = x$, $e(n(f\,x)) = x$, $f(e(n\,x)) = x$.
 \end{theorem}
+\begin{proof}\leanok\end{proof}
 
-\begin{proof}
-  \uses{thm:four-color-finite, thm:compactness-extension}
-  Combine the finite case (\cref{thm:four-color-finite}) with the compactness
-  extension (\cref{thm:compactness-extension}).
-\end{proof}
+\begin{definition}[Genus and planarity]
+  \label{def:Planar}
+  \lean{Hypermap.genus, Hypermap.Planar}
+  \leanok
+  \uses{def:Hypermap}
+  $\mathrm{genus}(G) = \tfrac{1}{2}(\mathrm{eulerLhs}\,G - \mathrm{eulerRhs}\,G)$;
+  $G$ is planar iff $\mathrm{genus}(G) = 0$.
+\end{definition}
 
-\begin{theorem}[Four Color Theorem, finite case]
-  \label{thm:four-color-finite}
-  \lean{FourColor.four_color_finite}
-  \uses{thm:four-color-hypermap, thm:discretize-to-hypermap}
-  Every finite simple map is $4$-colorable.
+\chapter{Geometry}
+
+\sources{geometry.v}{Geometry.lean}
+
+\begin{definition}[Bridgeless / plain / cubic]
+  \label{def:Geometry}
+  \lean{Hypermap.Bridgeless, Hypermap.Plain, Hypermap.Cubic}
+  \leanok
+  \uses{def:Hypermap}
+  Geometric properties of hypermaps: no bridges, every edge orbit has size~2
+  (plain), every node orbit has size~3 (cubic).
+\end{definition}
+
+\chapter{Coloring}
+
+\sources{coloring.v}{Coloring.lean}
+
+\begin{definition}[Four-colorability]
+  \label{def:FourColorable}
+  \lean{Hypermap.FourColorable}
+  \leanok
+  \uses{def:Hypermap, def:Color}
+  $G$ is four-colorable iff there is a coloring $k : G \to \mathrm{Color}$
+  matching the edge/node/face structure.
+\end{definition}
+
+\begin{theorem}[Four-colorable is bridgeless]
+  \label{thm:four-colorable-bridgeless}
+  \lean{Hypermap.four_colorable_bridgeless}
+  \leanok
+  \uses{def:FourColorable, def:Geometry}
+  Every four-colorable hypermap is bridgeless.
 \end{theorem}
+\begin{proof}\leanok\end{proof}
 
-\begin{proof}
-  \uses{thm:four-color-hypermap, thm:discretize-to-hypermap}
-  Discretize the map to a planar bridgeless hypermap
-  (\cref{thm:discretize-to-hypermap}) and apply the combinatorial 4CT
-  (\cref{thm:four-color-hypermap}).
-\end{proof}
+\chapter{Walkup construction}
 
-\section{Combinatorial core}
+\sources{walkup.v}{Walkup.lean}
 
-\begin{theorem}[Combinatorial Four Color Theorem]
-  \label{thm:four-color-hypermap}
-  \lean{FourColor.four_color_hypermap}
-  \uses{thm:planar-cube, thm:cube-colorable, thm:unavoidability,
-        thm:reducibility}
-  Every planar bridgeless hypermap is four-colorable.
+\begin{definition}[$\mathrm{walkupE}$]
+  \label{def:walkupE}
+  \lean{Hypermap.walkupE}
+  \leanok
+  \uses{def:Hypermap}
+  Removes a dart from a hypermap by ``skipping'' it through the three
+  permutations.
+\end{definition}
+
+\begin{theorem}[Cardinality of $\mathrm{walkupE}$]
+  \label{thm:card-walkupE}
+  \lean{Hypermap.card_walkupE}
+  \leanok
+  \uses{def:walkupE}
+  $|\mathrm{walkupE}\,G\,z| = |G| - 1$.
 \end{theorem}
+\begin{proof}\leanok\end{proof}
 
-\section{Walkup construction and Jordan equivalence}
-
-\begin{theorem}[WalkupE Euler components]
+\begin{theorem}[$\mathrm{walkupE}$ Euler components]
   \label{thm:walkupE-euler-components}
-  \lean{FourColor.walkupE_euler_components}
-  Records how the Euler-formula components $\bigl(\#E,\#N,\#F,\#\mathrm{Comp}\bigr)$
-  change when a dart is removed by the WalkupE construction.
+  \lean{Hypermap.walkupE_euler_components}
+  \leanok
+  \uses{def:walkupE}
+  Records how the components $(\#E, \#N, \#F, \#\mathrm{Comp})$ of the Euler
+  formula change when one dart is removed by $\mathrm{walkupE}$.
 \end{theorem}
+\begin{proof}\notready\end{proof}
 
-\begin{theorem}[Jordan WalkupE]
-  \label{thm:jordan-walkupE}
-  \lean{FourColor.jordan_walkupE}
-  \uses{thm:walkupE-euler-components}
-  The Jordan property (no Möbius paths) is preserved by WalkupE.
+\begin{theorem}[Planarity preserved by $\mathrm{walkupE}$]
+  \label{thm:planar-walkupE}
+  \lean{Hypermap.planar_walkupE}
+  \leanok
+  \uses{thm:walkupE-euler-components, def:Planar}
 \end{theorem}
+\begin{proof}\leanok\end{proof}
+
+\begin{theorem}[Jordan property preserved by $\mathrm{walkupE}$]
+  \label{thm:jordan-walkupE}
+  \lean{Hypermap.jordan_walkupE}
+  \leanok
+  \uses{thm:walkupE-euler-components}
+\end{theorem}
+\begin{proof}\notready\end{proof}
+
+\chapter{Jordan / Euler equivalence}
+
+\sources{jordan.v}{Jordan.lean}
+
+\begin{theorem}[Even genus]
+  \label{thm:even-genusP}
+  \lean{Hypermap.even_genusP}
+  \leanok
+  \uses{def:Planar, thm:walkupE-euler-components}
+  $\mathrm{eulerLhs}\,G = 2 \cdot \mathrm{genus}\,G + \mathrm{eulerRhs}\,G$.
+\end{theorem}
+\begin{proof}\leanok\end{proof}
+
+\begin{theorem}[Euler inequality]
+  \label{thm:euler-le}
+  \lean{Hypermap.euler_le}
+  \leanok
+  \uses{thm:even-genusP}
+  $\mathrm{eulerRhs}\,G \le \mathrm{eulerLhs}\,G$.
+\end{theorem}
+\begin{proof}\leanok\end{proof}
 
 \begin{theorem}[Jordan implies planar]
   \label{thm:jordan-planar}
-  \lean{FourColor.jordan_planar}
+  \lean{Hypermap.jordan_planar}
+  \leanok
   \uses{thm:jordan-walkupE}
 \end{theorem}
+\begin{proof}\notready\end{proof}
 
 \begin{theorem}[Planar implies Jordan]
   \label{thm:planar-jordan}
-  \lean{FourColor.planar_jordan}
+  \lean{Hypermap.planar_jordan}
+  \leanok
   \uses{thm:jordan-walkupE}
 \end{theorem}
+\begin{proof}\notready\end{proof}
 
-\section{Cube construction}
+\chapter{Cube construction}
+
+\sources{cube.v}{Cube.lean}
+
+\begin{definition}[Cube of a hypermap]
+  \label{def:cube}
+  \lean{Hypermap.cube}
+  \leanok
+  \uses{def:Hypermap}
+  Builds a plain cubic hypermap whose four-colorings give four-colorings of $G$.
+\end{definition}
+
+\begin{theorem}[Cube is plain and cubic]
+  \label{thm:cube-plain-cubic}
+  \lean{Hypermap.plain_cube, Hypermap.cubic_cube}
+  \leanok
+  \uses{def:cube, def:Geometry}
+\end{theorem}
+\begin{proof}\leanok\end{proof}
+
+\begin{theorem}[Coloring transfer]
+  \label{thm:cube-colorable}
+  \lean{Hypermap.cube_colorable}
+  \leanok
+  \uses{def:cube, def:FourColorable}
+  $\mathrm{cube}\,G$ four-colorable $\Rightarrow$ $G$ four-colorable.
+\end{theorem}
+\begin{proof}\leanok\end{proof}
 
 \begin{theorem}[Face orbit count of the cube]
   \label{thm:fcardFace-cube}
-  \lean{FourColor.fcardFace_cube}
-  $\#F(\mathrm{cube}\,G) = \mathrm{eulerRhs}(G)$.
+  \lean{Hypermap.fcardFace_cube}
+  \leanok
+  \uses{def:cube}
+  $\#F(\mathrm{cube}\,G) = \mathrm{eulerRhs}\,G$.
 \end{theorem}
+\begin{proof}\notready\end{proof}
 
-\begin{theorem}[Cube preserves planarity]
+\begin{theorem}[Genus and planarity preserved by cube]
   \label{thm:planar-cube}
-  \lean{FourColor.planar_cube}
+  \lean{Hypermap.genus_cube, Hypermap.planar_cube}
   \leanok
-  \uses{thm:fcardFace-cube}
+  \uses{thm:fcardFace-cube, thm:cube-plain-cubic}
 \end{theorem}
+\begin{proof}\notready\end{proof}
 
-\begin{theorem}[Cube preserves four-colorability]
-  \label{thm:cube-colorable}
-  \lean{FourColor.cube_colorable}
-  \leanok
-\end{theorem}
+\chapter{Reducible configurations}
 
-\section{Configurations, reducibility and unavoidability}
+\sources{configurations.v}{Configurations.lean}
 
 \begin{definition}[The 633 configurations]
   \label{def:theConfigs}
   \lean{FourColor.theConfigs}
-  The list of 633 reducible configurations (Gonthier et al.).
+  \leanok
+  The list of 633 reducible configurations from Gonthier et al.
 \end{definition}
 
 \begin{theorem}[Configurations count]
   \label{thm:theConfigs-length}
   \lean{FourColor.theConfigs_length}
+  \leanok
   \uses{def:theConfigs}
   $|\mathrm{theConfigs}| = 633$.
 \end{theorem}
+\begin{proof}\notready\end{proof}
 
 \begin{definition}[C-reducibility]
   \label{def:CfReducible}
   \lean{FourColor.CfReducible}
+  \leanok
+  A configuration is C-reducible iff every coloring of its boundary that
+  cannot be extended to the interior generates a Kempe-chain contradiction.
 \end{definition}
 
 \begin{theorem}[Reducibility]
   \label{thm:reducibility}
   \lean{FourColor.the_reducibility}
+  \leanok
   \uses{def:theConfigs, thm:theConfigs-length, def:CfReducible}
-  All 633 configurations are C-reducible.
+  All 633 configurations are C-reducible. (In Rocq this is $\sim$30k lines
+  of computational reflection.)
 \end{theorem}
+\begin{proof}\notready\end{proof}
+
+\chapter{Unavoidability}
+
+\sources{discharge.v}{Unavoidability.lean}
 
 \begin{theorem}[Unavoidability]
   \label{thm:unavoidability}
   \lean{FourColor.unavoidability}
+  \leanok
   \uses{thm:reducibility}
-  Reducibility implies that no minimal counter-example exists.
+  Reducibility implies that no minimal counter-example exists. (Discharge
+  method, $\sim$5k lines in Rocq.)
 \end{theorem}
+\begin{proof}\notready\end{proof}
 
-\section{Discretization and compactness}
+\chapter{Combinatorial Four Color Theorem}
+
+\sources{combinatorial4ct.v}{Combinatorial4ct.lean}
+
+\begin{theorem}[Combinatorial 4CT]
+  \label{thm:four-color-hypermap}
+  \lean{FourColor.four_color_hypermap}
+  \leanok
+  \uses{thm:planar-cube, thm:cube-colorable, thm:unavoidability,
+        thm:jordan-planar, thm:planar-jordan}
+  Every planar bridgeless hypermap is four-colorable.
+\end{theorem}
+\begin{proof}\leanok\end{proof}
+
+\chapter{Real plane}
+
+\sources{realplane.v}{RealPlane.lean}
+
+\begin{definition}[Simple map]
+  \label{def:SimpleMap}
+  \lean{FourColor.RealPlane.SimpleMap, FourColor.RealPlane.FiniteSimpleMap}
+  \leanok
+  A simple map is a partial equivalence relation on $\R^2$ whose classes
+  (the regions) are open and connected; finite if there are finitely many
+  regions.
+\end{definition}
+
+\begin{definition}[$n$-colorable]
+  \label{def:ColorableWith}
+  \lean{FourColor.RealPlane.ColorableWith}
+  \leanok
+  \uses{def:SimpleMap}
+  $m$ is $n$-colorable iff its regions admit a coloring by one of $n$
+  colors with adjacent regions distinguished.
+\end{definition}
+
+\chapter{Discretization}
+
+\sources{discretize.v}{Discretize.lean}
 
 \begin{theorem}[Discretize to hypermap]
   \label{thm:discretize-to-hypermap}
   \lean{FourColor.discretize_to_hypermap}
+  \leanok
+  \uses{def:SimpleMap, def:Hypermap, def:Planar, def:FourColorable}
   Every finite simple map admits a planar bridgeless hypermap whose
-  four-colorings induce four-colorings of the original map.
+  four-colorings induce four-colorings of the original map. ($\sim$1k
+  lines in Rocq, depends on \rocq{gridmap.v}, \rocq{grid.v}, \rocq{matte.v}.)
 \end{theorem}
+\begin{proof}\notready\end{proof}
+
+\chapter{Compactness extension}
+
+\sources{finitize.v}{Finitize.lean}
 
 \begin{theorem}[Compactness extension]
   \label{thm:compactness-extension}
   \lean{FourColor.compactness_extension}
-  If every finite simple map is $n$-colorable, then every simple map is
+  \leanok
+  \uses{def:SimpleMap, def:ColorableWith}
+  If every finite simple map is $n$-colorable, every simple map is
   $n$-colorable.
 \end{theorem}
+\begin{proof}\notready\end{proof}
+
+\chapter{The Four Color Theorem}
+
+\sources{fourcolor.v}{FourColor.lean}
+
+\begin{theorem}[Four Color Theorem, finite case]
+  \label{thm:four-color-finite}
+  \lean{FourColor.four_color_finite}
+  \leanok
+  \uses{thm:four-color-hypermap, thm:discretize-to-hypermap}
+  Every finite simple map is four-colorable.
+\end{theorem}
+\begin{proof}\leanok\end{proof}
+
+\begin{theorem}[Four Color Theorem]
+  \label{thm:four-color}
+  \lean{FourColor.four_color}
+  \leanok
+  \uses{thm:four-color-finite, thm:compactness-extension}
+  Every simple map of the real plane is four-colorable.
+\end{theorem}
+\begin{proof}\leanok\end{proof}
