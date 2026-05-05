@@ -2,15 +2,21 @@
 Copyright (c) 2006-2018 Microsoft Corporation and Inria (Coq version).
 Lean 4 port of the Four Color Theorem formalization.
 
-Discretization: converting a finite simple map in the real plane into a
-finite hypermap whose colorings induce colorings of the original map.
+Discretization: turning a finite simple plane map into a finite hypermap
+whose four-colorings induce four-colorings of the original map.
 
-The discrete approximation is constructed in five steps:
-1. Enumerate regions and adjacencies, choosing representative border points.
-2. Construct disjoint rectangles covering border points.
-3. Construct approximations of border rectangles.
-4. Construct matte approximations of regions meeting all border rectangles.
-5. Construct a hypermap from the mattes using the gridmap construction.
+Following discretize.v we build the hypermap in four stages and combine them
+in the end:
+1. `exists_mapRepr`  — enumerate regions by representative points.
+2. `exists_adjBox`   — separate each adjacent pair by a rectangle approximation.
+3. `exists_sMatte`   — build a matte (a discrete approximation) of each region
+                       intersecting all of its adjacency boxes.
+4. `gridmap`         — assemble the mattes into a planar bridgeless hypermap
+                       and prove that any of its four-colorings induces a
+                       four-coloring of the original map.
+
+These pieces are exposed as separate (sorry'd) statements; the headline
+theorem `discretize_to_hypermap` just glues them together.
 -/
 import FourColor.Hypermap
 import FourColor.Geometry
@@ -23,18 +29,133 @@ open FourColor.RealPlane Hypermap
 
 namespace FourColor
 
+/-! ## Region representatives (discretize.v:76–85) -/
+
+/-- A representative point for each region: a function `Fin n → Point` whose
+    image hits every region of `m`. -/
+structure MapRepr (m : Map) (n : ℕ) where
+  rep : Fin n → Point
+  proper : ∀ i, rep i ∈ cover m
+  cover : ∀ z, z ∈ cover m → ∃ i, m (rep i) z
+
+/-- Every finite simple map admits a representative enumeration of its
+    regions (discretize.v:84 `exists_map_repr`). -/
+theorem exists_mapRepr (m : Map) (hm : FiniteSimpleMap m) :
+    ∃ n, Nonempty (MapRepr m n) :=
+  sorry
+
+/-! ## Adjacency boxes (discretize.v:119–224) -/
+
+/-- An "adjacency box" for a pair of representatives `(i, j)`: an open
+    rectangle `r` separating their regions, in the sense that the closures
+    of the two regions meet `r` and any point of the closures inside `r`
+    lies on the common border. -/
+structure AdjBox (m : Map) {n : ℕ} (mr : MapRepr m n) (i j : Fin n) where
+  rect : Rectangle
+  meet1 : ∃ z ∈ rect.region, z ∈ Closure (m (mr.rep i))
+  meet2 : ∃ z ∈ rect.region, z ∈ Closure (m (mr.rep j))
+
+/-- For any adjacent pair of representatives, an adjacency box exists
+    (discretize.v:133 `exists_adjbox`). -/
+theorem exists_adjBox (m : Map) (hm : FiniteSimpleMap m)
+    {n : ℕ} (mr : MapRepr m n) (i j : Fin n)
+    (hadj : ∃ z, Adjacent m (mr.rep i) z ∧ m z (mr.rep j)) :
+    Nonempty (AdjBox m mr i j) :=
+  sorry
+
+/-! ## Smattes (discretize.v:226–342) -/
+
+/-- A discrete approximation ("smatte") of a region: a finite set of grid
+    points whose union approximates the region from below. The exact data
+    structure depends on the grid/matte port; here we keep it abstract. -/
+structure SMatte (m : Map) {n : ℕ} (mr : MapRepr m n) (i : Fin n) where
+  /-- The smatte must be contained in the region. -/
+  inside : Region
+  inside_subset : inside ⊆ m (mr.rep i)
+  /-- The smatte meets every adjacency box for `i`. -/
+  meets_adj : ∀ j, (∃ z, Adjacent m (mr.rep i) z ∧ m z (mr.rep j)) →
+      ∀ ab : AdjBox m mr i j, Meet inside ab.rect.region
+
+/-- Every region admits a smatte intersecting all of its adjacency boxes
+    (discretize.v:319 `exists_smatte`). -/
+theorem exists_sMatte (m : Map) (hm : FiniteSimpleMap m)
+    {n : ℕ} (mr : MapRepr m n) (i : Fin n) :
+    Nonempty (SMatte m mr i) :=
+  sorry
+
+/-! ## Gridmap construction (gridmap.v) -/
+
+/-- The data underlying the gridmap construction: representatives of each
+    region, an adjacency box for each adjacent pair, and a matte for each
+    region intersecting all of its adjacency boxes. -/
+structure DiscrData (m : Map) where
+  size : ℕ
+  repr : MapRepr m size
+  box : ∀ i j : Fin size,
+    (∃ z, Adjacent m (repr.rep i) z ∧ m z (repr.rep j)) → AdjBox m repr i j
+  matte : ∀ i : Fin size, SMatte m repr i
+
+/-- A `DiscrData` exists for any finite simple map. Combines `exists_mapRepr`,
+    `exists_adjBox`, and `exists_sMatte`. -/
+theorem exists_discrData (m : Map) (hm : FiniteSimpleMap m) :
+    Nonempty (DiscrData m) := by
+  obtain ⟨n, ⟨mr⟩⟩ := exists_mapRepr m hm
+  -- For each adjacent pair pick a box; for each region pick a matte.
+  have hbox : ∀ i j : Fin n,
+      (∃ z, Adjacent m (mr.rep i) z ∧ m z (mr.rep j)) → AdjBox m mr i j := by
+    intro i j hadj
+    exact (exists_adjBox m hm mr i j hadj).some
+  have hmatte : ∀ i : Fin n, SMatte m mr i := fun i => (exists_sMatte m hm mr i).some
+  exact ⟨{ size := n, repr := mr, box := hbox, matte := hmatte }⟩
+
+/-- The hypermap underlying a `DiscrData`: built from the matte of each
+    region as a face, with edges between adjacent mattes. (Rocq `grid_map`
+    in gridmap.v.) -/
+noncomputable def DiscrData.gridmap (m : Map) (d : DiscrData m) : Hypermap :=
+  sorry
+
+/-- The gridmap of a `DiscrData` is planar. -/
+theorem DiscrData.gridmap_planar (m : Map) (hm : FiniteSimpleMap m)
+    (d : DiscrData m) : Planar d.gridmap :=
+  sorry
+
+/-- The gridmap of a `DiscrData` is bridgeless. -/
+theorem DiscrData.gridmap_bridgeless (m : Map) (hm : FiniteSimpleMap m)
+    (d : DiscrData m) : Bridgeless d.gridmap :=
+  sorry
+
+/-- A four-coloring of the gridmap induces a four-coloring of `m`: the
+    four-coloring of the gridmap's faces transfers to the regions of `m`
+    via the matte representatives. (Rocq `grid_map_coloring`.) -/
+theorem DiscrData.gridmap_coloring (m : Map) (hm : FiniteSimpleMap m)
+    (d : DiscrData m) :
+    FourColorable d.gridmap → ColorableWith 4 m :=
+  sorry
+
+/-- From a `DiscrData` for `m`, construct a planar bridgeless hypermap whose
+    four-colorings induce four-colorings of `m`. (Rocq `gridmap` and
+    `grid_map_coloring` in gridmap.v.) -/
+theorem DiscrData.toGridmap (m : Map) (hm : FiniteSimpleMap m) (d : DiscrData m) :
+    ∃ G : Hypermap, Planar G ∧ Bridgeless G ∧
+      (FourColorable G → ColorableWith 4 m) :=
+  ⟨d.gridmap, d.gridmap_planar m hm, d.gridmap_bridgeless m hm,
+              d.gridmap_coloring m hm⟩
+
+/-- The hypermap built from a system of mattes and adjacency boxes. -/
+theorem exists_gridmap (m : Map) (hm : FiniteSimpleMap m) :
+    ∃ G : Hypermap, Planar G ∧ Bridgeless G ∧
+      (FourColorable G → ColorableWith 4 m) :=
+  (exists_discrData m hm).some.toGridmap m hm
+
+/-! ## The discretization theorem (discretize.v:347) -/
+
 /-- The discretization theorem: any finite simple map in the real plane
     can be discretized to a planar bridgeless hypermap G, such that
-    any four-coloring of G induces a four-coloring of the original map.
-
-    More precisely, if m is a finite simple map, then there exists a
-    hypermap G such that:
-    - G is planar and bridgeless
-    - FourColorable G implies ColorableWith 4 m -/
+    any four-coloring of G induces a four-coloring of the original map. -/
 theorem discretize_to_hypermap (m : Map)
     (hm : FiniteSimpleMap m) :
     ∃ G : Hypermap, Planar G ∧ Bridgeless G ∧
-      (FourColorable G → ColorableWith 4 m) := by
-  sorry
+      (FourColorable G → ColorableWith 4 m) :=
+  exists_gridmap m hm
 
 end FourColor

@@ -2,3 +2,20 @@
 aristotle-staging/
 .claude/
 .claude-plugin/
+
+# leanblueprint build outputs
+blueprint/web/
+blueprint/print/*.pdf
+blueprint/print/*.aux
+blueprint/print/*.log
+blueprint/print/*.out
+blueprint/print/*.toc
+blueprint/print/*.fdb_latexmk
+blueprint/print/*.fls
+blueprint/print/*.synctex.gz
+blueprint/src/*.aux
+blueprint/src/*.log
+blueprint/src/*.paux
+
+# comparator scratch
+_site/

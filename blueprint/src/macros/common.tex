@@ -1,0 +1,27 @@
+% Macros shared by both the print and web versions of the blueprint.
+%
+% The leanblueprint LaTeX environments (\begin{theorem}, \begin{definition},
+% \begin{proof}, etc.) and macros (\lean, \uses, \leanok, \notready,
+% \proves, \mathlibok) are provided by the blueprint plasTeX plugin and the
+% blueprint.sty package; do not redefine them here.
+
+\usepackage{amsmath,amsfonts,amssymb,amsthm}
+\usepackage{xspace}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+
+% Source links. The Rocq submodule is pinned at f2fcc83; the Lean tree is
+% tracked at HEAD on the main branch.
+\newcommand{\rocqcommit}{f2fcc83}
+\newcommand{\rocqbase}{https://github.com/rocq-community/fourcolor/blob/\rocqcommit/theories/proof}
+\newcommand{\leanbase}{https://github.com/tangentstorm/fourcolor-lean/blob/main/FourColor}
+
+% \rocq{coloring.v} -> hyperlink to that file in the upstream Rocq repo.
+\newcommand{\rocq}[1]{\href{\rocqbase/#1}{\texttt{#1}}}
+% \leansrc{Coloring.lean} -> hyperlink to that file in this repo.
+\newcommand{\leansrc}[1]{\href{\leanbase/#1}{\texttt{#1}}}
+
+% \sources{coloring.v}{Coloring.lean} -> footer "Sources: rocq | lean".
+\newcommand{\sources}[2]{\par\footnotesize Sources: \rocq{#1} \textbar{} \leansrc{#2}\par}

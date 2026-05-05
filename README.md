@@ -48,6 +48,43 @@ lake build
 
 Math overview: see [`FourColor/README.md`](FourColor/README.md).
 
+## Blueprint
+
+Mathematical blueprint (LaTeX + dependency graph) lives under `blueprint/`. It
+maps each definition / theorem to its Lean declaration via `\lean{...}` and
+records dependencies via `\uses{...}`. To build locally:
+
+```bash
+pip install leanblueprint
+lake build                # so checkdecls can resolve declaration names
+leanblueprint pdf         # blueprint/print/print.pdf
+leanblueprint web         # blueprint/web/
+leanblueprint checkdecls  # verify every \lean{...} resolves
+leanblueprint serve       # local preview at http://localhost:8000
+```
+
+CI in `.github/workflows/blueprint.yml` builds and (on `main`) publishes the
+HTML + PDF to GitHub Pages.
+
+## Comparator
+
+The headline statements (`four_color`, `four_color_finite`,
+`four_color_hypermap`) are mirrored in `Challenge.lean` (with `sorry`) and
+re-exported from the proven side via `Solution.lean`. The
+[`leanprover/comparator`](https://github.com/leanprover/comparator) tool
+verifies that a solution proves the same propositions as the challenge using
+only the permitted axioms.
+
+Configuration: [`config.json`](config.json). Run with:
+
+```bash
+lake build Challenge Solution
+comparator config.json
+```
+
+Comparator will reject the solution while any of the 12 downstream sorries
+remain open; once the proof chain is closed it will accept.
+
 ## Credits
 
 Original Rocq formalization by Georges Gonthier et al. (Microsoft Research & INRIA, 2006-2018). Lean 4 port performed with substantial help from [Aristotle](https://aristotle.harmonic.fun), authored as commit co-author throughout the repository.

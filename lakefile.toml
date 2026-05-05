@@ -9,3 +9,13 @@ rev = "v4.28.0"
 [[lean_lib]]
 name = "FourColor"
 globs = ["FourColor.+"]
+
+# Challenge / Solution targets used by leanprover/comparator.
+# See config.json for the comparator configuration.
+[[lean_lib]]
+name = "Challenge"
+roots = ["Challenge"]
+
+[[lean_lib]]
+name = "Solution"
+roots = ["Solution"]
