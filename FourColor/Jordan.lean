@@ -117,8 +117,16 @@ theorem MoebiusPath.covers_all_or_witness (G : Hypermap) {q : List G.Dart}
 /-- A Moebius path has at least two distinct darts, so the underlying
     hypermap has at least two darts. -/
 theorem MoebiusPath.card_ge_two (G : Hypermap) {q : List G.Dart}
-    (_hMP : MoebiusPath G q) : Fintype.card G.Dart ≥ 2 :=
-  sorry
+    (hMP : MoebiusPath G q) : Fintype.card G.Dart ≥ 2 := by
+  have h_len : 2 ≤ q.length := MoebiusPath.length_ge_two hMP
+  have h_nodup : q.Nodup := MoebiusPath.nodup hMP
+  -- |Dart| ≥ |q.toFinset| = q.length ≥ 2.
+  have h_le : q.length ≤ Fintype.card G.Dart := by
+    have hsub : q.toFinset ⊆ Finset.univ := fun x _ => Finset.mem_univ x
+    have hcard := Finset.card_le_card hsub
+    rw [List.toFinset_card_of_nodup h_nodup, Finset.card_univ] at hcard
+    exact hcard
+  omega
 
 /-- Bottom case of the Walkup induction: a Moebius path that covers every
     dart of a planar hypermap is impossible. (Rocq `Euler_tree`, `jordan.v:217`.) -/
@@ -127,10 +135,18 @@ theorem moebius_full_planar (G : Hypermap) (hP : Planar G) (q : List G.Dart)
     False :=
   sorry
 
-/-- Hypermaps with at most one dart are vacuously planar. -/
-theorem planar_of_card_lt_two (G : Hypermap) (h : Fintype.card G.Dart < 2) :
+/-- Hypermaps with exactly one dart are planar. -/
+theorem planar_of_card_one (G : Hypermap) (h : Fintype.card G.Dart = 1) :
     Planar G :=
   sorry
+
+/-- Hypermaps with at most one dart are vacuously planar. -/
+theorem planar_of_card_lt_two (G : Hypermap) (h : Fintype.card G.Dart < 2) :
+    Planar G := by
+  -- card ≥ 1 since Dart is Nonempty, so card = 1.
+  have h_pos : 0 < Fintype.card G.Dart := Fintype.card_pos
+  have h_one : Fintype.card G.Dart = 1 := by omega
+  exact planar_of_card_one G h_one
 
 /-- Conversely, planarity of a `walkupE` reflects up to `G`. (Rocq
     `genus_WalkupE` direction in `walkup.v`.) -/

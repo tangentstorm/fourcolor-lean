@@ -108,13 +108,38 @@ theorem exists_discrData (m : Map) (hm : FiniteSimpleMap m) :
   have hmatte : ∀ i : Fin n, SMatte m mr i := fun i => (exists_sMatte m hm mr i).some
   exact ⟨{ size := n, repr := mr, box := hbox, matte := hmatte }⟩
 
+/-- The hypermap underlying a `DiscrData`: built from the matte of each
+    region as a face, with edges between adjacent mattes. (Rocq `grid_map`
+    in gridmap.v.) -/
+noncomputable def DiscrData.gridmap (m : Map) (d : DiscrData m) : Hypermap :=
+  sorry
+
+/-- The gridmap of a `DiscrData` is planar. -/
+theorem DiscrData.gridmap_planar (m : Map) (hm : FiniteSimpleMap m)
+    (d : DiscrData m) : Planar d.gridmap :=
+  sorry
+
+/-- The gridmap of a `DiscrData` is bridgeless. -/
+theorem DiscrData.gridmap_bridgeless (m : Map) (hm : FiniteSimpleMap m)
+    (d : DiscrData m) : Bridgeless d.gridmap :=
+  sorry
+
+/-- A four-coloring of the gridmap induces a four-coloring of `m`: the
+    four-coloring of the gridmap's faces transfers to the regions of `m`
+    via the matte representatives. (Rocq `grid_map_coloring`.) -/
+theorem DiscrData.gridmap_coloring (m : Map) (hm : FiniteSimpleMap m)
+    (d : DiscrData m) :
+    FourColorable d.gridmap → ColorableWith 4 m :=
+  sorry
+
 /-- From a `DiscrData` for `m`, construct a planar bridgeless hypermap whose
     four-colorings induce four-colorings of `m`. (Rocq `gridmap` and
     `grid_map_coloring` in gridmap.v.) -/
 theorem DiscrData.toGridmap (m : Map) (hm : FiniteSimpleMap m) (d : DiscrData m) :
     ∃ G : Hypermap, Planar G ∧ Bridgeless G ∧
       (FourColorable G → ColorableWith 4 m) :=
-  sorry
+  ⟨d.gridmap, d.gridmap_planar m hm, d.gridmap_bridgeless m hm,
+              d.gridmap_coloring m hm⟩
 
 /-- The hypermap built from a system of mattes and adjacency boxes. -/
 theorem exists_gridmap (m : Map) (hm : FiniteSimpleMap m) :

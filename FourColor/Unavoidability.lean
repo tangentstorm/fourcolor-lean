@@ -30,24 +30,44 @@ namespace FourColor
 
 /-! ## Pentagonality of minimal counter-examples -/
 
-/-- A minimal counter-example has no triangular face: arity-3 faces are
-    reducible by Birkhoff's contraction (collapse a triangle ⇒ smaller
-    planar bridgeless plain precubic hypermap). -/
-theorem MinimalCounterExample.no_arity_three {G : Hypermap}
-    (h : MinimalCounterExample G) : ∀ x : G.Dart, arity G x ≠ 3 :=
+/-- A face of arity 0 or 1 is impossible because `arity x = order G.face x`,
+    which is at least 1 in any hypermap. -/
+theorem arity_pos {G : Hypermap} (x : G.Dart) : 1 ≤ arity G x :=
   sorry
 
-/-- A minimal counter-example has no square face: arity-4 faces are reducible
-    by Wernicke's contraction. -/
-theorem MinimalCounterExample.no_arity_four {G : Hypermap}
-    (h : MinimalCounterExample G) : ∀ x : G.Dart, arity G x ≠ 4 :=
+/-- A face of arity 1 means `face x = x`, which conflicts with bridgelessness
+    + plainness in a minimal counter-example. -/
+theorem MinimalCounterExample.no_arity_one {G : Hypermap}
+    (h : MinimalCounterExample G) : ∀ x : G.Dart, arity G x ≠ 1 :=
+  sorry
+
+/-- A face of arity 2 in a plain hypermap implies a bridge: the face cycle
+    `(x, face x)` has `face x = edge x`, contradicting bridgelessness. -/
+theorem MinimalCounterExample.no_arity_two {G : Hypermap}
+    (h : MinimalCounterExample G) : ∀ x : G.Dart, arity G x ≠ 2 :=
   sorry
 
 /-- A minimal counter-example has no degenerate face (arity 0, 1, or 2):
     such faces would imply a bridge or fixed-point, contradicting plainness
     or bridgelessness. -/
 theorem MinimalCounterExample.arity_ge_three {G : Hypermap}
-    (h : MinimalCounterExample G) : ∀ x : G.Dart, 3 ≤ arity G x :=
+    (h : MinimalCounterExample G) : ∀ x : G.Dart, 3 ≤ arity G x := by
+  intro x
+  have h1 := arity_pos x
+  have h_ne_one := MinimalCounterExample.no_arity_one h x
+  have h2 := MinimalCounterExample.no_arity_two h x
+  omega
+
+/-- Configuration `cf001` (the triangle) is reducible: this excludes any
+    arity-3 face from a minimal counter-example. (Birkhoff 1913.) -/
+theorem MinimalCounterExample.no_arity_three {G : Hypermap}
+    (h : MinimalCounterExample G) : ∀ x : G.Dart, arity G x ≠ 3 :=
+  sorry
+
+/-- Configuration `cf002` (the square) is reducible: this excludes any
+    arity-4 face from a minimal counter-example. (Wernicke 1904.) -/
+theorem MinimalCounterExample.no_arity_four {G : Hypermap}
+    (h : MinimalCounterExample G) : ∀ x : G.Dart, arity G x ≠ 4 :=
   sorry
 
 /-- A minimal counter-example is pentagonal: every face has size ≥ 5.
@@ -63,11 +83,26 @@ theorem MinimalCounterExample.pentagonal {G : Hypermap}
 
 /-! ## Discharge score and the discharge method (discharge.v) -/
 
-/-- The discharge score of a dart, encoding Euler's formula as a local
-    redistribution. The exact definition follows discharge.v: it sums charge
-    contributions over the surrounding part of the hub. -/
-noncomputable def dscore {G : Hypermap} (_x : G.Dart) : ℤ :=
+/-- A discharge rule: assigns a charge contribution depending on the local
+    pattern around a hub. The Rocq definition uses 32 explicit rules
+    (`drule1` through `drule32`) over the seven possible hub arities. -/
+structure DRule (G : Hypermap) where
+  /-- Charge contributed by this rule when applied at hub `x`. -/
+  charge : G.Dart → ℤ
+
+/-- The 32 discharge rules of `discharge.v`. The exact list mirrors
+    `drules` in the Rocq formalization. -/
+noncomputable def dRules (G : Hypermap) : List (DRule G) :=
   sorry
+
+/-- Initial charge of a hub: `60 - 6 · arity x`. (Rocq `dval0`.) -/
+noncomputable def dval0 {G : Hypermap} (x : G.Dart) : ℤ :=
+  60 - 6 * (arity G x : ℤ)
+
+/-- The discharge score of a dart: initial charge plus the sum of all
+    discharge-rule contributions. (Rocq `dscore`.) -/
+noncomputable def dscore {G : Hypermap} (x : G.Dart) : ℤ :=
+  dval0 x + ((dRules G).map (fun r => r.charge x)).sum
 
 /-- The total discharge over all node-orbit representatives is strictly
     positive on a planar bridgeless plain pentagonal hypermap. (Rocq
@@ -93,12 +128,21 @@ theorem posz_dscore {G : Hypermap} (h : MinimalCounterExample G) :
     ∃ x : G.Dart, 0 < dscore x :=
   exists_pos_of_sum_pos _ (totalDscore_pos h)
 
+/-- For arity ≥ 12, the initial charge `60 - 6·arity` is at most `-12`,
+    and the sum of rule contributions cannot recover that deficit. -/
+theorem dscore_arity_ge_twelve_nonpos {G : Hypermap} (h : MinimalCounterExample G)
+    {x : G.Dart} (har : 12 ≤ arity G x) :
+    dscore x ≤ 0 :=
+  sorry
+
 /-- A positive-discharge hub must have arity in `{5, …, 11}`. (Rocq
     `dscore_cap1`: bounded by the discharge rules of `discharge.v`.) -/
 theorem dscore_pos_arity_le {G : Hypermap} (h : MinimalCounterExample G)
     {x : G.Dart} (hx : 0 < dscore x) :
-    arity G x ≤ 11 :=
-  sorry
+    arity G x ≤ 11 := by
+  by_contra h12
+  push_neg at h12
+  exact absurd hx (not_lt.mpr (dscore_arity_ge_twelve_nonpos h h12))
 
 /-! ## Per-arity exclusions (present5.v through present11.v) -/
 

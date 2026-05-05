@@ -67,14 +67,48 @@ theorem inPmap_mono (m : Map) {n1 n2 : ℕ} (h : n1 ≤ n2) :
 /-- The prefix is closed under the equivalence of `m` (finitize.v:232
     `in_pmap_trans`). -/
 theorem inPmap_trans (m : Map) (hM : SimpleMap m) (n : ℕ)
-    {z : Point} (hz : z ∈ inPmap m n) : m z ⊆ inPmap m n :=
+    {z : Point} (hz : z ∈ inPmap m n) : m z ⊆ inPmap m n := by
+  intro t hzt
+  obtain ⟨i, hi, hmi⟩ := hz
+  -- m z (stdPoint i) and m z t ⇒ m t (stdPoint i): use sym + trans of m.
+  have htz : m t z := hM.toPlainMap.sym z t hzt
+  have : m t (stdPoint i) := hM.toPlainMap.trans t z htz hmi
+  exact ⟨i, hi, this⟩
+
+/-- The prefix `pmap m n m` is plain. -/
+theorem pmap_plainMap (m : Map) (hM : SimpleMap m) (n : ℕ) :
+    PlainMap (pmap m n m) :=
+  sorry
+
+/-- The prefix `pmap m n m` has open regions inherited from `m`. -/
+theorem pmap_open_regions (m : Map) (hM : SimpleMap m) (n : ℕ) :
+    ∀ z, IsOpenRegion ((pmap m n m) z) :=
+  sorry
+
+/-- The prefix `pmap m n m` has connected regions inherited from `m`. -/
+theorem pmap_connected_regions (m : Map) (hM : SimpleMap m) (n : ℕ) :
+    ∀ z, FourColor.RealPlane.IsConnected ((pmap m n m) z) :=
+  sorry
+
+/-- The prefix `pmap m n m` is a simple map. -/
+theorem pmap_simpleMap (m : Map) (hM : SimpleMap m) (n : ℕ) :
+    SimpleMap (pmap m n m) :=
+  { toPlainMap := pmap_plainMap m hM n
+    map_open := pmap_open_regions m hM n
+    map_connected := pmap_connected_regions m hM n }
+
+/-- The prefix `pmap m n m` has at most `n` regions: each is the equivalence
+    class of one of `stdPoint 0, …, stdPoint (n-1)`. -/
+theorem pmap_atMost_n_regions (m : Map) (hM : SimpleMap m) (n : ℕ) :
+    AtMostRegions n (pmap m n m) :=
   sorry
 
 /-- Each prefix is itself a finite simple map (finitize.v:279 `pmap_finite`).
     This is the bridge that lets us apply the finite hypothesis. -/
 theorem pmap_finiteSimpleMap (m : Map) (hM : SimpleMap m) (n : ℕ) :
     FiniteSimpleMap (pmap m n m) :=
-  sorry
+  { toSimpleMap := pmap_simpleMap m hM n
+    finite := ⟨n, pmap_atMost_n_regions m hM n⟩ }
 
 /-! ## Subcolorings and partial colorings (finitize.v:194–197) -/
 
@@ -89,13 +123,35 @@ structure Pcoloring (m : Map) (n : ℕ) (k : Map) : Prop where
   sub : Subcoloring m k
   cover : Submap (pmap m n m) k
 
+/-- A coloring of `pmap m n m` is plain because `pmap` is plain and the
+    coloring inherits plainness. -/
+theorem MapColoring.lift_pmap_plain (m : Map) (hM : SimpleMap m) (n : ℕ)
+    {k : Map} (hk : MapColoring (pmap m n m) k) : PlainMap k :=
+  hk.plain
+
+/-- A coloring of `pmap m n m` doesn't relate adjacent regions of `m`:
+    adjacency of regions in `m` restricted to `inPmap m n` is the same as
+    adjacency in `pmap m n m`. -/
+theorem MapColoring.lift_pmap_not_adjacent (m : Map) (hM : SimpleMap m)
+    (n : ℕ) {k : Map} (hk : MapColoring (pmap m n m) k) :
+    ∀ z1 z2, Adjacent m z1 z2 → ¬ k z1 z2 :=
+  sorry
+
+/-- A coloring of `pmap m n m` covers the prefix region. -/
+theorem MapColoring.lift_pmap_cover (m : Map) (hM : SimpleMap m) (n : ℕ)
+    {k : Map} (hk : MapColoring (pmap m n m) k) :
+    Submap (pmap m n m) k :=
+  hk.consistent
+
 /-- A coloring of `pmap m n m` lifts to a subcoloring of `m`: extending
     `k` by `False` outside `inPmap m n` keeps it plain and avoids relating
     adjacent regions of `m`. -/
 theorem MapColoring.lift_pmap (m : Map) (hM : SimpleMap m) (n : ℕ) {k : Map}
     (hk : MapColoring (pmap m n m) k) :
     Subcoloring m k ∧ Submap (pmap m n m) k :=
-  sorry
+  ⟨{ plain := MapColoring.lift_pmap_plain m hM n hk
+     not_adjacent := MapColoring.lift_pmap_not_adjacent m hM n hk },
+   MapColoring.lift_pmap_cover m hM n hk⟩
 
 /-- For each `n`, the finite-map hypothesis produces a `Pcoloring` of length
     `n` of `m` using at most `nc` colors. (finitize.v:318 `pcoloring_exists`.)
@@ -108,11 +164,17 @@ theorem pcoloring_exists (nc : ℕ)
   obtain ⟨hsub, hcov⟩ := MapColoring.lift_pmap m hM n hcol
   exact ⟨k, ⟨hsub, hcov⟩, hsize⟩
 
+/-- The cover of a `Pcoloring` is monotone in `n`: if `k` covers `pmap m n2 m`
+    then it also covers `pmap m n1 m` for any `n1 ≤ n2`. -/
+theorem Pcoloring.cover_mono (m : Map) {n1 n2 : ℕ} (h : n1 ≤ n2) {k : Map}
+    (hcov : Submap (pmap m n2 m) k) : Submap (pmap m n1 m) k :=
+  sorry
+
 /-- Pcolorings restrict downward: a Pcoloring of length `n2` is a Pcoloring
     of every shorter length `n1 ≤ n2` (finitize.v:334 `pcoloring_le`). -/
 theorem Pcoloring.mono (m : Map) {n1 n2 : ℕ} (h : n1 ≤ n2) {k : Map}
     (hk : Pcoloring m n2 k) : Pcoloring m n1 k :=
-  sorry
+  ⟨hk.sub, Pcoloring.cover_mono m h hk.cover⟩
 
 /-! ## Extensible and prefix colorings (finitize.v:199–207) -/
 
@@ -150,8 +212,15 @@ theorem extensible_pcoloring_exists (nc : ℕ)
     ∃ k, Pcoloring m n k ∧ Extensible m n k ∧ AtMostRegions nc k :=
   sorry
 
-/-- Among the (finitely many, mod symmetry) extensible pcolorings of length
-    `n` of a fixed prefix, there is a lex-minimal one. -/
+/-- The "color-class index" function on `stdPoint 0..n-1` for a pcoloring `k`:
+    associates each standard point to a canonical representative index.
+    (Rocq encodes this via `pmap n k` projected to `Fin nc`.) -/
+noncomputable def colorIndices (n : ℕ) (k : Map) : Fin n → ℕ :=
+  sorry
+
+/-- Among the extensible pcolorings of length `n` with at most `nc` colors,
+    one minimizes `colorIndices n k` lexicographically. (Rocq picks one via
+    finite-search since there are at most `nc^n` distinct color sequences.) -/
 theorem extensible_lexMin_exists (nc : ℕ)
     (hfin : ∀ m', FiniteSimpleMap m' → ColorableWith nc m')
     (m : Map) (hM : SimpleMap m) (n : ℕ) :
@@ -167,6 +236,13 @@ theorem prefixColoring_exists (nc : ℕ)
     ∃ k, PrefixColoring m n k ∧ AtMostRegions nc k :=
   extensible_lexMin_exists nc hfin m hM n
 
+/-- The extension of a prefix coloring is uniquely determined by extensibility
+    + minimality on its prefix region. (Rocq `prefix_coloring_le_step`.) -/
+theorem prefixColoring_unique_extension {m : Map} {n : ℕ} {k1 k2 : Map}
+    (h1 : PrefixColoring m n k1) (h2 : PrefixColoring m n k2) :
+    ∀ z1 z2, z1 ∈ inPmap m n → z2 ∈ inPmap m n → (k1 z1 z2 ↔ k2 z1 z2) :=
+  sorry
+
 /-- Prefix colorings of different lengths agree on their common prefix
     (finitize.v:432 `prefix_coloring_le`): they form an inclusion chain. -/
 theorem prefixColoring_le {m : Map} {n1 n2 : ℕ} (h : n1 ≤ n2) {k1 k2 : Map}
@@ -180,11 +256,32 @@ theorem prefixColoring_le {m : Map} {n1 n2 : ℕ} (h : n1 ≤ n2) {k1 k2 : Map}
 def limitColoring (m : Map) : Map :=
   fun z1 z2 => ∃ n k, PrefixColoring m n k ∧ k z1 z2
 
+/-- The limit relation is symmetric: each underlying prefix coloring is. -/
+theorem limitColoring_sym (m : Map) :
+    ∀ z1 z2, limitColoring m z1 z2 → limitColoring m z2 z1 := by
+  rintro z1 z2 ⟨n, k, hpk, hk⟩
+  exact ⟨n, k, hpk, hpk.1.sub.plain.sym z1 z2 hk⟩
+
+/-- The limit relation is transitive: when two related pairs come from
+    prefix colorings of lengths `n1 ≤ n2`, the longer one already contains
+    both relations. (Uses `prefixColoring_le`.) -/
+theorem limitColoring_trans (nc : ℕ)
+    (hfin : ∀ m', FiniteSimpleMap m' → ColorableWith nc m')
+    (m : Map) (hM : SimpleMap m) :
+    ∀ z1 z2, limitColoring m z1 z2 → limitColoring m z2 ⊆ limitColoring m z1 :=
+  sorry
+
 /-- The limit coloring is a plain map: symmetry and transitivity follow
     from the chain property of prefix colorings (finitize.v:490, first part). -/
 theorem limitColoring_plainMap (nc : ℕ)
     (hfin : ∀ m', FiniteSimpleMap m' → ColorableWith nc m')
     (m : Map) (hM : SimpleMap m) : PlainMap (limitColoring m) :=
+  { sym := limitColoring_sym m
+    trans := limitColoring_trans nc hfin m hM }
+
+/-- The cover of any single prefix coloring is contained in `cover m`. -/
+theorem prefixColoring_cover_sub_m (m : Map) (hM : SimpleMap m) (n : ℕ)
+    {k : Map} (hk : PrefixColoring m n k) : cover k ⊆ cover m :=
   sorry
 
 /-- The cover of the limit coloring is contained in the cover of `m`:
@@ -192,23 +289,36 @@ theorem limitColoring_plainMap (nc : ℕ)
 theorem limitColoring_cover_sub (nc : ℕ)
     (hfin : ∀ m', FiniteSimpleMap m' → ColorableWith nc m')
     (m : Map) (hM : SimpleMap m) :
-    cover (limitColoring m) ⊆ cover m :=
+    cover (limitColoring m) ⊆ cover m := by
+  rintro z ⟨n, k, hpk, hk⟩
+  exact prefixColoring_cover_sub_m m hM n hpk hk
+
+/-- For every related pair in `m`, some prefix coloring at length large enough
+    to cover both endpoints already contains the relation. -/
+theorem limitColoring_consistent_aux (nc : ℕ)
+    (hfin : ∀ m', FiniteSimpleMap m' → ColorableWith nc m')
+    (m : Map) (hM : SimpleMap m) :
+    ∀ z1 z2, m z1 z2 → ∃ n k, PrefixColoring m n k ∧ k z1 z2 :=
   sorry
 
 /-- The limit coloring refines `m`: each prefix coloring refines `pmap m n m`
     which refines `m`. -/
 theorem limitColoring_consistent (nc : ℕ)
     (hfin : ∀ m', FiniteSimpleMap m' → ColorableWith nc m')
-    (m : Map) (hM : SimpleMap m) : Submap m (limitColoring m) :=
-  sorry
+    (m : Map) (hM : SimpleMap m) : Submap m (limitColoring m) := by
+  intro z1 z2 hrel
+  obtain ⟨n, k, hpk, hk⟩ := limitColoring_consistent_aux nc hfin m hM z1 z2 hrel
+  exact ⟨n, k, hpk, hk⟩
 
 /-- The limit coloring assigns different colors to adjacent regions: if
-    `Adjacent m z1 z2`, no prefix coloring relates them. -/
+    `Adjacent m z1 z2`, no prefix coloring relates them (each prefix
+    coloring is a subcoloring of `m`). -/
 theorem limitColoring_adjacent_distinct (nc : ℕ)
     (hfin : ∀ m', FiniteSimpleMap m' → ColorableWith nc m')
     (m : Map) (hM : SimpleMap m) :
-    ∀ z1 z2, Adjacent m z1 z2 → ¬ limitColoring m z1 z2 :=
-  sorry
+    ∀ z1 z2, Adjacent m z1 z2 → ¬ limitColoring m z1 z2 := by
+  rintro z1 z2 hadj ⟨n, k, hpk, hk⟩
+  exact hpk.1.sub.not_adjacent z1 z2 hadj hk
 
 /-- The limit coloring is a coloring of `m` (finitize.v:490
     `limit_coloring_coloring`). Combines the four field lemmas above. -/

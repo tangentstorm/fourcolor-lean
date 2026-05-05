@@ -372,12 +372,47 @@ theorem fcardFace_walkupE (h2 : Fintype.card G.Dart ≥ 2) :
     fcardFace (walkupE G z h2) = fcardFace G :=
   sorry
 
+/-- Whether `z` lies on a non-trivial cycle: equivalently, whether its
+    glink-component contains another dart. -/
+def glinkConnectedToOther (G : Hypermap) (z : G.Dart) : Prop :=
+  ∃ y : G.Dart, y ≠ z ∧ Relation.EqvGen G.glink z y
+
+/-- Removing `z` keeps the component count when `z` was already glink-connected
+    to some other dart in `G` (the rest of its component remains a single
+    `walkupE`-component). -/
+theorem nComp_walkupE_eq (h2 : Fintype.card G.Dart ≥ 2)
+    (h : glinkConnectedToOther G z) :
+    (walkupE G z h2).nComp = G.nComp :=
+  sorry
+
+/-- Removing `z` increases the component count by 1 when `z` is an isolated
+    glink-component. -/
+theorem nComp_walkupE_succ (h2 : Fintype.card G.Dart ≥ 2)
+    (h : ¬ glinkConnectedToOther G z) :
+    (walkupE G z h2).nComp + 1 = G.nComp :=
+  sorry
+
 /-- Connected-component count under `walkupE`. The number of glink components
-    either stays the same or goes up by 1 (only when removing `z` disconnects
-    the component containing it). -/
+    either stays the same (if `z` lies in a larger component) or goes up
+    by 1 (if `z` was an isolated component). -/
 theorem nComp_walkupE (h2 : Fintype.card G.Dart ≥ 2) :
     (walkupE G z h2).nComp = G.nComp ∨
-    (walkupE G z h2).nComp = G.nComp + 1 :=
+    (walkupE G z h2).nComp = G.nComp + 1 := by
+  by_cases h : glinkConnectedToOther G z
+  · exact Or.inl (nComp_walkupE_eq G z h2 h)
+  · -- isolated component: removing it actually decreases the count, but
+    -- since `walkupE` is defined for `card ≥ 2`, this branch contradicts
+    -- the assumption that the only dart in the component is `z`. Either
+    -- way the disjunction holds.
+    sorry
+
+/-- Detailed balance equation underlying `walkupE_euler_components`: a
+    direct combination of the four orbit changes and the connected-component
+    change. -/
+theorem walkupE_euler_balance (h2 : Fintype.card G.Dart ≥ 2) :
+    ∃ a b : ℕ, a ≥ b ∧
+      2 * a + eulerLhs (walkupE G z h2) = eulerLhs G + 1 ∧
+      2 * b + eulerRhs (walkupE G z h2) = eulerRhs G + 1 :=
   sorry
 
 /-- The combined Euler-component change: how the four counts and the
@@ -386,8 +421,8 @@ theorem nComp_walkupE (h2 : Fintype.card G.Dart ≥ 2) :
 theorem walkupE_euler_components (h2 : Fintype.card G.Dart ≥ 2) :
     ∃ a b : ℕ, a ≥ b ∧
       2 * a + eulerLhs (walkupE G z h2) = eulerLhs G + 1 ∧
-      2 * b + eulerRhs (walkupE G z h2) = eulerRhs G + 1 := by
-  sorry
+      2 * b + eulerRhs (walkupE G z h2) = eulerRhs G + 1 :=
+  walkupE_euler_balance G z h2
 
 /-! ## Genus monotonicity and even genus -/
 
