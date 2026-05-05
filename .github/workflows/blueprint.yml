@@ -1,0 +1,93 @@
+name: Build blueprint
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: blueprint-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install elan
+        run: |
+          set -o pipefail
+          curl -sSf https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh \
+            | sh -s -- -y --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+
+      - name: Cache mathlib build
+        uses: actions/cache@v4
+        with:
+          path: |
+            .lake
+          key: lake-${{ runner.os }}-${{ hashFiles('lake-manifest.json', 'lean-toolchain') }}
+          restore-keys: |
+            lake-${{ runner.os }}-
+
+      - name: Get mathlib cache
+        run: lake exe cache get || true
+
+      - name: Build project
+        run: lake build
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install blueprint dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y graphviz libgraphviz-dev pdf2svg \
+            texlive-full texlive-xetex
+          python -m pip install --upgrade pip
+          pip install leanblueprint
+
+      - name: Build blueprint PDF
+        run: leanblueprint pdf
+
+      - name: Build blueprint web
+        run: leanblueprint web
+
+      - name: Check declarations
+        run: leanblueprint checkdecls
+        continue-on-error: true
+
+      - name: Copy blueprint output
+        run: |
+          mkdir -p _site
+          cp -r blueprint/web/* _site/ || true
+          cp blueprint/print/print.pdf _site/blueprint.pdf || true
+
+      - name: Upload Pages artifact
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
