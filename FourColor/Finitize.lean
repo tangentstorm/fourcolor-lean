@@ -89,13 +89,24 @@ structure Pcoloring (m : Map) (n : ℕ) (k : Map) : Prop where
   sub : Subcoloring m k
   cover : Submap (pmap m n m) k
 
+/-- A coloring of `pmap m n m` lifts to a subcoloring of `m`: extending
+    `k` by `False` outside `inPmap m n` keeps it plain and avoids relating
+    adjacent regions of `m`. -/
+theorem MapColoring.lift_pmap (m : Map) (hM : SimpleMap m) (n : ℕ) {k : Map}
+    (hk : MapColoring (pmap m n m) k) :
+    Subcoloring m k ∧ Submap (pmap m n m) k :=
+  sorry
+
 /-- For each `n`, the finite-map hypothesis produces a `Pcoloring` of length
-    `n` of `m` using at most `nc` colors. (finitize.v:318 `pcoloring_exists`.) -/
+    `n` of `m` using at most `nc` colors. (finitize.v:318 `pcoloring_exists`.)
+    Combines `pmap_finiteSimpleMap` with `MapColoring.lift_pmap`. -/
 theorem pcoloring_exists (nc : ℕ)
     (hfin : ∀ m', FiniteSimpleMap m' → ColorableWith nc m')
     (m : Map) (hM : SimpleMap m) (n : ℕ) :
-    ∃ k, Pcoloring m n k ∧ AtMostRegions nc k :=
-  sorry
+    ∃ k, Pcoloring m n k ∧ AtMostRegions nc k := by
+  obtain ⟨k, hcol, hsize⟩ := hfin _ (pmap_finiteSimpleMap m hM n)
+  obtain ⟨hsub, hcov⟩ := MapColoring.lift_pmap m hM n hcol
+  exact ⟨k, ⟨hsub, hcov⟩, hsize⟩
 
 /-- Pcolorings restrict downward: a Pcoloring of length `n2` is a Pcoloring
     of every shorter length `n1 ≤ n2` (finitize.v:334 `pcoloring_le`). -/
@@ -129,15 +140,32 @@ def PrefixColoring (m : Map) (n : ℕ) (k : Map) : Prop :=
     ∀ j, k (stdPoint i) (stdPoint j) → k' (stdPoint i) (stdPoint j) ∨
       ∃ j0, j0 ≤ j ∧ k (stdPoint i) (stdPoint j0)
 
-/-- A prefix coloring of some length exists (finitize.v:361
-    `prefix_coloring_exists`). The proof picks the lex-minimal extensible
-    pcoloring of length `n` from the finitely many pcolorings provided
-    by `pcoloring_exists`. -/
-theorem prefixColoring_exists (nc : ℕ)
+/-- A `Pcoloring` of length `n` is extensible iff it admits an extension to
+    every larger length. By `pcoloring_exists`, length-`n` pcolorings always
+    exist, so by König's lemma (or finite-branching compactness on
+    `Fin nc → Fin (n+1)` color sequences) some pcoloring is extensible. -/
+theorem extensible_pcoloring_exists (nc : ℕ)
+    (hfin : ∀ m', FiniteSimpleMap m' → ColorableWith nc m')
+    (m : Map) (hM : SimpleMap m) (n : ℕ) :
+    ∃ k, Pcoloring m n k ∧ Extensible m n k ∧ AtMostRegions nc k :=
+  sorry
+
+/-- Among the (finitely many, mod symmetry) extensible pcolorings of length
+    `n` of a fixed prefix, there is a lex-minimal one. -/
+theorem extensible_lexMin_exists (nc : ℕ)
     (hfin : ∀ m', FiniteSimpleMap m' → ColorableWith nc m')
     (m : Map) (hM : SimpleMap m) (n : ℕ) :
     ∃ k, PrefixColoring m n k ∧ AtMostRegions nc k :=
   sorry
+
+/-- A prefix coloring of some length exists (finitize.v:361
+    `prefix_coloring_exists`). Combines `extensible_pcoloring_exists` with
+    `extensible_lexMin_exists`. -/
+theorem prefixColoring_exists (nc : ℕ)
+    (hfin : ∀ m', FiniteSimpleMap m' → ColorableWith nc m')
+    (m : Map) (hM : SimpleMap m) (n : ℕ) :
+    ∃ k, PrefixColoring m n k ∧ AtMostRegions nc k :=
+  extensible_lexMin_exists nc hfin m hM n
 
 /-- Prefix colorings of different lengths agree on their common prefix
     (finitize.v:432 `prefix_coloring_le`): they form an inclusion chain. -/
@@ -152,13 +180,62 @@ theorem prefixColoring_le {m : Map} {n1 n2 : ℕ} (h : n1 ≤ n2) {k1 k2 : Map}
 def limitColoring (m : Map) : Map :=
   fun z1 z2 => ∃ n k, PrefixColoring m n k ∧ k z1 z2
 
+/-- The limit coloring is a plain map: symmetry and transitivity follow
+    from the chain property of prefix colorings (finitize.v:490, first part). -/
+theorem limitColoring_plainMap (nc : ℕ)
+    (hfin : ∀ m', FiniteSimpleMap m' → ColorableWith nc m')
+    (m : Map) (hM : SimpleMap m) : PlainMap (limitColoring m) :=
+  sorry
+
+/-- The cover of the limit coloring is contained in the cover of `m`:
+    each prefix coloring's cover is contained in `inPmap m n ⊆ cover m`. -/
+theorem limitColoring_cover_sub (nc : ℕ)
+    (hfin : ∀ m', FiniteSimpleMap m' → ColorableWith nc m')
+    (m : Map) (hM : SimpleMap m) :
+    cover (limitColoring m) ⊆ cover m :=
+  sorry
+
+/-- The limit coloring refines `m`: each prefix coloring refines `pmap m n m`
+    which refines `m`. -/
+theorem limitColoring_consistent (nc : ℕ)
+    (hfin : ∀ m', FiniteSimpleMap m' → ColorableWith nc m')
+    (m : Map) (hM : SimpleMap m) : Submap m (limitColoring m) :=
+  sorry
+
+/-- The limit coloring assigns different colors to adjacent regions: if
+    `Adjacent m z1 z2`, no prefix coloring relates them. -/
+theorem limitColoring_adjacent_distinct (nc : ℕ)
+    (hfin : ∀ m', FiniteSimpleMap m' → ColorableWith nc m')
+    (m : Map) (hM : SimpleMap m) :
+    ∀ z1 z2, Adjacent m z1 z2 → ¬ limitColoring m z1 z2 :=
+  sorry
+
 /-- The limit coloring is a coloring of `m` (finitize.v:490
-    `limit_coloring_coloring`). Combines the chain property of prefix
-    colorings with the cover property guaranteed by `stdPoint_covers`. -/
+    `limit_coloring_coloring`). Combines the four field lemmas above. -/
 theorem limitColoring_isColoring (nc : ℕ)
     (hfin : ∀ m', FiniteSimpleMap m' → ColorableWith nc m')
     (m : Map) (hM : SimpleMap m) :
     MapColoring m (limitColoring m) :=
+  { plain := limitColoring_plainMap nc hfin m hM
+    cover_sub := limitColoring_cover_sub nc hfin m hM
+    consistent := limitColoring_consistent nc hfin m hM
+    adjacent_distinct := limitColoring_adjacent_distinct nc hfin m hM }
+
+/-- An enumeration of `nc` representative points for the limit coloring,
+    extracted from any prefix coloring of length 0 (which is already a
+    pcoloring of size ≤ nc by `pcoloring_exists`). -/
+noncomputable def limitColoring_repr (nc : ℕ)
+    (hfin : ∀ m', FiniteSimpleMap m' → ColorableWith nc m')
+    (m : Map) (hM : SimpleMap m) : Fin nc → Point :=
+  sorry
+
+/-- Every covered point of the limit coloring is related to one of the
+    `nc` representative points. (finitize.v:511 `size_limit_coloring`.) -/
+theorem limitColoring_repr_covers (nc : ℕ)
+    (hfin : ∀ m', FiniteSimpleMap m' → ColorableWith nc m')
+    (m : Map) (hM : SimpleMap m) :
+    ∀ z, z ∈ cover (limitColoring m) →
+      ∃ i, limitColoring m (limitColoring_repr nc hfin m hM i) z :=
   sorry
 
 /-- The limit coloring uses at most `nc` colors (finitize.v:511
@@ -169,7 +246,8 @@ theorem limitColoring_atMostRegions (nc : ℕ)
     (hfin : ∀ m', FiniteSimpleMap m' → ColorableWith nc m')
     (m : Map) (hM : SimpleMap m) :
     AtMostRegions nc (limitColoring m) :=
-  sorry
+  ⟨limitColoring_repr nc hfin m hM,
+   limitColoring_repr_covers nc hfin m hM⟩
 
 /-! ## The compactness extension theorem (finitize.v:558) -/
 

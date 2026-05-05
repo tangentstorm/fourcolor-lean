@@ -85,13 +85,42 @@ theorem exists_sMatte (m : Map) (hm : FiniteSimpleMap m)
 
 /-! ## Gridmap construction (gridmap.v) -/
 
-/-- The hypermap built from a system of mattes and adjacency boxes. The
-    construction is parametric in the matte data, so we expose it as an
-    existence statement. -/
-theorem exists_gridmap (m : Map) (hm : FiniteSimpleMap m) :
+/-- The data underlying the gridmap construction: representatives of each
+    region, an adjacency box for each adjacent pair, and a matte for each
+    region intersecting all of its adjacency boxes. -/
+structure DiscrData (m : Map) where
+  size : ℕ
+  repr : MapRepr m size
+  box : ∀ i j : Fin size,
+    (∃ z, Adjacent m (repr.rep i) z ∧ m z (repr.rep j)) → AdjBox m repr i j
+  matte : ∀ i : Fin size, SMatte m repr i
+
+/-- A `DiscrData` exists for any finite simple map. Combines `exists_mapRepr`,
+    `exists_adjBox`, and `exists_sMatte`. -/
+theorem exists_discrData (m : Map) (hm : FiniteSimpleMap m) :
+    Nonempty (DiscrData m) := by
+  obtain ⟨n, ⟨mr⟩⟩ := exists_mapRepr m hm
+  -- For each adjacent pair pick a box; for each region pick a matte.
+  have hbox : ∀ i j : Fin n,
+      (∃ z, Adjacent m (mr.rep i) z ∧ m z (mr.rep j)) → AdjBox m mr i j := by
+    intro i j hadj
+    exact (exists_adjBox m hm mr i j hadj).some
+  have hmatte : ∀ i : Fin n, SMatte m mr i := fun i => (exists_sMatte m hm mr i).some
+  exact ⟨{ size := n, repr := mr, box := hbox, matte := hmatte }⟩
+
+/-- From a `DiscrData` for `m`, construct a planar bridgeless hypermap whose
+    four-colorings induce four-colorings of `m`. (Rocq `gridmap` and
+    `grid_map_coloring` in gridmap.v.) -/
+theorem DiscrData.toGridmap (m : Map) (hm : FiniteSimpleMap m) (d : DiscrData m) :
     ∃ G : Hypermap, Planar G ∧ Bridgeless G ∧
       (FourColorable G → ColorableWith 4 m) :=
   sorry
+
+/-- The hypermap built from a system of mattes and adjacency boxes. -/
+theorem exists_gridmap (m : Map) (hm : FiniteSimpleMap m) :
+    ∃ G : Hypermap, Planar G ∧ Bridgeless G ∧
+      (FourColorable G → ColorableWith 4 m) :=
+  (exists_discrData m hm).some.toGridmap m hm
 
 /-! ## The discretization theorem (discretize.v:347) -/
 

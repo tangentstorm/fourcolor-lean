@@ -11,7 +11,7 @@ The proof uses induction on the number of darts via Walkup transforms.
 import FourColor.Hypermap
 import FourColor.Walkup
 
-set_option maxHeartbeats 800000
+set_option maxHeartbeats 1600000
 
 open Hypermap
 
@@ -81,24 +81,92 @@ on `#|G|`. We expose the per-direction lift step as `walkupE_jordan_descent`
 (and its converse for the planar direction) and combine them via strong
 induction below. -/
 
-/-- Inductive content of `planar_jordan`: if `WalkupE G z` is Jordan and `G`
-    is planar, then any Moebius path in `G` can be reflected back to a Moebius
-    path in some `WalkupE z`/`WalkupN z`/`WalkupF z`. The Rocq proof picks
-    `z := head q` and uses `liftE`/`liftN`/`liftF` to transport `q`. -/
-theorem walkupE_no_moebius (G : Hypermap)
-    (ih : ∀ H : Hypermap, Fintype.card H.Dart < Fintype.card G.Dart →
-            Planar H → Jordan H)
-    (hP : Planar G) (q : List G.Dart) (hMP : MoebiusPath G q) : False :=
+/-- Lift a Moebius path through `WalkupE` along a chosen dart `z` not in the
+    path: any Moebius path `q` of `G` avoiding `z` yields a Moebius path of
+    the smaller hypermap `walkupE G z h2`. (Rocq `liftE` in `jordan.v:77`.) -/
+theorem MoebiusPath.lift_walkupE (G : Hypermap) (z : G.Dart)
+    (h2 : Fintype.card G.Dart ≥ 2) (q : List G.Dart)
+    (hMP : MoebiusPath G q) (hz : z ∉ q) :
+    ∃ q' : List (walkupE G z h2).Dart, MoebiusPath (walkupE G z h2) q' :=
   sorry
 
-/-- Inductive content of `jordan_planar`: if `WalkupE G z` is planar and `G`
-    is Jordan, then `G` is planar. (Rocq `Jordan_planar` does the strong
-    induction the other way: assume `¬ planar G`, find a Moebius path.) -/
-theorem walkupE_planar_descent (G : Hypermap)
-    (ih : ∀ H : Hypermap, Fintype.card H.Dart < Fintype.card G.Dart →
-            Jordan H → Planar H)
-    (hJ : Jordan G) : Planar G :=
+/-- Lift a Moebius path through `WalkupN`, avoiding the chosen dart's
+    face-image. (Rocq `liftN` in `jordan.v:83`.) -/
+theorem MoebiusPath.lift_walkupN (G : Hypermap) (z : G.Dart)
+    (h2 : Fintype.card G.Dart ≥ 2) (q : List G.Dart)
+    (hMP : MoebiusPath G q) (hz : z ∉ q) (hfz : G.face z ∉ q) :
+    ∃ q' : List (walkupN G z h2).Dart, MoebiusPath (walkupN G z h2) q' :=
   sorry
+
+/-- Lift a Moebius path through `WalkupF`, avoiding the chosen dart's
+    `face∘edge` image. (Rocq `liftF` in `jordan.v:91`.) -/
+theorem MoebiusPath.lift_walkupF (G : Hypermap) (z : G.Dart)
+    (h2 : Fintype.card G.Dart ≥ 2) (q : List G.Dart)
+    (hMP : MoebiusPath G q) (hz : z ∉ q) (hfez : G.face (G.edge z) ∉ q) :
+    ∃ q' : List (walkupF G z h2).Dart, MoebiusPath (walkupF G z h2) q' :=
+  sorry
+
+/-- A Moebius path covers the whole hypermap iff `q.length + 1 = #|G|`. The
+    Rocq proof handles this "covers all darts" subcase explicitly to obtain
+    `oG : #|G| = (size p).+1` (jordan.v:108). -/
+theorem MoebiusPath.covers_all_or_witness (G : Hypermap) {q : List G.Dart}
+    (hMP : MoebiusPath G q) :
+    q.length + 1 = Fintype.card G.Dart ∨ ∃ z : G.Dart, z ∉ q :=
+  sorry
+
+/-- A Moebius path has at least two distinct darts, so the underlying
+    hypermap has at least two darts. -/
+theorem MoebiusPath.card_ge_two (G : Hypermap) {q : List G.Dart}
+    (_hMP : MoebiusPath G q) : Fintype.card G.Dart ≥ 2 :=
+  sorry
+
+/-- Bottom case of the Walkup induction: a Moebius path that covers every
+    dart of a planar hypermap is impossible. (Rocq `Euler_tree`, `jordan.v:217`.) -/
+theorem moebius_full_planar (G : Hypermap) (hP : Planar G) (q : List G.Dart)
+    (_hMP : MoebiusPath G q) (_hsize : q.length + 1 = Fintype.card G.Dart) :
+    False :=
+  sorry
+
+/-- Hypermaps with at most one dart are vacuously planar. -/
+theorem planar_of_card_lt_two (G : Hypermap) (h : Fintype.card G.Dart < 2) :
+    Planar G :=
+  sorry
+
+/-- Conversely, planarity of a `walkupE` reflects up to `G`. (Rocq
+    `genus_WalkupE` direction in `walkup.v`.) -/
+theorem walkupE_planar_lift (G : Hypermap) (z : G.Dart)
+    (h2 : Fintype.card G.Dart ≥ 2) (h : Planar (walkupE G z h2)) : Planar G :=
+  sorry
+
+/-- Inductive content of `planar_jordan`: any Moebius path in a planar `G`
+    contradicts the inductive hypothesis on smaller (Walkup) hypermaps. -/
+theorem walkupE_no_moebius.{u} (G : Hypermap.{u})
+    (ih : ∀ H : Hypermap.{u}, Fintype.card H.Dart < Fintype.card G.Dart →
+            Planar H → Jordan H)
+    (hP : Planar G) (q : List G.Dart) (hMP : MoebiusPath G q) : False := by
+  rcases hMP.covers_all_or_witness with hsize | ⟨z, hz⟩
+  · exact moebius_full_planar G hP q hMP hsize
+  · have h2 : Fintype.card G.Dart ≥ 2 := MoebiusPath.card_ge_two G hMP
+    obtain ⟨q', hMP'⟩ := MoebiusPath.lift_walkupE G z h2 q hMP hz
+    have hcard : Fintype.card (walkupE G z h2).Dart < Fintype.card G.Dart := by
+      rw [card_walkupE G z]; omega
+    exact ih _ hcard (planar_walkupE G z h2 hP) q' hMP'
+
+/-- Inductive content of `jordan_planar`: a Jordan hypermap is planar. -/
+theorem walkupE_planar_descent.{u} (G : Hypermap.{u})
+    (ih : ∀ H : Hypermap.{u}, Fintype.card H.Dart < Fintype.card G.Dart →
+            Jordan H → Planar H)
+    (hJ : Jordan G) : Planar G := by
+  by_cases h1 : Fintype.card G.Dart < 2
+  · exact planar_of_card_lt_two G h1
+  push_neg at h1
+  have h2 : Fintype.card G.Dart ≥ 2 := h1
+  have ⟨z⟩ := G.instNonempty
+  have hcard : Fintype.card (walkupE G z h2).Dart < Fintype.card G.Dart := by
+    rw [card_walkupE G z]; omega
+  have hJ' : Jordan (walkupE G z h2) := jordan_walkupE G z h2 hJ
+  have hP' : Planar (walkupE G z h2) := ih _ hcard hJ'
+  exact walkupE_planar_lift G z h2 hP'
 
 /-- Euler planarity implies the Jordan property. (Rocq `planar_Jordan`.)
     Strong induction on `#|G|` via `walkupE_no_moebius`. -/

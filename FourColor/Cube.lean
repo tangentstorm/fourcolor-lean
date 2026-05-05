@@ -312,16 +312,54 @@ theorem cube_dart_card_eq_six_mul (G : Hypermap) :
     Fintype.card (cube G).Dart = 6 * Fintype.card G.Dart :=
   card_cube_dart G
 
+/-- The number of face orbits of `cube G` whose representatives have tag in
+    `{CTn, CTen, CTf, CTnf}` equals `fcardFace G`. Each face orbit of `G`
+    lifts to a single orbit of `(cube G).face` cycling through the four
+    "face-preserving" tags. -/
+theorem fcardFace_cube_face_class (G : Hypermap) :
+    Finset.card ((cube G).facePerm.cycleFactorsFinset.filter
+      (fun c => ∃ x : G.Dart, (CubeTag.CTnf, x) ∈ c.support)) = fcardFace G :=
+  sorry
+
+/-- The number of face orbits of `cube G` whose representatives have tag
+    `CTe` equals `fcardEdge G`: the `CTe` darts cycle through edge orbits. -/
+theorem fcardFace_cube_edge_class (G : Hypermap) :
+    Finset.card ((cube G).facePerm.cycleFactorsFinset.filter
+      (fun c => ∃ x : G.Dart, (CubeTag.CTe, x) ∈ c.support)) = fcardEdge G :=
+  sorry
+
+/-- The number of face orbits of `cube G` whose representatives have tag
+    `CTfe` equals `fcardNode G`. -/
+theorem fcardFace_cube_node_class (G : Hypermap) :
+    Finset.card ((cube G).facePerm.cycleFactorsFinset.filter
+      (fun c => ∃ x : G.Dart, (CubeTag.CTfe, x) ∈ c.support)) = fcardNode G :=
+  sorry
+
+/-- The three orbit classes (face, edge, node) partition the face orbits
+    of `cube G`. -/
+theorem fcardFace_cube_partition (G : Hypermap) :
+    fcardFace (cube G) =
+      Finset.card ((cube G).facePerm.cycleFactorsFinset.filter
+        (fun c => ∃ x : G.Dart, (CubeTag.CTnf, x) ∈ c.support)) +
+      Finset.card ((cube G).facePerm.cycleFactorsFinset.filter
+        (fun c => ∃ x : G.Dart, (CubeTag.CTe, x) ∈ c.support)) +
+      Finset.card ((cube G).facePerm.cycleFactorsFinset.filter
+        (fun c => ∃ x : G.Dart, (CubeTag.CTfe, x) ∈ c.support)) :=
+  sorry
+
 /-- Face orbits of `cube G` are partitioned into three classes by the tag
     of (any representative of) their darts: the face/{n,en,f,nf} class,
     the edge/{e} class, and the node/{fe} class.
 
     The three counts sum to `fcardFace (cube G)` and individually equal
     the corresponding orbit count in `G` (`fcardFace`, `fcardEdge`,
-    `fcardNode`). This is the bookkeeping behind `fcardFace_cube`. -/
+    `fcardNode`). -/
 theorem fcardFace_cube_decomp (G : Hypermap) :
-    fcardFace (cube G) = fcardFace G + fcardEdge G + fcardNode G :=
-  sorry
+    fcardFace (cube G) = fcardFace G + fcardEdge G + fcardNode G := by
+  rw [fcardFace_cube_partition G,
+      fcardFace_cube_face_class G,
+      fcardFace_cube_edge_class G,
+      fcardFace_cube_node_class G]
 
 /-- The number of face orbits in the cube equals the Euler rhs of G.
     Face orbits decompose into three types:

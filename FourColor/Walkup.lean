@@ -341,18 +341,48 @@ theorem all_three_fixed_iff (G : Hypermap) (z : G.Dart) :
   · rintro ⟨he, hn, _⟩
     exact ⟨he, hn⟩
 
-/-! ## Euler formula changes under WalkupE -/
+/-! ## Euler formula changes under WalkupE
 
-/-- The Euler formula components change in a controlled way under WalkupE.
-    There exist natural numbers a ≥ b such that:
-    - 2a + eulerLhs(G') = eulerLhs(G) + 1
-    - 2b + eulerRhs(G') = eulerRhs(G) + 1
+The Rocq proof in `walkup.v` decomposes `walkupE_euler_components` into
+four orbit-count changes plus a connected-component change:
 
-    The values of a and b depend on whether z has a self-loop (glink z z),
-    whether z and node(z) are edge-connected (cross_edge), and whether
-    removing z disconnects the glink component.
+* `fcardEdge_walkupE`  — edge orbit count goes down by 0 or 1.
+* `fcardNode_walkupE`  — node orbit count goes down by 0 or 1.
+* `fcardFace_walkupE`  — face orbit count goes down by 0 or 1.
+* `nComp_walkupE`      — connected-component count goes up by 0 or 1.
 
-    Corresponds to Euler_lhs_WalkupE and Euler_rhs_WalkupE in Coq's walkup.v. -/
+The signs combine to give the `2a + lhs' = lhs + 1` / `2b + rhs' = rhs + 1`
+form of `walkupE_euler_components`. -/
+
+/-- Edge orbit count under `walkupE`. -/
+theorem fcardEdge_walkupE (h2 : Fintype.card G.Dart ≥ 2) :
+    fcardEdge (walkupE G z h2) + 1 = fcardEdge G ∨
+    fcardEdge (walkupE G z h2) = fcardEdge G :=
+  sorry
+
+/-- Node orbit count under `walkupE`. -/
+theorem fcardNode_walkupE (h2 : Fintype.card G.Dart ≥ 2) :
+    fcardNode (walkupE G z h2) + 1 = fcardNode G ∨
+    fcardNode (walkupE G z h2) = fcardNode G :=
+  sorry
+
+/-- Face orbit count under `walkupE`. -/
+theorem fcardFace_walkupE (h2 : Fintype.card G.Dart ≥ 2) :
+    fcardFace (walkupE G z h2) + 1 = fcardFace G ∨
+    fcardFace (walkupE G z h2) = fcardFace G :=
+  sorry
+
+/-- Connected-component count under `walkupE`. The number of glink components
+    either stays the same or goes up by 1 (only when removing `z` disconnects
+    the component containing it). -/
+theorem nComp_walkupE (h2 : Fintype.card G.Dart ≥ 2) :
+    (walkupE G z h2).nComp = G.nComp ∨
+    (walkupE G z h2).nComp = G.nComp + 1 :=
+  sorry
+
+/-- The combined Euler-component change: how the four counts and the
+    connected-component count balance out into a single `2a` / `2b` shift.
+    (Rocq `Euler_lhs_WalkupE`, `Euler_rhs_WalkupE`.) -/
 theorem walkupE_euler_components (h2 : Fintype.card G.Dart ≥ 2) :
     ∃ a b : ℕ, a ≥ b ∧
       2 * a + eulerLhs (walkupE G z h2) = eulerLhs G + 1 ∧

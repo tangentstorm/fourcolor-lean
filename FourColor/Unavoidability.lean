@@ -30,12 +30,36 @@ namespace FourColor
 
 /-! ## Pentagonality of minimal counter-examples -/
 
+/-- A minimal counter-example has no triangular face: arity-3 faces are
+    reducible by Birkhoff's contraction (collapse a triangle ⇒ smaller
+    planar bridgeless plain precubic hypermap). -/
+theorem MinimalCounterExample.no_arity_three {G : Hypermap}
+    (h : MinimalCounterExample G) : ∀ x : G.Dart, arity G x ≠ 3 :=
+  sorry
+
+/-- A minimal counter-example has no square face: arity-4 faces are reducible
+    by Wernicke's contraction. -/
+theorem MinimalCounterExample.no_arity_four {G : Hypermap}
+    (h : MinimalCounterExample G) : ∀ x : G.Dart, arity G x ≠ 4 :=
+  sorry
+
+/-- A minimal counter-example has no degenerate face (arity 0, 1, or 2):
+    such faces would imply a bridge or fixed-point, contradicting plainness
+    or bridgelessness. -/
+theorem MinimalCounterExample.arity_ge_three {G : Hypermap}
+    (h : MinimalCounterExample G) : ∀ x : G.Dart, 3 ≤ arity G x :=
+  sorry
+
 /-- A minimal counter-example is pentagonal: every face has size ≥ 5.
     (Birkhoff–Wernicke–Franklin: configurations of arity 3 or 4 are reducible
     via the small initial configurations of `theConfigs`.) -/
 theorem MinimalCounterExample.pentagonal {G : Hypermap}
-    (h : MinimalCounterExample G) : Pentagonal G :=
-  sorry
+    (h : MinimalCounterExample G) : Pentagonal G := by
+  intro x
+  have h3 := MinimalCounterExample.arity_ge_three h x
+  have hne3 := MinimalCounterExample.no_arity_three h x
+  have hne4 := MinimalCounterExample.no_arity_four h x
+  omega
 
 /-! ## Discharge score and the discharge method (discharge.v) -/
 
@@ -45,12 +69,29 @@ theorem MinimalCounterExample.pentagonal {G : Hypermap}
 noncomputable def dscore {G : Hypermap} (_x : G.Dart) : ℤ :=
   sorry
 
+/-- The total discharge over all node-orbit representatives is strictly
+    positive on a planar bridgeless plain pentagonal hypermap. (Rocq
+    `dscore_pos`: equals `60 - 6 · #|G|` plus boundary terms which sum to
+    twelve under Euler.) -/
+theorem totalDscore_pos {G : Hypermap} (h : MinimalCounterExample G) :
+    0 < ∑ x : G.Dart, dscore x :=
+  sorry
+
+/-- If a finite sum is positive, some summand is positive. -/
+theorem exists_pos_of_sum_pos {α : Type*} [Fintype α] (f : α → ℤ)
+    (h : 0 < ∑ x, f x) : ∃ x, 0 < f x := by
+  by_contra h_neg
+  push_neg at h_neg
+  have : ∑ x, f x ≤ 0 := by
+    apply Finset.sum_nonpos; intro x _; exact h_neg x
+  omega
+
 /-- A vertex with strictly positive discharge score exists in every minimal
     counter-example. (Rocq `posz_dscore`: total discharge sums to a positive
     Euler-formula expression, so the maximum is positive.) -/
 theorem posz_dscore {G : Hypermap} (h : MinimalCounterExample G) :
     ∃ x : G.Dart, 0 < dscore x :=
-  sorry
+  exists_pos_of_sum_pos _ (totalDscore_pos h)
 
 /-- A positive-discharge hub must have arity in `{5, …, 11}`. (Rocq
     `dscore_cap1`: bounded by the discharge rules of `discharge.v`.) -/
