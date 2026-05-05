@@ -312,6 +312,17 @@ theorem cube_dart_card_eq_six_mul (G : Hypermap) :
     Fintype.card (cube G).Dart = 6 * Fintype.card G.Dart :=
   card_cube_dart G
 
+/-- Face orbits of `cube G` are partitioned into three classes by the tag
+    of (any representative of) their darts: the face/{n,en,f,nf} class,
+    the edge/{e} class, and the node/{fe} class.
+
+    The three counts sum to `fcardFace (cube G)` and individually equal
+    the corresponding orbit count in `G` (`fcardFace`, `fcardEdge`,
+    `fcardNode`). This is the bookkeeping behind `fcardFace_cube`. -/
+theorem fcardFace_cube_decomp (G : Hypermap) :
+    fcardFace (cube G) = fcardFace G + fcardEdge G + fcardNode G :=
+  sorry
+
 /-- The number of face orbits in the cube equals the Euler rhs of G.
     Face orbits decompose into three types:
     - {CTn, CTen, CTf, CTnf} orbits correspond to face orbits of G
@@ -319,7 +330,8 @@ theorem cube_dart_card_eq_six_mul (G : Hypermap) :
     - {CTfe} orbits correspond to node orbits of G -/
 theorem fcardFace_cube (G : Hypermap) :
     fcardFace (cube G) = eulerRhs G := by
-  sorry
+  rw [fcardFace_cube_decomp, eulerRhs_def]
+  ring
 
 /-
 Every dart (t, x) in cube G is glink-connected to (CTnf, x).

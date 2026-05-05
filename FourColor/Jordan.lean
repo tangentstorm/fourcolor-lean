@@ -73,13 +73,75 @@ theorem euler_le (G : Hypermap) : eulerRhs G ≤ eulerLhs G := by
 
 /-! ## Equivalence of planarity characterizations -/
 
-/-- The Jordan property implies Euler planarity. -/
-theorem jordan_planar (G : Hypermap) : Jordan G → Planar G := by
+/-! ### Walkup descent step (the inductive content of `planar_Jordan`/`Jordan_planar`)
+
+The Rocq proof in `jordan.v` lifts/lowers Moebius paths through the three
+Walkup transforms (`WalkupE`, `WalkupN`, `WalkupF`) and uses strong induction
+on `#|G|`. We expose the per-direction lift step as `walkupE_jordan_descent`
+(and its converse for the planar direction) and combine them via strong
+induction below. -/
+
+/-- Inductive content of `planar_jordan`: if `WalkupE G z` is Jordan and `G`
+    is planar, then any Moebius path in `G` can be reflected back to a Moebius
+    path in some `WalkupE z`/`WalkupN z`/`WalkupF z`. The Rocq proof picks
+    `z := head q` and uses `liftE`/`liftN`/`liftF` to transport `q`. -/
+theorem walkupE_no_moebius (G : Hypermap)
+    (ih : ∀ H : Hypermap, Fintype.card H.Dart < Fintype.card G.Dart →
+            Planar H → Jordan H)
+    (hP : Planar G) (q : List G.Dart) (hMP : MoebiusPath G q) : False :=
   sorry
 
-/-- Euler planarity implies the Jordan property. -/
-theorem planar_jordan (G : Hypermap) : Planar G → Jordan G := by
+/-- Inductive content of `jordan_planar`: if `WalkupE G z` is planar and `G`
+    is Jordan, then `G` is planar. (Rocq `Jordan_planar` does the strong
+    induction the other way: assume `¬ planar G`, find a Moebius path.) -/
+theorem walkupE_planar_descent (G : Hypermap)
+    (ih : ∀ H : Hypermap, Fintype.card H.Dart < Fintype.card G.Dart →
+            Jordan H → Planar H)
+    (hJ : Jordan G) : Planar G :=
   sorry
+
+/-- Euler planarity implies the Jordan property. (Rocq `planar_Jordan`.)
+    Strong induction on `#|G|` via `walkupE_no_moebius`. -/
+theorem planar_jordan (G : Hypermap) : Planar G → Jordan G := by
+  -- Strong induction on the number of darts.
+  suffices h : ∀ n : ℕ, ∀ H : Hypermap, Fintype.card H.Dart ≤ n →
+      Planar H → Jordan H by
+    exact h _ G (le_refl _)
+  intro n
+  induction n with
+  | zero =>
+    intro H hcard _
+    -- Impossible: H.Dart is Nonempty so has card ≥ 1.
+    exfalso
+    have := Fintype.card_pos (α := H.Dart); omega
+  | succ n ih =>
+    intro G hcard hP q hMP
+    -- Apply the descent lemma using the inductive hypothesis.
+    have ih' : ∀ H : Hypermap, Fintype.card H.Dart < Fintype.card G.Dart →
+        Planar H → Jordan H := by
+      intro H hlt hPH
+      exact ih H (Nat.lt_succ_iff.mp (lt_of_lt_of_le hlt hcard)) hPH
+    exact walkupE_no_moebius G ih' hP q hMP
+
+/-- The Jordan property implies Euler planarity. (Rocq `Jordan_planar`.)
+    Strong induction on `#|G|` via `walkupE_planar_descent`. -/
+theorem jordan_planar (G : Hypermap) : Jordan G → Planar G := by
+  suffices h : ∀ n : ℕ, ∀ H : Hypermap, Fintype.card H.Dart ≤ n →
+      Jordan H → Planar H by
+    exact h _ G (le_refl _)
+  intro n
+  induction n with
+  | zero =>
+    intro H hcard _
+    exfalso
+    have := Fintype.card_pos (α := H.Dart); omega
+  | succ n ih =>
+    intro G hcard hJ
+    have ih' : ∀ H : Hypermap, Fintype.card H.Dart < Fintype.card G.Dart →
+        Jordan H → Planar H := by
+      intro H hlt hJH
+      exact ih H (Nat.lt_succ_iff.mp (lt_of_lt_of_le hlt hcard)) hJH
+    exact walkupE_planar_descent G ih' hJ
 
 /-- The Jordan and Euler planarity conditions are equivalent. -/
 theorem jordan_iff_planar (G : Hypermap) : Jordan G ↔ Planar G :=
